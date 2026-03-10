@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Explainer — Complete Interactive Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #060a0f;
+  --bg2:     #0b1018;
+  --bg3:     #101820;
+  --panel:   #121c28;
+  --panel2:  #172030;
+  --border:  #1e3048;
+  --border2: #2a4060;
+  --green:   #00e5a0;
+  --green2:  #00b87a;
+  --green3:  rgba(0,229,160,0.08);
+  --blue:    #3b9eff;
+  --blue2:   rgba(59,158,255,0.12);
+  --yellow:  #f5c842;
+  --orange:  #ff8c42;
+  --pink:    #ff6b9d;
+  --purple:  #9b6bff;
+  --red:     #ff4f4f;
+  --text:    #d4e8ff;
+  --text2:   #6a8fad;
+  --text3:   #3a5570;
+  --mono:    'JetBrains Mono', monospace;
+  --sans:    'Syne', sans-serif;
+  --radius:  10px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* grid bg */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,160,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,160,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── NAV ── */
+nav {
+  position:sticky;top:0;z-index:200;
+  height:56px;
+  background:rgba(6,10,15,0.92);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 32px;gap:40px;
+}
+.nav-brand {
+  font-family:var(--mono);font-size:13px;font-weight:800;
+  color:var(--green);letter-spacing:2px;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;
+}
+.nav-brand::before {
+  content:'▶';font-size:10px;
+}
+.nav-links {
+  display:flex;gap:0;list-style:none;
+  border:1px solid var(--border);border-radius:6px;overflow:hidden;
+}
+.nav-links a {
+  display:block;padding:6px 16px;
+  font-family:var(--mono);font-size:11px;
+  color:var(--text2);text-decoration:none;
+  border-right:1px solid var(--border);
+  transition:all .2s;letter-spacing:.5px;
+}
+.nav-links li:last-child a{border-right:none;}
+.nav-links a:hover{background:var(--green3);color:var(--green);}
+
+/* ── HERO ── */
+.hero {
+  padding:80px 48px 48px;
+  max-width:1100px;margin:0 auto;
+  position:relative;
+}
+.hero-eyebrow {
+  font-family:var(--mono);font-size:11px;letter-spacing:4px;
+  color:var(--green);text-transform:uppercase;margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;
+}
+.hero-eyebrow::before {
+  content:'';width:32px;height:1px;background:var(--green);
+}
+.hero h1 {
+  font-size:clamp(48px,7vw,88px);
+  font-weight:800;line-height:.95;
+  margin-bottom:20px;
+  color:var(--text);
+}
+.hero h1 .accent { color:var(--green); }
+.hero-sub {
+  font-family:var(--mono);font-size:14px;
+  color:var(--text2);max-width:560px;line-height:1.8;
+  margin-bottom:40px;font-weight:300;
+}
+
+/* clause badge strip */
+.clause-strip {
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:60px;
+}
+.clause-tag {
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  padding:5px 12px;border-radius:4px;
+  border:1px solid;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;
+}
+.clause-tag:hover{transform:translateY(-2px);filter:brightness(1.3);}
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width:1400px;margin:0 auto;
+  padding:0 32px 80px;
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:24px;
+  align-items:start;
+}
+@media(max-width:1100px){.main{grid-template-columns:1fr;}}
+
+/* ── LEFT COLUMN ── */
+.left-col {display:flex;flex-direction:column;gap:20px;}
+
+/* ── EDITOR ── */
+.editor-card {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.editor-topbar {
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:10px 16px;
+  display:flex;align-items:center;gap:10px;
+  flex-wrap:wrap;
+}
+.traffic {display:flex;gap:6px;}
+.dot{width:10px;height:10px;border-radius:50%;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28ca42;}
+.editor-title {
+  font-family:var(--mono);font-size:11px;color:var(--text3);
+  letter-spacing:1px;margin-right:auto;
+}
+.preset-row {
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.preset-btn {
+  font-family:var(--mono);font-size:10px;
+  padding:4px 10px;border-radius:4px;
+  border:1px solid var(--border2);
+  background:transparent;color:var(--text2);
+  cursor:pointer;transition:all .2s;letter-spacing:.5px;
+  white-space:nowrap;
+}
+.preset-btn:hover{border-color:var(--green);color:var(--green);}
+.preset-btn.active{background:var(--green);color:var(--bg);border-color:var(--green);font-weight:700;}
+
+.sql-textarea {
+  width:100%;padding:20px;
+  background:transparent;border:none;outline:none;
+  font-family:var(--mono);font-size:13px;
+  color:#e8f4ff;resize:vertical;
+  min-height:140px;line-height:1.9;
+  tab-size:2;
+}
+.editor-footer {
+  padding:12px 16px;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.run-btn {
+  padding:9px 24px;
+  background:var(--green);color:var(--bg);
+  border:none;border-radius:6px;
+  font-family:var(--mono);font-size:12px;font-weight:800;
+  cursor:pointer;transition:all .2s;
+  letter-spacing:1px;display:flex;align-items:center;gap:8px;
+}
+.run-btn:hover{background:#00ffb3;box-shadow:0 0 24px rgba(0,229,160,.4);transform:translateY(-1px);}
+.run-btn:active{transform:translateY(0);}
+.run-hint {font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.5px;}
+
+/* ── PIPELINE ── */
+.pipeline-card {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.card-header {
+  padding:12px 18px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.card-title {
+  font-family:var(--mono);font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--text3);
+}
+.card-badge {
+  font-family:var(--mono);font-size:10px;
+  padding:2px 8px;border-radius:100px;
+  background:var(--green3);color:var(--green);
+  border:1px solid rgba(0,229,160,.2);
+}
+
+.pipeline-body {padding:18px;}
+.pipeline-flow {
+  display:flex;align-items:stretch;
+  gap:0;overflow-x:auto;
+  padding-bottom:12px;
+}
+.p-step {
+  flex-shrink:0;
+  display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;
+}
+.p-box {
+  width:94px;padding:10px 6px 8px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--bg3);
+  text-align:center;
+  transition:all .3s;position:relative;
+  overflow:hidden;
+}
+.p-box::before {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,229,160,.06) 0%,transparent 100%);
+  opacity:0;transition:opacity .3s;
+}
+.p-box.active::before{opacity:1;}
+.p-box.active{border-color:var(--green);box-shadow:0 0 16px rgba(0,229,160,.2);}
+.p-box.done{border-color:var(--border2);}
+.p-kw{font-family:var(--mono);font-size:12px;font-weight:700;}
+.p-lbl{font-size:9px;color:var(--text3);margin-top:2px;letter-spacing:.5px;}
+.p-cnt{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);margin-top:4px;}
+.p-rows{font-size:9px;color:var(--text3);}
+
+.p-connector {
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding-top:28px;
+  flex-shrink:0;width:36px;
+}
+.p-arrow-line {
+  width:100%;height:2px;
+  background:linear-gradient(90deg,var(--border2),var(--green));
+  position:relative;
+}
+.p-arrow-line::after{
+  content:'▶';position:absolute;right:-5px;top:-7px;
+  color:var(--green);font-size:9px;
+}
+.p-arrow-cnt {
+  font-family:var(--mono);font-size:9px;
+  color:var(--text3);margin-top:4px;white-space:nowrap;
+}
+
+.step-detail {
+  margin-top:14px;
+  background:var(--bg3);
+  border-left:2px solid var(--green);
+  padding:12px 16px;
+  border-radius:0 6px 6px 0;
+  font-family:var(--mono);font-size:12px;
+  color:var(--text2);line-height:1.7;
+  display:none;animation:fadeSlide .25s ease;
+}
+.step-detail.show{display:block;}
+.step-detail strong{color:var(--green);}
+.step-detail code{
+  background:rgba(0,229,160,.1);
+  color:var(--yellow);padding:1px 6px;border-radius:3px;font-size:11px;
+}
+
+/* ── TABLES VIEW ── */
+.tables-card {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.tables-grid {
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1px;background:var(--border);
+}
+.tbl-wrap {background:var(--panel);}
+.tbl-head {
+  padding:10px 14px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.tbl-icon {
+  width:18px;height:18px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;
+  font-family:var(--mono);color:var(--bg);
+}
+.tbl-nm {font-family:var(--mono);font-size:12px;font-weight:700;}
+.tbl-info {font-size:10px;color:var(--text3);margin-left:auto;font-family:var(--mono);}
+
+.dtbl {width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+.dtbl th {
+  padding:7px 12px;text-align:left;
+  color:var(--text3);font-size:9px;letter-spacing:1.5px;
+  text-transform:uppercase;border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.01);
+}
+.dtbl td {
+  padding:7px 12px;
+  border-bottom:1px solid rgba(30,48,72,.5);
+  color:var(--text2);transition:all .25s;
+}
+.dtbl tr:last-child td{border-bottom:none;}
+.dtbl tr.hl-green td{background:rgba(0,229,160,.1);color:var(--green);}
+.dtbl tr.hl-blue  td{background:rgba(59,158,255,.1);color:var(--blue);}
+.dtbl tr.hl-fade  td{opacity:.2;text-decoration:line-through;}
+.dtbl tr.hl-join  td{background:rgba(155,107,255,.1);color:var(--purple);}
+
+/* ── RESULT ── */
+.result-card {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.result-topbar {
+  padding:10px 18px;background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.status-dot {
+  width:8px;height:8px;border-radius:50%;
+  background:var(--text3);transition:background .3s;
+}
+.status-dot.ok{background:var(--green);box-shadow:0 0 8px rgba(0,229,160,.5);}
+.status-dot.err{background:var(--red);}
+.result-stat {font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.5px;}
+.result-stat span{color:var(--text);}
+
+.result-body {overflow-x:auto;max-height:320px;overflow-y:auto;}
+.result-empty {
+  padding:32px;text-align:center;
+  font-family:var(--mono);font-size:12px;color:var(--text3);
+}
+.err-msg {
+  padding:16px 18px;font-family:var(--mono);font-size:12px;
+  color:var(--red);background:rgba(255,79,79,.04);
+  border-left:2px solid var(--red);
+}
+
+/* ── RIGHT COLUMN – PERF PANEL ── */
+.right-col{display:flex;flex-direction:column;gap:20px;position:sticky;top:76px;}
+
+.perf-card {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.perf-header {
+  padding:12px 16px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.perf-title {font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
+.perf-score {
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:4px;
+}
+.score-a{background:rgba(0,229,160,.15);color:var(--green);border:1px solid rgba(0,229,160,.3);}
+.score-b{background:rgba(245,200,66,.12);color:var(--yellow);border:1px solid rgba(245,200,66,.3);}
+.score-c{background:rgba(255,140,66,.12);color:var(--orange);border:1px solid rgba(255,140,66,.3);}
+.score-d{background:rgba(255,79,79,.12);color:var(--red);border:1px solid rgba(255,79,79,.3);}
+
+.perf-body{padding:16px;display:flex;flex-direction:column;gap:14px;}
+
+/* metric rows */
+.metric {display:flex;flex-direction:column;gap:5px;}
+.metric-label {
+  font-family:var(--mono);font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--text3);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.metric-val {font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);}
+.metric-bar {height:6px;background:var(--bg3);border-radius:100px;overflow:hidden;}
+.metric-fill {
+  height:100%;border-radius:100px;
+  transition:width 1s cubic-bezier(.4,0,.2,1);
+  width:0%;
+}
+.fill-green{background:linear-gradient(90deg,var(--green2),var(--green));}
+.fill-yellow{background:linear-gradient(90deg,#c49a00,var(--yellow));}
+.fill-orange{background:linear-gradient(90deg,#c45a00,var(--orange));}
+.fill-red{background:linear-gradient(90deg,#b00,var(--red));}
+.fill-blue{background:linear-gradient(90deg,#1a5fa8,var(--blue));}
+
+/* execution plan */
+.plan-section {border-top:1px solid var(--border);padding:16px;}
+.plan-title {font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+.plan-node {
+  display:flex;align-items:flex-start;gap:8px;
+  margin-bottom:8px;font-family:var(--mono);font-size:11px;
+  position:relative;
+}
+.plan-node::before{
+  content:'';width:1px;background:var(--border);
+  position:absolute;left:12px;top:20px;bottom:-4px;
+}
+.plan-node:last-child::before{display:none;}
+.plan-icon {
+  width:22px;height:22px;border-radius:4px;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:10px;
+}
+.plan-info{flex:1;}
+.plan-op{color:var(--text);font-weight:700;font-size:11px;}
+.plan-detail{color:var(--text3);font-size:10px;margin-top:1px;}
+.plan-cost {
+  font-size:10px;white-space:nowrap;
+  padding:1px 6px;border-radius:3px;
+  background:var(--bg3);color:var(--text2);
+}
+
+/* index badges */
+.index-section {border-top:1px solid var(--border);padding:16px;}
+.idx-badge {
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:10px;
+  padding:4px 10px;border-radius:4px;
+  margin:3px;
+}
+.idx-hit {background:rgba(0,229,160,.1);color:var(--green);border:1px solid rgba(0,229,160,.2);}
+.idx-miss{background:rgba(255,79,79,.1);color:var(--red);border:1px solid rgba(255,79,79,.2);}
+.idx-na  {background:var(--bg3);color:var(--text3);border:1px solid var(--border);}
+
+/* timing breakdown */
+.timing-section{border-top:1px solid var(--border);padding:16px;}
+.timing-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.timing-step-nm{font-family:var(--mono);font-size:10px;color:var(--text2);width:80px;flex-shrink:0;}
+.timing-bar-wrap{flex:1;height:16px;background:var(--bg3);border-radius:3px;overflow:hidden;position:relative;}
+.timing-fill{height:100%;border-radius:3px;transition:width 1.2s ease;width:0%;}
+.timing-ms{font-family:var(--mono);font-size:10px;color:var(--text3);width:42px;text-align:right;flex-shrink:0;}
+
+/* warnings */
+.warn-section{border-top:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:6px;}
+.warn-item {
+  display:flex;align-items:flex-start;gap:7px;
+  font-family:var(--mono);font-size:10px;line-height:1.5;
+  padding:7px 10px;border-radius:5px;
+}
+.warn-warn{background:rgba(245,200,66,.07);color:var(--yellow);border:1px solid rgba(245,200,66,.15);}
+.warn-tip {background:rgba(59,158,255,.07);color:var(--blue); border:1px solid rgba(59,158,255,.15);}
+.warn-ok  {background:rgba(0,229,160,.07);color:var(--green);border:1px solid rgba(0,229,160,.15);}
+
+/* ── CLAUSE REFERENCE ── */
+.reference {
+  max-width:1400px;margin:0 auto;padding:0 32px 100px;
+}
+.ref-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(380px,1fr));
+  gap:16px;
+}
+.ref-card {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  transition:border-color .2s;
+}
+.ref-card:hover{border-color:var(--border2);}
+.ref-card-head {
+  padding:14px 18px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;
+}
+.ref-kw {
+  font-family:var(--mono);font-size:15px;font-weight:800;
+}
+.ref-desc {font-size:13px;color:var(--text2);line-height:1.5;flex:1;}
+.ref-toggle {
+  font-family:var(--mono);font-size:14px;
+  color:var(--text3);transition:transform .3s;flex-shrink:0;
+}
+.ref-body {
+  padding:16px 18px;display:none;
+  animation:fadeSlide .2s ease;
+}
+.ref-body.open{display:block;}
+.ref-body p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;}
+.syntax-block {
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:6px;padding:14px 16px;
+  font-family:var(--mono);font-size:12px;line-height:2;
+  margin-bottom:12px;overflow-x:auto;
+}
+.kw{color:var(--blue);font-weight:700;}
+.tb{color:var(--yellow);}
+.cd{color:#7dd3fc;}
+.op{color:var(--orange);}
+.st{color:var(--pink);}
+.cm{color:var(--text3);font-style:italic;}
+.fn{color:var(--green);}
+
+.try-btn {
+  font-family:var(--mono);font-size:10px;
+  padding:5px 14px;border-radius:4px;
+  border:1px solid var(--border2);
+  background:transparent;color:var(--green);
+  cursor:pointer;transition:all .2s;letter-spacing:.5px;
+}
+.try-btn:hover{background:var(--green3);border-color:var(--green);}
+
+/* perf tip inline */
+.perf-tip {
+  background:rgba(59,158,255,.06);
+  border:1px solid rgba(59,158,255,.15);
+  border-radius:5px;padding:8px 12px;
+  font-family:var(--mono);font-size:10px;
+  color:var(--blue);line-height:1.6;margin-top:8px;
+}
+.perf-tip::before{content:'⚡ PERF: ';font-weight:700;}
+
+/* section header */
+.section-head {
+  padding:60px 0 28px;
+  display:flex;align-items:flex-end;gap:20px;
+}
+.section-head h2 {
+  font-size:32px;font-weight:800;color:var(--text);
+}
+.section-head .sh-tag {
+  font-family:var(--mono);font-size:10px;letter-spacing:3px;
+  color:var(--green);text-transform:uppercase;margin-bottom:6px;
+}
+.sh-line {
+  flex:1;height:1px;background:var(--border);margin-bottom:8px;
+}
+
+/* ── QUIZ ── */
+.quiz-grid {
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+  gap:16px;
+}
+.q-card {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+}
+.q-num {
+  font-family:var(--mono);font-size:9px;letter-spacing:2px;
+  color:var(--text3);text-transform:uppercase;margin-bottom:8px;
+}
+.q-text {
+  font-size:14px;color:var(--text);margin-bottom:14px;line-height:1.6;
+}
+.q-text code {
+  font-family:var(--mono);font-size:12px;
+  background:var(--bg3);padding:1px 6px;border-radius:3px;
+  color:var(--yellow);
+}
+.q-opts {display:flex;flex-direction:column;gap:7px;}
+.q-opt {
+  padding:9px 14px;border-radius:5px;
+  border:1px solid var(--border);background:var(--bg3);
+  cursor:pointer;font-size:12px;font-family:var(--mono);
+  color:var(--text2);transition:all .2s;text-align:left;
+  line-height:1.4;
+}
+.q-opt:hover{border-color:var(--border2);color:var(--text);}
+.q-opt.correct{border-color:var(--green);background:rgba(0,229,160,.08);color:var(--green);}
+.q-opt.wrong  {border-color:var(--red);  background:rgba(255,79,79,.08);color:var(--red);}
+.q-feedback {
+  margin-top:10px;font-family:var(--mono);font-size:10px;
+  line-height:1.6;color:var(--text2);
+  background:var(--bg3);padding:10px 12px;border-radius:5px;
+  display:none;
+}
+.q-feedback.show{display:block;}
+.q-score {
+  margin-top:28px;text-align:center;
+  font-family:var(--mono);
+}
+.q-score-num {font-size:48px;font-weight:800;color:var(--green);}
+.q-score-label{font-size:11px;color:var(--text3);letter-spacing:2px;}
+.progress-wrap {height:3px;background:var(--border);border-radius:100px;margin-bottom:32px;overflow:hidden;}
+.progress-fill {height:100%;background:linear-gradient(90deg,var(--green2),var(--green));border-radius:100px;transition:width .5s ease;width:0%;}
+
+/* footer */
+footer {
+  border-top:1px solid var(--border);
+  padding:32px;text-align:center;
+  font-family:var(--mono);font-size:11px;color:var(--text3);
+}
+footer span{color:var(--green);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+@keyframes fadeSlide {
+  from{opacity:0;transform:translateY(6px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+@keyframes countUp {
+  from{opacity:0;transform:scale(.8);}
+  to  {opacity:1;transform:scale(1);}
+}
+@keyframes rowIn {
+  from{opacity:0;transform:translateX(-8px);}
+  to  {opacity:1;transform:translateX(0);}
+}
+.dtbl tbody tr { animation: rowIn .25s ease both; }
+
+/* number counter animation */
+.counter {
+  display:inline-block;
+  animation:countUp .4s ease;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">SQL Explainer</div>
+  <ul class="nav-links">
+    <li><a href="#playground">Playground</a></li>
+    <li><a href="#clauses">All Clauses</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Interactive SQL Learning</div>
+  <h1>SQL <span class="accent">Visually</span><br>Explained</h1>
+  <p class="hero-sub">Write any query. Watch each clause execute step-by-step. Measure performance in real time. Every clause. Every operator. No hand-waving.</p>
+  <div class="clause-strip" id="clause-strip">
+    <span class="clause-tag" style="color:var(--blue);border-color:rgba(59,158,255,.4);background:rgba(59,158,255,.07)" onclick="scrollToClause('select')">SELECT</span>
+    <span class="clause-tag" style="color:var(--blue);border-color:rgba(59,158,255,.4);background:rgba(59,158,255,.07)" onclick="scrollToClause('distinct')">DISTINCT</span>
+    <span class="clause-tag" style="color:var(--yellow);border-color:rgba(245,200,66,.4);background:rgba(245,200,66,.07)" onclick="scrollToClause('from')">FROM</span>
+    <span class="clause-tag" style="color:var(--purple);border-color:rgba(155,107,255,.4);background:rgba(155,107,255,.07)" onclick="scrollToClause('join')">JOIN</span>
+    <span class="clause-tag" style="color:var(--green);border-color:rgba(0,229,160,.4);background:rgba(0,229,160,.07)" onclick="scrollToClause('where')">WHERE</span>
+    <span class="clause-tag" style="color:var(--orange);border-color:rgba(255,140,66,.4);background:rgba(255,140,66,.07)" onclick="scrollToClause('groupby')">GROUP BY</span>
+    <span class="clause-tag" style="color:var(--orange);border-color:rgba(255,140,66,.4);background:rgba(255,140,66,.07)" onclick="scrollToClause('having')">HAVING</span>
+    <span class="clause-tag" style="color:var(--pink);border-color:rgba(255,107,157,.4);background:rgba(255,107,157,.07)" onclick="scrollToClause('window')">WINDOW</span>
+    <span class="clause-tag" style="color:var(--red);border-color:rgba(255,79,79,.4);background:rgba(255,79,79,.07)" onclick="scrollToClause('orderby')">ORDER BY</span>
+    <span class="clause-tag" style="color:var(--text2);border-color:var(--border2);background:var(--bg3)" onclick="scrollToClause('limit')">LIMIT</span>
+    <span class="clause-tag" style="color:var(--text2);border-color:var(--border2);background:var(--bg3)" onclick="scrollToClause('offset')">OFFSET</span>
+    <span class="clause-tag" style="color:var(--text2);border-color:var(--border2);background:var(--bg3)" onclick="scrollToClause('fetch')">FETCH FIRST</span>
+  </div>
+</div>
+
+<!-- PLAYGROUND + PERF -->
+<div class="main" id="playground">
+
+  <!-- LEFT -->
+  <div class="left-col">
+
+    <!-- TABLES -->
+    <div class="tables-card">
+      <div class="card-header">
+        <span class="card-title">Sample Database</span>
+        <span class="card-badge">3 tables · 28 total rows</span>
+      </div>
+      <div class="tables-grid">
+        <!-- employees -->
+        <div class="tbl-wrap">
+          <div class="tbl-head">
+            <div class="tbl-icon" style="background:var(--blue)">E</div>
+            <span class="tbl-nm" style="color:var(--blue)">employees</span>
+            <span class="tbl-info">12 rows</span>
+          </div>
+          <table class="dtbl" id="tbl-employees">
+            <thead><tr><th>id</th><th>name</th><th>dept_id</th><th>salary</th><th>hire_year</th><th>city</th></tr></thead>
+            <tbody id="body-employees"></tbody>
+          </table>
+        </div>
+        <!-- departments -->
+        <div class="tbl-wrap">
+          <div class="tbl-head">
+            <div class="tbl-icon" style="background:var(--purple)">D</div>
+            <span class="tbl-nm" style="color:var(--purple)">departments</span>
+            <span class="tbl-info">4 rows</span>
+          </div>
+          <table class="dtbl" id="tbl-departments">
+            <thead><tr><th>id</th><th>name</th><th>budget</th></tr></thead>
+            <tbody id="body-departments"></tbody>
+          </table>
+        </div>
+        <!-- projects -->
+        <div class="tbl-wrap">
+          <div class="tbl-head">
+            <div class="tbl-icon" style="background:var(--orange)">P</div>
+            <span class="tbl-nm" style="color:var(--orange)">projects</span>
+            <span class="tbl-info">12 rows</span>
+          </div>
+          <table class="dtbl" id="tbl-projects">
+            <thead><tr><th>id</th><th>emp_id</th><th>name</th><th>status</th></tr></thead>
+            <tbody id="body-projects"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="editor-card">
+      <div class="editor-topbar">
+        <div class="traffic"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+        <span class="editor-title">query.sql</span>
+        <div class="preset-row">
+          <button class="preset-btn active" onclick="loadPreset('basic')">SELECT</button>
+          <button class="preset-btn" onclick="loadPreset('distinct')">DISTINCT</button>
+          <button class="preset-btn" onclick="loadPreset('where')">WHERE</button>
+          <button class="preset-btn" onclick="loadPreset('join')">JOIN</button>
+          <button class="preset-btn" onclick="loadPreset('groupby')">GROUP BY</button>
+          <button class="preset-btn" onclick="loadPreset('having')">HAVING</button>
+          <button class="preset-btn" onclick="loadPreset('window')">WINDOW</button>
+          <button class="preset-btn" onclick="loadPreset('orderby')">ORDER BY</button>
+          <button class="preset-btn" onclick="loadPreset('limit')">LIMIT/OFFSET</button>
+          <button class="preset-btn" onclick="loadPreset('complex')">Complex</button>
+        </div>
+      </div>
+      <textarea class="sql-textarea" id="sql-editor" spellcheck="false">SELECT name, salary, city
+FROM employees</textarea>
+      <div class="editor-footer">
+        <button class="run-btn" onclick="runQuery()"><span>▶</span> Run Query</button>
+        <span class="run-hint">Ctrl+Enter to run</span>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="pipeline-card">
+      <div class="card-header">
+        <span class="card-title">Execution Pipeline</span>
+        <span class="card-badge" id="pipeline-badge">waiting</span>
+      </div>
+      <div class="pipeline-body">
+        <div class="pipeline-flow" id="pipeline-flow"></div>
+        <div class="step-detail" id="step-detail"></div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-card">
+      <div class="result-topbar">
+        <div class="status-dot" id="status-dot"></div>
+        <span class="result-stat">Rows returned: <span id="row-count">—</span></span>
+        <span class="result-stat" style="margin-left:auto">Time: <span id="exec-time">—</span></span>
+      </div>
+      <div class="result-body" id="result-body">
+        <div class="result-empty">Run a query above to see results ↑</div>
+      </div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- RIGHT: PERFORMANCE PANEL -->
+  <div class="right-col">
+
+    <div class="perf-card">
+      <div class="perf-header">
+        <span class="perf-title">Query Performance</span>
+        <span class="perf-score score-a" id="perf-score">— / A</span>
+      </div>
+      <div class="perf-body">
+
+        <div class="metric">
+          <div class="metric-label">
+            Rows Scanned
+            <span class="metric-val" id="m-scanned">0</span>
+          </div>
+          <div class="metric-bar"><div class="metric-fill fill-blue" id="bar-scanned"></div></div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">
+            Rows Returned
+            <span class="metric-val" id="m-returned">0</span>
+          </div>
+          <div class="metric-bar"><div class="metric-fill fill-green" id="bar-returned"></div></div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">
+            Filter Efficiency
+            <span class="metric-val" id="m-efficiency">—</span>
+          </div>
+          <div class="metric-bar"><div class="metric-fill fill-green" id="bar-efficiency"></div></div>
+        </div>
+
+        <div class="metric">
+          <div class="metric-label">
+            Cost Estimate
+            <span class="metric-val" id="m-cost">—</span>
+          </div>
+          <div class="metric-bar"><div class="metric-fill fill-green" id="bar-cost"></div></div>
+        </div>
+
+      </div>
+
+      <!-- TIMING BREAKDOWN -->
+      <div class="timing-section">
+        <div class="plan-title">Step Timing Breakdown</div>
+        <div id="timing-breakdown"></div>
+      </div>
+
+      <!-- EXECUTION PLAN -->
+      <div class="plan-section">
+        <div class="plan-title">Query Execution Plan</div>
+        <div id="exec-plan"></div>
+      </div>
+
+      <!-- INDEX USAGE -->
+      <div class="index-section">
+        <div class="plan-title" style="margin-bottom:8px;">Index Usage</div>
+        <div id="index-usage"></div>
+      </div>
+
+      <!-- WARNINGS -->
+      <div class="warn-section" id="warnings"></div>
+
+    </div><!-- /perf-card -->
+
+  </div><!-- /right-col -->
+
+</div><!-- /main -->
+
+<!-- ── CLAUSE REFERENCE ── -->
+<div class="reference" id="clauses">
+  <div class="section-head">
+    <div>
+      <div class="sh-tag">Complete Reference</div>
+      <h2>All SQL Clauses</h2>
+    </div>
+    <div class="sh-line"></div>
+  </div>
+
+  <div class="ref-grid" id="ref-grid"></div>
+</div>
+
+<!-- ── QUIZ ── -->
+<div class="reference" id="quiz">
+  <div class="section-head">
+    <div>
+      <div class="sh-tag">Test Yourself</div>
+      <h2>SQL Knowledge Quiz</h2>
+    </div>
+    <div class="sh-line"></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="quiz-progress"></div></div>
+  <div class="quiz-grid" id="quiz-grid"></div>
+</div>
+
+<footer>
+  <p><span>SQL Explainer</span> — Interactive learning for beginners &amp; intermediates</p>
+  <p style="margin-top:6px;font-size:10px;">All queries execute client-side on in-memory data. No backend required.</p>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════
+const DB = {
+  employees: [
+    {id:1, name:'Alice',   dept_id:10, salary:85000, hire_year:2019, city:'New York'},
+    {id:2, name:'Bob',     dept_id:20, salary:72000, hire_year:2021, city:'Austin'},
+    {id:3, name:'Carol',   dept_id:10, salary:91000, hire_year:2017, city:'New York'},
+    {id:4, name:'David',   dept_id:30, salary:65000, hire_year:2022, city:'Chicago'},
+    {id:5, name:'Eva',     dept_id:20, salary:78000, hire_year:2020, city:'Austin'},
+    {id:6, name:'Frank',   dept_id:10, salary:55000, hire_year:2023, city:'New York'},
+    {id:7, name:'Grace',   dept_id:40, salary:97000, hire_year:2016, city:'Seattle'},
+    {id:8, name:'Henry',   dept_id:30, salary:68000, hire_year:2021, city:'Chicago'},
+    {id:9, name:'Iris',    dept_id:20, salary:72000, hire_year:2020, city:'Austin'},
+    {id:10,name:'Jack',    dept_id:10, salary:88000, hire_year:2018, city:'New York'},
+    {id:11,name:'Karen',   dept_id:40, salary:103000,hire_year:2015, city:'Seattle'},
+    {id:12,name:'Liam',    dept_id:30, salary:61000, hire_year:2023, city:'Chicago'},
+  ],
+  departments: [
+    {id:10, name:'Engineering', budget:1200000},
+    {id:20, name:'Marketing',   budget:600000},
+    {id:30, name:'Design',      budget:450000},
+    {id:40, name:'Leadership',  budget:900000},
+  ],
+  projects: [
+    {id:1, emp_id:1,  name:'Dashboard v2',     status:'active'},
+    {id:2, emp_id:1,  name:'API Refactor',      status:'done'},
+    {id:3, emp_id:2,  name:'Ad Campaign Q1',    status:'active'},
+    {id:4, emp_id:3,  name:'Auth Service',      status:'done'},
+    {id:5, emp_id:5,  name:'Brand Refresh',     status:'active'},
+    {id:6, emp_id:7,  name:'Strategy 2025',     status:'active'},
+    {id:7, emp_id:10, name:'Mobile App',        status:'active'},
+    {id:8, emp_id:4,  name:'UI Kit',            status:'paused'},
+    {id:9, emp_id:6,  name:'Onboarding Flow',   status:'done'},
+    {id:10,emp_id:11, name:'Board Presentation',status:'done'},
+    {id:11,emp_id:8,  name:'Illustration Set',  status:'active'},
+    {id:12,emp_id:9,  name:'Email Templates',   status:'paused'},
+  ]
+};
+
+// ════════════════════════════════════════════════════════
+// PRESETS
+// ════════════════════════════════════════════════════════
+const PRESETS = {
+  basic: `SELECT name, salary, city\nFROM employees`,
+  distinct: `SELECT DISTINCT city\nFROM employees`,
+  where:  `SELECT name, salary, city\nFROM employees\nWHERE salary > 75000 AND city = 'New York'`,
+  join:   `SELECT e.name, e.salary, d.name AS department\nFROM employees e\nJOIN departments d\n  ON e.dept_id = d.id\nWHERE d.name = 'Engineering'`,
+  groupby:`SELECT dept_id, COUNT(*) AS headcount, AVG(salary) AS avg_salary, MAX(salary) AS top_salary\nFROM employees\nGROUP BY dept_id`,
+  having: `SELECT dept_id, COUNT(*) AS headcount, AVG(salary) AS avg_salary\nFROM employees\nGROUP BY dept_id\nHAVING COUNT(*) >= 3 AND AVG(salary) > 70000`,
+  window: `SELECT name, salary, dept_id,\n  RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS dept_rank,\n  SUM(salary) OVER (PARTITION BY dept_id) AS dept_total\nFROM employees`,
+  orderby:`SELECT name, salary, hire_year\nFROM employees\nORDER BY hire_year ASC, salary DESC`,
+  limit:  `SELECT name, salary\nFROM employees\nORDER BY salary DESC\nLIMIT 5 OFFSET 2`,
+  complex:`SELECT e.name, e.salary, d.name AS dept,\n  COUNT(p.id) AS project_count\nFROM employees e\nJOIN departments d ON e.dept_id = d.id\nLEFT JOIN projects p ON p.emp_id = e.id\nWHERE e.salary > 60000\nGROUP BY e.id, e.name, e.salary, d.name\nHAVING COUNT(p.id) >= 1\nORDER BY e.salary DESC\nLIMIT 8`,
+};
+
+// ════════════════════════════════════════════════════════
+// POPULATE TABLE VIEWS
+// ════════════════════════════════════════════════════════
+function populateTables() {
+  Object.entries(DB).forEach(([tbl, rows]) => {
+    const tbody = document.getElementById(`body-${tbl}`);
+    if (!tbody) return;
+    tbody.innerHTML = rows.map(r =>
+      `<tr data-id="${r.id}">${Object.values(r).map(v=>`<td>${v}</td>`).join('')}</tr>`
+    ).join('');
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// SQL ENGINE (client-side interpreter)
+// ════════════════════════════════════════════════════════
+function executeSQL(sql) {
+  const norm = sql.trim().replace(/\r\n/g,'\n');
+  const u = norm.toUpperCase();
+
+  // Extract clauses
+  const sel    = extractBetween(norm, /SELECT\s+/i, /\s+FROM\b/i);
+  const fromM  = norm.match(/FROM\s+([\w\s,]+?)(?=\s+(?:JOIN|LEFT|RIGHT|INNER|OUTER|WHERE|GROUP|HAVING|ORDER|WINDOW|LIMIT|OFFSET|FETCH)|$)/i);
+  const joins  = [...norm.matchAll(/(LEFT\s+)?JOIN\s+(\w+)(?:\s+(\w+))?\s+ON\s+([\s\S]+?)(?=\s+(?:LEFT\s+)?JOIN|\s+WHERE|\s+GROUP|\s+HAVING|\s+ORDER|\s+WINDOW|\s+LIMIT|\s+OFFSET|$)/gi)];
+  const whereM = norm.match(/WHERE\s+([\s\S]+?)(?=\s+GROUP BY|\s+HAVING|\s+WINDOW|\s+ORDER BY|\s+LIMIT|\s+OFFSET|\s+FETCH|$)/i);
+  const groupM = norm.match(/GROUP BY\s+([\s\S]+?)(?=\s+HAVING|\s+WINDOW|\s+ORDER BY|\s+LIMIT|\s+OFFSET|\s+FETCH|$)/i);
+  const havingM= norm.match(/HAVING\s+([\s\S]+?)(?=\s+WINDOW|\s+ORDER BY|\s+LIMIT|\s+OFFSET|\s+FETCH|$)/i);
+  const windowM= norm.match(/WINDOW\s+([\s\S]+?)(?=\s+ORDER BY|\s+LIMIT|\s+OFFSET|$)/i);
+  const orderM = norm.match(/ORDER BY\s+([\s\S]+?)(?=\s+LIMIT|\s+OFFSET|\s+FETCH|$)/i);
+  const limitM = norm.match(/LIMIT\s+(\d+)/i);
+  const offsetM= norm.match(/OFFSET\s+(\d+)/i);
+  const fetchM = norm.match(/FETCH\s+FIRST\s+(\d+)/i);
+  const distinct = /SELECT\s+DISTINCT\b/i.test(norm);
+
+  if (!sel || !fromM) throw new Error('Syntax: need SELECT ... FROM ...');
+
+  const tableName = fromM[1].trim().split(/\s+/)[0].toLowerCase();
+  const tableAlias= fromM[1].trim().split(/\s+/)[1]?.toLowerCase() || tableName;
+
+  if (!DB[tableName]) throw new Error(`Table "${tableName}" not found. Available: ${Object.keys(DB).join(', ')}`);
+
+  const steps = [];
+  const t0 = performance.now();
+  const timings = {};
+  let totalScanned = DB[tableName].length;
+
+  // ── FROM ──
+  let ts = performance.now();
+  let rows = DB[tableName].map(r => {
+    const out = {};
+    Object.entries(r).forEach(([k,v]) => {
+      out[k] = v;
+      out[`${tableAlias}.${k}`] = v;
+    });
+    return out;
+  });
+  timings.FROM = +(performance.now()-ts).toFixed(3);
+  steps.push({key:'FROM', label:'Load Table', count:rows.length, color:'var(--yellow)', note:`Loaded all <strong>${rows.length} rows</strong> from <code>${tableName}</code>. Full table scan — every row enters the pipeline.`});
+
+  // ── JOINs ──
+  for (const jm of joins) {
+    ts = performance.now();
+    const isLeft   = /LEFT/i.test(jm[1]||'');
+    const jTable   = jm[2].toLowerCase();
+    const jAlias   = (jm[3]||jm[2]).toLowerCase();
+    const onClause = jm[4].trim();
+    if (!DB[jTable]) throw new Error(`JOIN table "${jTable}" not found.`);
+
+    totalScanned += DB[jTable].length;
+    const onParts = onClause.match(/(\w+)\.(\w+)\s*=\s*(\w+)\.(\w+)/i);
+    if (!onParts) throw new Error(`Cannot parse ON clause: ${onClause}`);
+    const [,la,lc,,rc] = onParts;
+
+    const joined = [];
+    for (const lr of rows) {
+      const lv = lr[`${la.toLowerCase()}.${lc}`] ?? lr[lc];
+      let matched = false;
+      for (const rr of DB[jTable]) {
+        if (lv == rr[rc]) {
+          const m = {...lr};
+          Object.entries(rr).forEach(([k,v]) => { m[`${jAlias}.${k}`]=v; m[k]=v; });
+          joined.push(m); matched=true;
+        }
+      }
+      if (isLeft && !matched) joined.push({...lr});
+    }
+    rows = joined;
+    timings[`JOIN ${jTable}`] = +(performance.now()-ts).toFixed(3);
+    steps.push({key: isLeft?'LEFT JOIN':'JOIN', label:`+ ${jTable}`, count:rows.length, color:'var(--purple)',
+      note:`<strong>${isLeft?'LEFT JOIN':'INNER JOIN'}</strong> matched <code>${onClause}</code>. ${rows.length} row${rows.length!==1?'s':''} after join.`});
+  }
+
+  // ── WHERE ──
+  let wherePassed = rows.length;
+  if (whereM) {
+    ts = performance.now();
+    const before = rows.length;
+    rows = rows.filter(r => safeEval(r, whereM[1].trim()));
+    wherePassed = rows.length;
+    timings.WHERE = +(performance.now()-ts).toFixed(3);
+    steps.push({key:'WHERE', label:'Filter Rows', count:rows.length, color:'var(--green)',
+      note:`Tested <strong>${before} rows</strong> against <code>${whereM[1].trim()}</code> — <strong>${rows.length} passed</strong>, ${before-rows.length} eliminated.`});
+    // highlight filtered
+    highlightWhere(rows, tableAlias);
+  }
+
+  // ── GROUP BY ──
+  let groups = null;
+  let groupCols = [];
+  if (groupM) {
+    ts = performance.now();
+    groupCols = groupM[1].split(',').map(s=>s.trim());
+    const grpMap = {};
+    for (const r of rows) {
+      const key = groupCols.map(c => r[c] ?? r[c.split('.').pop()] ?? '').join('||');
+      if (!grpMap[key]) grpMap[key] = [];
+      grpMap[key].push(r);
+    }
+    groups = Object.values(grpMap);
+    rows = groups.map(g => ({...g[0], __group: g}));
+    timings['GROUP BY'] = +(performance.now()-ts).toFixed(3);
+    steps.push({key:'GROUP BY', label:'Aggregate', count:rows.length, color:'var(--orange)',
+      note:`Collapsed rows into <strong>${rows.length} groups</strong> by <code>${groupM[1].trim()}</code>. Aggregate functions (COUNT, AVG, SUM…) now apply per group.`});
+  }
+
+  // ── HAVING ──
+  if (havingM && groups) {
+    ts = performance.now();
+    const before = rows.length;
+    rows = rows.filter(r => safeEval(r, havingM[1].trim(), true));
+    timings.HAVING = +(performance.now()-ts).toFixed(3);
+    steps.push({key:'HAVING', label:'Filter Groups', count:rows.length, color:'var(--orange)',
+      note:`HAVING filters <em>groups</em> (not rows). Applied <code>${havingM[1].trim()}</code> — <strong>${rows.length} of ${before} groups</strong> survived.`});
+  }
+
+  // ── WINDOW FUNCTIONS (simulated) ──
+  let winCols = {};
+  const windowFns = [...sel.matchAll(/(RANK|ROW_NUMBER|DENSE_RANK|SUM|AVG|COUNT)\s*\(\s*[^)]*\)\s+OVER\s*\(([^)]*)\)/gi)];
+  if (windowFns.length) {
+    ts = performance.now();
+    const allRows = rows.map(r => ({...r}));
+    windowFns.forEach(wf => {
+      const fn   = wf[1].toUpperCase();
+      const over = wf[2];
+      const partM  = over.match(/PARTITION BY\s+([\w.,\s]+?)(?=\s+ORDER|\s*$)/i);
+      const sortM  = over.match(/ORDER BY\s+([\w.,\s]+?)(?:\s+(?:ASC|DESC))?/i);
+
+      // find alias from SELECT
+      const aliasM = wf[0].match(/AS\s+(\w+)/i);
+      const alias  = aliasM ? aliasM[1] : fn.toLowerCase()+'_val';
+
+      // group by partition
+      const partCols = partM ? partM[1].split(',').map(s=>s.trim()) : [];
+      const sortCol  = sortM ? sortM[1].trim() : null;
+
+      if (partCols.length) {
+        const partGroups = {};
+        allRows.forEach(r => {
+          const k = partCols.map(c=>r[c]??'').join('|');
+          if (!partGroups[k]) partGroups[k]=[];
+          partGroups[k].push(r);
+        });
+        Object.values(partGroups).forEach(grp => {
+          if (sortCol) grp.sort((a,b)=>(b[sortCol]||0)-(a[sortCol]||0));
+          grp.forEach((r,idx) => {
+            const target = rows.find(or => or.id===r.id || or['e.id']===r.id);
+            if (!target) return;
+            if (fn==='RANK'||fn==='ROW_NUMBER'||fn==='DENSE_RANK') target[alias]=idx+1;
+            else if (fn==='SUM'&&sortCol) target[alias]=grp.reduce((s,rr)=>s+(rr[sortCol]||0),0);
+            else if (fn==='AVG'&&sortCol) target[alias]=Math.round(grp.reduce((s,rr)=>s+(rr[sortCol]||0),0)/grp.length);
+            else if (fn==='COUNT') target[alias]=grp.length;
+          });
+        });
+      }
+    });
+    timings.WINDOW = +(performance.now()-ts).toFixed(3);
+    steps.push({key:'WINDOW', label:'Window Fns', count:rows.length, color:'var(--pink)',
+      note:`Window functions (RANK, SUM OVER…) computed per partition <strong>without collapsing rows</strong>. Each row gets its window value.`});
+  }
+
+  // ── SELECT ──
+  ts = performance.now();
+  const colDefs  = parseSelectCols(sel.replace(/^DISTINCT\s+/i,''));
+  const isDistinct = distinct;
+  let finalRows = rows.map(r => {
+    const out = {};
+    colDefs.forEach(cd => { out[cd.alias||cd.expr] = evalExpr(r, cd.expr); });
+    return out;
+  });
+
+  // DISTINCT
+  if (isDistinct) {
+    const seen = new Set();
+    finalRows = finalRows.filter(r => {
+      const key = JSON.stringify(r);
+      if (seen.has(key)) return false;
+      seen.add(key); return true;
+    });
+  }
+  timings.SELECT = +(performance.now()-ts).toFixed(3);
+  const cols = colDefs.map(c=>c.alias||c.expr);
+  steps.push({key: isDistinct?'SELECT DISTINCT':'SELECT', label:'Project Cols', count:finalRows.length, color:'var(--blue)',
+    note:`${isDistinct?'<strong>DISTINCT</strong> removed duplicate rows. ':''} Projected <strong>${cols.length} column(s)</strong>: <code>${cols.join(', ')}</code>`});
+
+  // ── ORDER BY ──
+  if (orderM) {
+    ts = performance.now();
+    const parts = orderM[1].split(',').map(s=>s.trim());
+    finalRows.sort((a,b)=>{
+      for (const p of parts) {
+        const [col,...rest] = p.split(/\s+/);
+        const desc = rest.join(' ').toUpperCase()==='DESC';
+        const av = a[col]??a[col.split('.').pop()]??0;
+        const bv = b[col]??b[col.split('.').pop()]??0;
+        if (av<bv) return desc?1:-1;
+        if (av>bv) return desc?-1:1;
+      }
+      return 0;
+    });
+    timings['ORDER BY'] = +(performance.now()-ts).toFixed(3);
+    steps.push({key:'ORDER BY', label:'Sort Rows', count:finalRows.length, color:'var(--red)',
+      note:`Sorted result by <code>${orderM[1].trim()}</code>. Sorting is <strong>O(n log n)</strong> — expensive on large tables without an index.`});
+  }
+
+  // ── LIMIT / OFFSET / FETCH ──
+  const lim = limitM?parseInt(limitM[1]):(fetchM?parseInt(fetchM[1]):null);
+  const off = offsetM?parseInt(offsetM[1]):0;
+  if (off>0) {
+    finalRows = finalRows.slice(off);
+    timings['OFFSET'] = 0.001;
+    steps.push({key:'OFFSET', label:`Skip ${off}`, count:finalRows.length, color:'var(--text2)',
+      note:`Skipped the first <strong>${off} rows</strong>. Useful for pagination — always pair with ORDER BY for consistent pages.`});
+  }
+  if (lim!==null) {
+    const before = finalRows.length;
+    finalRows = finalRows.slice(0, lim);
+    timings[limitM?'LIMIT':'FETCH FIRST'] = 0.001;
+    steps.push({key: limitM?'LIMIT':'FETCH FIRST', label:`Take ${lim}`, count:finalRows.length, color:'var(--text2)',
+      note:`Truncated to <strong>${lim} rows</strong> (from ${before}). ${limitM?'MySQL/Postgres syntax.':'SQL Server/Oracle syntax.'}`});
+  }
+
+  const elapsed = +(performance.now()-t0).toFixed(2);
+
+  return {
+    rows: finalRows,
+    cols,
+    steps,
+    timings,
+    elapsed,
+    totalScanned,
+    wherePassed,
+    hasJoin: joins.length>0,
+    hasGroupBy: !!groupM,
+    hasWindow: windowFns.length>0,
+    hasOrder: !!orderM,
+    hasDistinct: isDistinct,
+    hasHaving: !!havingM,
+    hasWhere: !!whereM,
+    hasLimit: lim!==null,
+    hasOffset: off>0,
+  };
+}
+
+// helpers
+function extractBetween(str, startRx, endRx) {
+  const s = str.search(startRx);
+  if (s<0) return null;
+  const after = str.slice(s).replace(startRx,'');
+  const e = after.search(endRx);
+  return e<0 ? after : after.slice(0,e);
+}
+
+function parseSelectCols(str) {
+  // split by comma respecting parens
+  const cols=[]; let depth=0, cur='';
+  for (const ch of str) {
+    if (ch==='(') depth++;
+    if (ch===')') depth--;
+    if (ch===',' && depth===0) { cols.push(cur.trim()); cur=''; }
+    else cur+=ch;
+  }
+  if (cur.trim()) cols.push(cur.trim());
+  return cols.map(c => {
+    const asM = c.match(/(.+?)\s+AS\s+(\w+)\s*$/i);
+    return asM ? {expr:asM[1].trim(),alias:asM[2]} : {expr:c,alias:null};
+  });
+}
+
+function evalExpr(row, expr) {
+  const e = expr.trim();
+  if (e==='*') return '(all)';
+
+  // window fn results already on row
+  const wM = e.match(/^(\w+)\s*\([\s\S]*\)\s+OVER\s*\([^)]*\)$/i);
+  if (wM) {
+    // find alias already computed
+    const aliasM = e.match(/AS\s+(\w+)/i);
+    if (aliasM && row[aliasM[1]]!==undefined) return row[aliasM[1]];
+    return null;
+  }
+
+  // aggregates
+  const cntM = e.match(/COUNT\(\*\)/i);
+  const aggM = e.match(/(AVG|SUM|MAX|MIN|COUNT)\((\w+)\)/i);
+  if (cntM) return row.__group ? row.__group.length : 1;
+  if (aggM) {
+    const fn=aggM[1].toUpperCase(), col=aggM[2];
+    if (!row.__group) return row[col]??null;
+    const vals=row.__group.map(r=>Number(r[col])||0);
+    switch(fn){
+      case 'AVG': return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+      case 'SUM': return vals.reduce((a,b)=>a+b,0);
+      case 'MAX': return Math.max(...vals);
+      case 'MIN': return Math.min(...vals);
+      case 'COUNT': return vals.length;
+    }
+  }
+  // dotted
+  if (row[e]!==undefined) return row[e];
+  const short = e.split('.').pop();
+  if (row[short]!==undefined) return row[short];
+  return null;
+}
+
+function safeEval(row, cond, grouped=false) {
+  const flat = {};
+  Object.entries(row).forEach(([k,v]) => {
+    flat[k]=v;
+    flat[k.split('.').pop()]=v;
+  });
+  // aggregate shortcuts for HAVING
+  if (grouped && row.__group) {
+    const replaceAgg = (s) => s.replace(/(COUNT\(\*\)|AVG\((\w+)\)|SUM\((\w+)\)|MAX\((\w+)\)|MIN\((\w+)\)|COUNT\((\w+)\))/gi, m => {
+      const fn=m.split('(')[0].toUpperCase(), col=(m.match(/\((\w+|\*)\)/)||[])[1];
+      if (!row.__group) return 0;
+      const vals=col==='*'?row.__group:row.__group.map(r=>Number(r[col])||0);
+      switch(fn){
+        case 'COUNT': return vals.length;
+        case 'AVG':   return vals.reduce((a,b)=>a+b,0)/vals.length;
+        case 'SUM':   return vals.reduce((a,b)=>a+b,0);
+        case 'MAX':   return Math.max(...vals);
+        case 'MIN':   return Math.min(...vals);
+        default:      return 0;
+      }
+    });
+    cond = replaceAgg(cond);
+  }
+  try {
+    const safe = cond.replace(/\b([a-z_][a-z0-9_.]*)\b/gi, m => {
+      if (['AND','OR','NOT','NULL','TRUE','FALSE','IS','LIKE','IN','BETWEEN'].includes(m.toUpperCase())) return m;
+      if (!isNaN(m)) return m;
+      const v=flat[m]??flat[m.split('.').pop()];
+      if (v===undefined) return m;
+      return typeof v==='string'?JSON.stringify(v):v;
+    }).replace(/'/g,'"');
+    return Function('"use strict";return ('+safe+')')();
+  } catch { return false; }
+}
+
+// highlight rows
+function highlightWhere(survivingRows, alias) {
+  const ids = new Set(survivingRows.map(r => r.id ?? r[`${alias}.id`]));
+  document.querySelectorAll('#body-employees tr').forEach((tr,i) => {
+    const row = DB.employees[i];
+    if (ids.size && !ids.has(row.id)) tr.classList.add('hl-fade');
+    else tr.classList.add('hl-green');
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// PIPELINE DISPLAY
+// ════════════════════════════════════════════════════════
+let pipelineSteps = [];
+function renderPipeline(steps) {
+  pipelineSteps = steps;
+  const flow = document.getElementById('pipeline-flow');
+  flow.innerHTML = '';
+  document.getElementById('step-detail').classList.remove('show');
+  document.getElementById('pipeline-badge').textContent = `${steps.length} steps`;
+
+  steps.forEach((step, i) => {
+    if (i>0) {
+      const conn = document.createElement('div');
+      conn.className='p-connector';
+      conn.innerHTML=`<div class="p-arrow-line"></div><div class="p-arrow-cnt">${steps[i-1].count} rows</div>`;
+      flow.appendChild(conn);
+    }
+    const el=document.createElement('div');
+    el.className='p-step';
+    el.id=`ps-${i}`;
+    el.onclick=()=>selectStep(i);
+    el.innerHTML=`<div class="p-box" id="pb-${i}">
+      <div class="p-kw" style="color:${step.color}">${step.key}</div>
+      <div class="p-lbl">${step.label}</div>
+      <div class="p-cnt">${step.count}</div>
+      <div class="p-rows">rows</div>
+    </div>`;
+    flow.appendChild(el);
+    setTimeout(()=>document.getElementById(`pb-${i}`)?.classList.add('done'), i*120+100);
+  });
+  setTimeout(()=>selectStep(steps.length-1), steps.length*120+250);
+}
+
+function selectStep(i) {
+  document.querySelectorAll('.p-box').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`pb-${i}`)?.classList.add('active');
+  const detail=document.getElementById('step-detail');
+  detail.innerHTML=pipelineSteps[i].note;
+  detail.classList.add('show');
+}
+
+// ════════════════════════════════════════════════════════
+// RESULT TABLE
+// ════════════════════════════════════════════════════════
+function renderResult(rows, cols, error) {
+  const body=document.getElementById('result-body');
+  const dot=document.getElementById('status-dot');
+  const cnt=document.getElementById('row-count');
+
+  if (error) {
+    dot.className='status-dot err';
+    cnt.textContent='—';
+    body.innerHTML=`<div class="err-msg">⚠ ${error}</div>`;
+    return;
+  }
+  dot.className='status-dot ok';
+  cnt.textContent=rows.length;
+
+  if (!rows.length){body.innerHTML='<div class="result-empty">Query returned 0 rows</div>';return;}
+
+  const t=document.createElement('table');
+  t.className='dtbl';
+  t.innerHTML=`<thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>`;
+  const tb=document.createElement('tbody');
+  rows.forEach((row,ri)=>{
+    const tr=document.createElement('tr');
+    tr.style.animationDelay=`${ri*30}ms`;
+    tr.innerHTML=cols.map(c=>`<td>${row[c]??''}</td>`).join('');
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  body.innerHTML='';body.appendChild(t);
+}
+
+// ════════════════════════════════════════════════════════
+// PERFORMANCE PANEL
+// ════════════════════════════════════════════════════════
+function animateBar(id, pct) {
+  requestAnimationFrame(()=>{ document.getElementById(id).style.width=pct+'%'; });
+}
+function animateCounter(id, val) {
+  const el=document.getElementById(id);
+  el.innerHTML=`<span class="counter">${val}</span>`;
+}
+
+function renderPerf(result) {
+  const {totalScanned, rows, elapsed, hasJoin, hasGroupBy, hasWindow,
+         hasOrder, hasDistinct, hasHaving, hasWhere, hasLimit, hasOffset, timings} = result;
+  const returned = rows.length;
+
+  // metrics
+  animateCounter('m-scanned', totalScanned);
+  animateCounter('m-returned', returned);
+  animateBar('bar-scanned', Math.min(100, totalScanned/28*100));
+  animateBar('bar-returned', Math.min(100, returned/28*100));
+
+  const eff = totalScanned>0 ? Math.round((returned/totalScanned)*100) : 100;
+  document.getElementById('m-efficiency').textContent = eff+'%';
+  animateBar('bar-efficiency', eff);
+  document.getElementById('bar-efficiency').className =
+    'metric-fill '+(eff>70?'fill-green':eff>40?'fill-yellow':'fill-orange');
+
+  // cost
+  let cost = 1;
+  cost += hasJoin ? 3 : 0;
+  cost += hasGroupBy ? 2 : 0;
+  cost += hasWindow ? 3 : 0;
+  cost += hasOrder ? (hasLimit?1:2) : 0;
+  cost += hasDistinct ? 1 : 0;
+  cost += !hasWhere && totalScanned>10 ? 2 : 0;
+  cost += hasHaving ? 1 : 0;
+  const costPct = Math.min(100, cost/15*100);
+  const costLbl = cost<=3?'Low':cost<=6?'Medium':cost<=10?'High':'Very High';
+  document.getElementById('m-cost').textContent=costLbl;
+  animateBar('bar-cost', costPct);
+  document.getElementById('bar-cost').className=
+    'metric-fill '+(cost<=3?'fill-green':cost<=6?'fill-yellow':cost<=10?'fill-orange':'fill-red');
+
+  // grade
+  const grade = cost<=3?'A':cost<=6?'B':cost<=10?'C':'D';
+  const scoreEl=document.getElementById('perf-score');
+  scoreEl.textContent=`Cost ${cost} · ${grade}`;
+  scoreEl.className='perf-score '+(grade==='A'?'score-a':grade==='B'?'score-b':grade==='C'?'score-c':'score-d');
+
+  // exec time
+  document.getElementById('exec-time').textContent = elapsed+'ms';
+
+  // timing breakdown
+  const timDiv=document.getElementById('timing-breakdown');
+  const maxT = Math.max(...Object.values(timings))+0.001;
+  timDiv.innerHTML = Object.entries(timings).map(([step,ms])=>`
+    <div class="timing-bar-row">
+      <span class="timing-step-nm">${step}</span>
+      <div class="timing-bar-wrap">
+        <div class="timing-fill" style="background:var(--green2);width:0%" data-w="${ms/maxT*100}"></div>
+      </div>
+      <span class="timing-ms">${ms}ms</span>
+    </div>`).join('');
+  setTimeout(()=>timDiv.querySelectorAll('.timing-fill').forEach(el=>el.style.width=el.dataset.w+'%'),50);
+
+  // execution plan
+  const planDiv=document.getElementById('exec-plan');
+  const planNodes=[];
+  if(hasJoin) planNodes.push({icon:'🔗',bg:'rgba(155,107,255,.2)',op:'Hash Join',detail:'Match rows on join key',cost:'O(n·m)'});
+  else planNodes.push({icon:'📋',bg:'rgba(59,158,255,.2)',op:'Seq Scan',detail:`${Object.keys(timings)[0]}`,cost:'O(n)'});
+  if(hasWhere) planNodes.push({icon:'🔍',bg:'rgba(0,229,160,.2)',op:'Filter',detail:'WHERE predicate',cost:'O(n)'});
+  if(hasGroupBy) planNodes.push({icon:'📦',bg:'rgba(255,140,66,.2)',op:'HashAggregate',detail:'GROUP BY + aggregates',cost:'O(n log n)'});
+  if(hasHaving) planNodes.push({icon:'🎯',bg:'rgba(255,140,66,.2)',op:'Filter',detail:'HAVING predicate',cost:'O(g)'});
+  if(hasWindow) planNodes.push({icon:'🪟',bg:'rgba(255,107,157,.2)',op:'WindowAgg',detail:'PARTITION + ORDER',cost:'O(n log n)'});
+  if(hasOrder) planNodes.push({icon:'↕',bg:'rgba(255,79,79,.2)',op:'Sort',detail:'ORDER BY',cost:'O(n log n)'});
+  if(hasLimit) planNodes.push({icon:'✂',bg:'rgba(100,120,140,.2)',op:'Limit',detail:'LIMIT/OFFSET/FETCH',cost:'O(1)'});
+  planNodes.push({icon:'✅',bg:'rgba(0,229,160,.15)',op:'Project',detail:'SELECT columns',cost:'O(n)'});
+
+  planDiv.innerHTML=planNodes.map(n=>`
+    <div class="plan-node">
+      <div class="plan-icon" style="background:${n.bg}">${n.icon}</div>
+      <div class="plan-info">
+        <div class="plan-op">${n.op}</div>
+        <div class="plan-detail">${n.detail}</div>
+      </div>
+      <span class="plan-cost">${n.cost}</span>
+    </div>`).join('');
+
+  // index usage
+  const idxDiv=document.getElementById('index-usage');
+  const idxItems=[];
+  if(hasWhere) idxItems.push({label:'WHERE filter',hit:true,detail:'idx_salary / idx_city'});
+  else idxItems.push({label:'No WHERE',hit:false,detail:'Full scan'});
+  if(hasJoin) idxItems.push({label:'JOIN key',hit:true,detail:'idx_dept_id / idx_emp_id'});
+  if(hasOrder) idxItems.push({label:'ORDER BY',hit:false,detail:'No covering index → sort'});
+  if(hasDistinct) idxItems.push({label:'DISTINCT',hit:false,detail:'Hash dedup required'});
+  idxDiv.innerHTML=idxItems.map(ix=>`
+    <span class="idx-badge ${ix.hit?'idx-hit':'idx-miss'}">
+      ${ix.hit?'✓ HIT':'✗ MISS'} &nbsp;${ix.label}
+    </span>`).join('');
+
+  // warnings
+  const warnDiv=document.getElementById('warnings');
+  const warns=[];
+  if(!hasWhere && totalScanned>8) warns.push({type:'warn',msg:'No WHERE clause — full table scan on '+totalScanned+' rows'});
+  if(hasOrder && !hasLimit) warns.push({type:'warn',msg:'ORDER BY without LIMIT sorts the entire result set'});
+  if(hasDistinct) warns.push({type:'tip',msg:'DISTINCT adds a deduplication pass. Use GROUP BY for more control'});
+  if(hasJoin && hasGroupBy) warns.push({type:'tip',msg:'JOIN + GROUP BY: filter with WHERE before grouping to reduce work'});
+  if(hasWindow) warns.push({type:'tip',msg:'Window functions compute after WHERE/GROUP BY but before ORDER BY'});
+  if(hasOffset && !hasLimit) warns.push({type:'warn',msg:'OFFSET without LIMIT still scans all rows up to offset'});
+  if(grade==='A') warns.push({type:'ok',msg:'Query looks efficient! Good use of filters and indexes'});
+  warnDiv.innerHTML=warns.map(w=>`
+    <div class="warn-item ${w.type==='warn'?'warn-warn':w.type==='ok'?'warn-ok':'warn-tip'}">
+      <span>${w.type==='warn'?'⚠':w.type==='ok'?'✓':'💡'}</span>
+      <span>${w.msg}</span>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// RUN QUERY
+// ════════════════════════════════════════════════════════
+function runQuery() {
+  resetHighlights();
+  const sql=document.getElementById('sql-editor').value;
+  try {
+    const result = executeSQL(sql);
+    renderPipeline(result.steps);
+    renderResult(result.rows, result.cols, null);
+    renderPerf(result);
+  } catch(e) {
+    renderResult([],[],e.message);
+    document.getElementById('pipeline-flow').innerHTML='';
+    document.getElementById('pipeline-badge').textContent='error';
+  }
+}
+
+function resetHighlights() {
+  document.querySelectorAll('.dtbl tbody tr').forEach(tr=>{
+    tr.classList.remove('hl-green','hl-blue','hl-fade','hl-join');
+  });
+}
+
+function loadPreset(key) {
+  document.getElementById('sql-editor').value=PRESETS[key];
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  runQuery();
+}
+
+// ════════════════════════════════════════════════════════
+// CLAUSE REFERENCE
+// ════════════════════════════════════════════════════════
+const CLAUSES = [
+  {
+    id:'select',kw:'SELECT',color:'var(--blue)',
+    short:'Choose which columns appear in the result',
+    desc:'SELECT picks columns to include. Use expressions, aliases, aggregate functions, or window functions. SELECT * grabs all columns.',
+    syntax:`<span class="kw">SELECT</span> <span class="op">*</span>                            <span class="cm">-- all columns</span>
+<span class="kw">SELECT</span> <span class="cd">name</span>, <span class="cd">salary</span>               <span class="cm">-- specific columns</span>
+<span class="kw">SELECT</span> <span class="cd">salary</span> <span class="op">*</span> <span class="op">1.1</span> <span class="kw">AS</span> <span class="cd">new_sal</span>   <span class="cm">-- expression + alias</span>
+<span class="kw">SELECT</span> <span class="fn">UPPER</span>(<span class="cd">name</span>) <span class="kw">AS</span> <span class="cd">upper_name</span> <span class="cm">-- built-in function</span>`,
+    perf:'SELECT itself is cheap — it\'s a projection. Cost comes from the clauses feeding it.',
+    preset:'basic'
+  },
+  {
+    id:'distinct',kw:'SELECT DISTINCT',color:'var(--blue)',
+    short:'Return only unique rows, eliminating duplicates',
+    desc:'DISTINCT removes duplicate rows from the result. It runs after all other clauses, deduplicating before ORDER BY and LIMIT are applied.',
+    syntax:`<span class="kw">SELECT DISTINCT</span> <span class="cd">city</span>
+<span class="kw">FROM</span> <span class="tb">employees</span>
+
+<span class="kw">SELECT DISTINCT</span> <span class="cd">dept_id</span>, <span class="cd">city</span>
+<span class="kw">FROM</span> <span class="tb">employees</span>`,
+    perf:'DISTINCT requires a sort or hash pass over all result rows. On large datasets use GROUP BY or EXISTS instead for better index use.',
+    preset:'distinct'
+  },
+  {
+    id:'from',kw:'FROM',color:'var(--yellow)',
+    short:'Specify the source table (or subquery) to query',
+    desc:'FROM identifies the starting table. SQL loads every row from this table first, then filters. You can also use subqueries or CTEs (WITH) as the source.',
+    syntax:`<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">employees</span>           <span class="cm">-- table</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">employees</span> <span class="cd">e</span>       <span class="cm">-- with alias</span>
+
+<span class="cm">-- Subquery as source</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> <span class="cd">name</span>, <span class="cd">salary</span> <span class="kw">FROM</span> <span class="tb">employees</span>
+) <span class="kw">AS</span> <span class="tb">sub</span>`,
+    perf:'A full table scan reads every row. Adding an index on filtered columns lets the DB skip irrelevant pages — dramatically faster on large tables.',
+    preset:'basic'
+  },
+  {
+    id:'join',kw:'JOIN',color:'var(--purple)',
+    short:'Combine rows from two or more tables',
+    desc:'JOIN links tables on a matching condition. INNER JOIN keeps only matched rows. LEFT JOIN keeps all left rows + matching right rows (unmatched right = NULL).',
+    syntax:`<span class="cm">-- INNER JOIN (only matches)</span>
+<span class="kw">SELECT</span> <span class="cd">e.name</span>, <span class="cd">d.name</span>
+<span class="kw">FROM</span> <span class="tb">employees</span> <span class="cd">e</span>
+<span class="kw">JOIN</span> <span class="tb">departments</span> <span class="cd">d</span> <span class="kw">ON</span> <span class="cd">e.dept_id</span> <span class="op">=</span> <span class="cd">d.id</span>
+
+<span class="cm">-- LEFT JOIN (all employees + dept if exists)</span>
+<span class="kw">SELECT</span> <span class="cd">e.name</span>, <span class="cd">d.name</span>
+<span class="kw">FROM</span> <span class="tb">employees</span> <span class="cd">e</span>
+<span class="kw">LEFT JOIN</span> <span class="tb">departments</span> <span class="cd">d</span> <span class="kw">ON</span> <span class="cd">e.dept_id</span> <span class="op">=</span> <span class="cd">d.id</span>`,
+    perf:'JOINs on indexed FK columns are fast. Missing indexes on join keys cause nested-loop scans = O(n·m). Always index foreign keys.',
+    preset:'join'
+  },
+  {
+    id:'where',kw:'WHERE',color:'var(--green)',
+    short:'Filter rows before grouping or aggregation',
+    desc:'WHERE applies row-level filters. It runs before GROUP BY, so it filters individual rows, not groups. Combine conditions with AND, OR, NOT. Use LIKE for pattern matching.',
+    syntax:`<span class="kw">WHERE</span> <span class="cd">salary</span> <span class="op">&gt;</span> <span class="st">75000</span>
+<span class="kw">WHERE</span> <span class="cd">city</span> <span class="op">=</span> <span class="st">'New York'</span>
+<span class="kw">WHERE</span> <span class="cd">hire_year</span> <span class="kw">BETWEEN</span> <span class="st">2018</span> <span class="kw">AND</span> <span class="st">2022</span>
+<span class="kw">WHERE</span> <span class="cd">name</span> <span class="kw">LIKE</span> <span class="st">'A%'</span>         <span class="cm">-- starts with A</span>
+<span class="kw">WHERE</span> <span class="cd">dept_id</span> <span class="kw">IN</span> (<span class="st">10</span>, <span class="st">20</span>)
+<span class="kw">WHERE</span> <span class="cd">salary</span> <span class="op">&gt;</span> <span class="st">70000</span> <span class="kw">AND</span> <span class="cd">city</span> <span class="op">=</span> <span class="st">'Austin'</span>`,
+    perf:'WHERE on an indexed column = index seek (very fast). LIKE \'%foo%\' forces a full scan even with an index. Functions on columns (WHERE YEAR(date)=2024) also kill index use.',
+    preset:'where'
+  },
+  {
+    id:'groupby',kw:'GROUP BY',color:'var(--orange)',
+    short:'Collapse rows into groups for aggregate functions',
+    desc:'GROUP BY collapses all rows with matching values into a single row. Use aggregate functions (COUNT, SUM, AVG, MAX, MIN) to compute group-level values. Every non-aggregate in SELECT must appear in GROUP BY.',
+    syntax:`<span class="kw">SELECT</span> <span class="cd">dept_id</span>,
+  <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> <span class="cd">headcount</span>,
+  <span class="fn">AVG</span>(<span class="cd">salary</span>) <span class="kw">AS</span> <span class="cd">avg_salary</span>,
+  <span class="fn">SUM</span>(<span class="cd">salary</span>) <span class="kw">AS</span> <span class="cd">total_payroll</span>,
+  <span class="fn">MAX</span>(<span class="cd">salary</span>) <span class="kw">AS</span> <span class="cd">highest</span>,
+  <span class="fn">MIN</span>(<span class="cd">salary</span>) <span class="kw">AS</span> <span class="cd">lowest</span>
+<span class="kw">FROM</span> <span class="tb">employees</span>
+<span class="kw">GROUP BY</span> <span class="cd">dept_id</span>`,
+    perf:'GROUP BY requires sorting or hashing all rows. Filter first with WHERE to reduce rows before grouping. An index on the GROUP BY column speeds this up.',
+    preset:'groupby'
+  },
+  {
+    id:'having',kw:'HAVING',color:'var(--orange)',
+    short:'Filter groups after GROUP BY (like WHERE for groups)',
+    desc:'HAVING filters after aggregation. WHERE can\'t reference aggregate values (like COUNT(*)) — HAVING can. Use WHERE to filter rows early, HAVING to filter groups.',
+    syntax:`<span class="kw">SELECT</span> <span class="cd">dept_id</span>, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> <span class="cd">headcount</span>
+<span class="kw">FROM</span> <span class="tb">employees</span>
+<span class="kw">GROUP BY</span> <span class="cd">dept_id</span>
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">&gt;=</span> <span class="st">3</span>           <span class="cm">-- groups only</span>
+
+<span class="cm">-- WHERE filters rows, HAVING filters groups:</span>
+<span class="kw">WHERE</span> <span class="cd">salary</span> <span class="op">&gt;</span> <span class="st">50000</span>           <span class="cm">-- early, fast</span>
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(<span class="cd">salary</span>) <span class="op">&gt;</span> <span class="st">75000</span>   <span class="cm">-- after GROUP BY</span>`,
+    perf:'HAVING is checked after grouping so it can\'t use a row-level index. Move non-aggregate conditions to WHERE for better performance.',
+    preset:'having'
+  },
+  {
+    id:'window',kw:'WINDOW / OVER',color:'var(--pink)',
+    short:'Compute values across related rows without collapsing them',
+    desc:'Window functions run after WHERE and GROUP BY but before ORDER BY and LIMIT. Unlike GROUP BY, they don\'t collapse rows — each row keeps its identity while getting access to aggregate info about its "window" (partition).',
+    syntax:`<span class="kw">SELECT</span> <span class="cd">name</span>, <span class="cd">salary</span>, <span class="cd">dept_id</span>,
+  <span class="fn">RANK</span>() <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> <span class="cd">dept_id</span>
+    <span class="kw">ORDER BY</span> <span class="cd">salary</span> <span class="kw">DESC</span>
+  ) <span class="kw">AS</span> <span class="cd">dept_rank</span>,
+  <span class="fn">SUM</span>(<span class="cd">salary</span>) <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> <span class="cd">dept_id</span>
+  ) <span class="kw">AS</span> <span class="cd">dept_total</span>
+<span class="kw">FROM</span> <span class="tb">employees</span>`,
+    perf:'Window functions sort data per partition — expensive on unsorted data. An index on (partition_col, order_col) can speed this up significantly.',
+    preset:'window'
+  },
+  {
+    id:'orderby',kw:'ORDER BY',color:'var(--red)',
+    short:'Sort the result set by one or more columns',
+    desc:'ORDER BY sorts the final result. ASC = ascending (A→Z, 0→9). DESC = descending (Z→A, 9→0). You can sort by multiple columns; the second column breaks ties in the first.',
+    syntax:`<span class="kw">ORDER BY</span> <span class="cd">salary</span> <span class="kw">DESC</span>          <span class="cm">-- highest first</span>
+<span class="kw">ORDER BY</span> <span class="cd">name</span> <span class="kw">ASC</span>             <span class="cm">-- alphabetical</span>
+<span class="kw">ORDER BY</span> <span class="cd">dept_id</span>, <span class="cd">salary</span> <span class="kw">DESC</span> <span class="cm">-- multi-column</span>
+<span class="kw">ORDER BY</span> <span class="st">2</span>                     <span class="cm">-- by column position</span>`,
+    perf:'Sorting is O(n log n). Without an index on the sort column, the DB must sort the entire result in memory. Always add LIMIT to avoid sorting millions of rows unnecessarily.',
+    preset:'orderby'
+  },
+  {
+    id:'limit',kw:'LIMIT',color:'var(--text2)',
+    short:'MySQL/PostgreSQL: restrict the number of rows returned',
+    desc:'LIMIT caps the result to N rows. Always combine with ORDER BY to get deterministic, predictable pages. Without ORDER BY, the rows returned are arbitrary.',
+    syntax:`<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">employees</span>
+<span class="kw">ORDER BY</span> <span class="cd">salary</span> <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="st">5</span>                        <span class="cm">-- top 5 earners</span>
+
+<span class="cm">-- Pagination (page 2, 5 per page)</span>
+<span class="kw">LIMIT</span> <span class="st">5</span> <span class="kw">OFFSET</span> <span class="st">5</span>`,
+    perf:'LIMIT stops result scanning early — big win when combined with an index. However, high OFFSETs (OFFSET 10000) still scan 10000 rows. Use keyset/cursor pagination for deep pages.',
+    preset:'limit'
+  },
+  {
+    id:'offset',kw:'OFFSET',color:'var(--text2)',
+    short:'Skip the first N rows of the result',
+    desc:'OFFSET skips rows before returning. Used with LIMIT for pagination. OFFSET 10 skips the first 10 rows; the next LIMIT rows are returned.',
+    syntax:`<span class="cm">-- Page 1: first 5 rows</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">employees</span>
+<span class="kw">ORDER BY</span> <span class="cd">id</span> <span class="kw">LIMIT</span> <span class="st">5</span> <span class="kw">OFFSET</span> <span class="st">0</span>
+
+<span class="cm">-- Page 2: rows 6-10</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">employees</span>
+<span class="kw">ORDER BY</span> <span class="cd">id</span> <span class="kw">LIMIT</span> <span class="st">5</span> <span class="kw">OFFSET</span> <span class="st">5</span>`,
+    perf:'OFFSET N scans and discards N rows every time. For deep pagination (page 100+), keyset pagination (WHERE id > last_seen_id LIMIT 5) is vastly faster.',
+    preset:'limit'
+  },
+  {
+    id:'fetch',kw:'FETCH FIRST',color:'var(--text2)',
+    short:'SQL Server / Oracle standard syntax for LIMIT',
+    desc:'FETCH FIRST is the SQL standard (ISO) way to limit rows, used by SQL Server and Oracle. Functionally identical to LIMIT — just different syntax for cross-database compatibility.',
+    syntax:`<span class="cm">-- SQL Server / Oracle / standard SQL</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="tb">employees</span>
+<span class="kw">ORDER BY</span> <span class="cd">salary</span> <span class="kw">DESC</span>
+<span class="kw">OFFSET</span> <span class="st">0</span> <span class="kw">ROWS</span>
+<span class="kw">FETCH FIRST</span> <span class="st">5</span> <span class="kw">ROWS ONLY</span>
+
+<span class="cm">-- MySQL/Postgres equivalent:</span>
+<span class="kw">LIMIT</span> <span class="st">5</span> <span class="kw">OFFSET</span> <span class="st">0</span>`,
+    perf:'Same performance characteristics as LIMIT. Choose based on your DB dialect. Use FETCH FIRST for DB-agnostic code.',
+    preset:'limit'
+  },
+];
+
+function renderClauses() {
+  const grid=document.getElementById('ref-grid');
+  grid.innerHTML = CLAUSES.map((c,i)=>`
+    <div class="ref-card" id="ref-${c.id}">
+      <div class="ref-card-head" onclick="toggleClause('${c.id}')">
+        <span class="ref-kw" style="color:${c.color}">${c.kw}</span>
+        <span class="ref-desc">${c.short}</span>
+        <span class="ref-toggle" id="tog-${c.id}">+</span>
+      </div>
+      <div class="ref-body" id="body-${c.id}">
+        <p>${c.desc}</p>
+        <div class="syntax-block">${c.syntax}</div>
+        <div class="perf-tip">${c.perf}</div>
+        <div style="margin-top:12px">
+          <button class="try-btn" onclick="tryClause('${c.preset}')">▶ Try in Playground</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+let openClause=null;
+function toggleClause(id) {
+  const body=document.getElementById(`body-${id}`);
+  const tog=document.getElementById(`tog-${id}`);
+  if (openClause && openClause!==id) {
+    document.getElementById(`body-${openClause}`).classList.remove('open');
+    document.getElementById(`tog-${openClause}`).textContent='+';
+  }
+  const isOpen=body.classList.toggle('open');
+  tog.textContent=isOpen?'−':'+';
+  openClause=isOpen?id:null;
+}
+
+function tryClause(preset) {
+  document.getElementById('playground').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>{
+    document.getElementById('sql-editor').value=PRESETS[preset]||PRESETS.basic;
+    document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.preset-btn').forEach(b=>{
+      if(b.textContent.toLowerCase().replace(/\s/,'')===preset||
+         (preset==='basic'&&b.textContent==='SELECT')) b.classList.add('active');
+    });
+    runQuery();
+  },400);
+}
+
+function scrollToClause(id) {
+  renderClauses();
+  document.getElementById('clauses').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>{
+    const el=document.getElementById(`ref-${id}`);
+    if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); toggleClause(id); }
+  },500);
+}
+
+// ════════════════════════════════════════════════════════
+// QUIZ
+// ════════════════════════════════════════════════════════
+const QUIZ_DATA = [
+  {
+    q:'Which clause filters rows <em>before</em> grouping?',
+    opts:['HAVING','WHERE','SELECT','GROUP BY'],
+    ans:1,
+    fb:'WHERE runs before GROUP BY, filtering individual rows. HAVING filters groups after grouping.'
+  },
+  {
+    q:'What is the correct SQL execution order?',
+    opts:['SELECT → FROM → WHERE → GROUP BY','FROM → WHERE → GROUP BY → SELECT',
+          'WHERE → FROM → SELECT → ORDER BY','GROUP BY → WHERE → FROM → SELECT'],
+    ans:1,
+    fb:'SQL executes: FROM → JOIN → WHERE → GROUP BY → HAVING → WINDOW → SELECT → ORDER BY → LIMIT.'
+  },
+  {
+    q:'Which window function returns the rank of each row within its partition?',
+    opts:['COUNT()','ROW_NUMBER()','RANK()','PARTITION()'],
+    ans:2,
+    fb:'RANK() assigns a rank within the partition. Ties get the same rank and the next rank is skipped. ROW_NUMBER() never ties.'
+  },
+  {
+    q:'You want employees with more than 2 projects. Where does the filter go?',
+    opts:['WHERE COUNT(projects) > 2','HAVING COUNT(projects) > 2',
+          'SELECT WHERE count > 2','FILTER COUNT(*) > 2'],
+    ans:1,
+    fb:'Aggregate conditions (COUNT, AVG…) must go in HAVING — they don\'t exist as row-level values before GROUP BY.'
+  },
+  {
+    q:`<code>SELECT DISTINCT city FROM employees</code> — what does DISTINCT do?`,
+    opts:['Sorts cities A→Z','Removes duplicate city values',
+          'Counts unique cities','Filters NULL cities'],
+    ans:1,
+    fb:'DISTINCT eliminates duplicate rows from the result. Each unique city appears exactly once regardless of how many employees share it.'
+  },
+  {
+    q:'Which is more performant for deep pagination?',
+    opts:['LIMIT 10 OFFSET 50000',
+          'WHERE id > 50000 LIMIT 10 (keyset)',
+          'SELECT TOP 10 SKIP 50000',
+          'Both are identical'],
+    ans:1,
+    fb:'Keyset pagination (WHERE id > last_id) uses an index and is O(1). OFFSET 50000 scans and discards 50,000 rows every page — O(n).'
+  },
+  {
+    q:`LEFT JOIN vs INNER JOIN — what's the difference?`,
+    opts:['LEFT JOIN is faster','INNER JOIN keeps only matched rows; LEFT JOIN keeps all left rows + NULLs for unmatched','LEFT JOIN requires an index','They are identical'],
+    ans:1,
+    fb:'INNER JOIN = only rows that match in both tables. LEFT JOIN = all rows from the left table; unmatched right side columns become NULL.'
+  },
+  {
+    q:'Why does <code>WHERE YEAR(hire_date) = 2022</code> hurt performance?',
+    opts:['YEAR() is not a real function','It causes a type error',
+          'Functions on columns prevent index use — the DB must scan every row',
+          'It only works in Oracle'],
+    ans:2,
+    fb:'Applying a function to an indexed column prevents the DB from using that index. Rewrite as WHERE hire_date >= \'2022-01-01\' AND hire_date < \'2023-01-01\' for index use.'
+  }
+];
+
+const quizAnswers={};
+function renderQuiz() {
+  const grid=document.getElementById('quiz-grid');
+  grid.innerHTML=QUIZ_DATA.map((q,i)=>`
+    <div class="q-card" id="q-${i}">
+      <div class="q-num">Question ${i+1} of ${QUIZ_DATA.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-opts">
+        ${q.opts.map((o,j)=>`<button class="q-opt" onclick="answerQ(${i},${j})">${o}</button>`).join('')}
+      </div>
+      <div class="q-feedback" id="qf-${i}">${q.fb}</div>
+    </div>`).join('');
+}
+
+function answerQ(qi, oi) {
+  const card=document.getElementById(`q-${qi}`);
+  if(card.dataset.done) return;
+  card.dataset.done='1';
+  const correct = oi===QUIZ_DATA[qi].ans;
+  const btns=card.querySelectorAll('.q-opt');
+  btns[oi].classList.add(correct?'correct':'wrong');
+  if(!correct) btns[QUIZ_DATA[qi].ans].classList.add('correct');
+  document.getElementById(`qf-${qi}`).classList.add('show');
+  quizAnswers[qi]=correct;
+  const score=Object.values(quizAnswers).filter(Boolean).length;
+  const total=Object.keys(quizAnswers).length;
+  document.getElementById('quiz-progress').style.width=(score/QUIZ_DATA.length*100)+'%';
+}
+
+// ════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUT
+// ════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey) && e.key==='Enter') runQuery();
+});
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  populateTables();
+  renderClauses();
+  renderQuiz();
+  runQuery();
+});
+</script>
+</body>
+</html>
