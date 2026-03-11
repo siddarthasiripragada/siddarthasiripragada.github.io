@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Explainer — Live Interactive Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&family=Literata:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#03060e;--bg2:#060b16;--bg3:#0a1020;
+  --panel:rgba(10,16,32,0.9);
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --teal:#00e5c0;--teal2:#00b89a;--teal-glow:rgba(0,229,192,0.15);
+  --amber:#f5a623;--amber-glow:rgba(245,166,35,0.12);
+  --violet:#a78bfa;--violet-glow:rgba(167,139,250,0.12);
+  --rose:#ff6b8a;--rose-glow:rgba(255,107,138,0.12);
+  --sky:#38d9f5;--sky-glow:rgba(56,217,245,0.12);
+  --emerald:#4ade80;--emerald-glow:rgba(74,222,128,0.12);
+  --text:#d0e8f0;--text2:#5a7a9a;--text3:#1e3a5a;
+  --mono:'JetBrains Mono',monospace;
+  --display:'Syne',sans-serif;
+  --serif:'Literata',serif;
+  --r:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--display);background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;}
+
+/* ─── CURSOR ─── */
+*{cursor:crosshair}
+button,a,textarea,input{cursor:pointer}
+textarea,input{cursor:text}
+
+/* ─── NOISE OVERLAY ─── */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.4;
+}
+
+/* ─── NAV ─── */
+nav{
+  position:sticky;top:0;z-index:200;height:54px;
+  background:rgba(3,6,14,0.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 32px;gap:24px;
+}
+.nav-logo{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--teal);letter-spacing:4px;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;
+}
+.nav-logo .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--teal);
+  box-shadow:0 0 8px var(--teal);
+  animation:blink 2s ease infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.nav-right{margin-left:auto;display:flex;gap:10px;align-items:center;}
+.nav-pill{
+  font-family:var(--mono);font-size:9px;letter-spacing:1px;
+  padding:5px 14px;border-radius:100px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text2);cursor:pointer;transition:all .2s;text-decoration:none;display:block;
+}
+.nav-pill:hover{border-color:var(--border2);color:var(--text);}
+.nav-pill.key{border-color:rgba(245,166,35,.4);color:var(--amber);}
+.nav-pill.key:hover{background:var(--amber-glow);}
+
+/* ─── HERO ─── */
+.hero{
+  padding:70px 48px 30px;max-width:1100px;margin:0 auto;
+  position:relative;
+}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:10px;letter-spacing:5px;
+  color:var(--teal);text-transform:uppercase;margin-bottom:20px;
+  display:flex;align-items:center;gap:16px;
+}
+.hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--teal);display:block;}
+.hero h1{
+  font-size:clamp(56px,8vw,104px);line-height:.9;font-weight:800;
+  letter-spacing:-3px;margin-bottom:20px;
+}
+.hero h1 .line2{
+  font-family:var(--serif);font-weight:300;font-style:italic;
+  font-size:clamp(44px,6vw,82px);color:var(--teal);letter-spacing:-1px;
+}
+.hero-desc{
+  font-family:var(--mono);font-size:12px;color:var(--text2);
+  max-width:560px;line-height:1.9;margin-bottom:36px;font-weight:300;
+}
+
+/* ─── FLOW CANVAS SECTION ─── */
+.flow-section{
+  max-width:1440px;margin:0 auto;padding:0 36px 40px;
+}
+.flow-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  backdrop-filter:blur(20px);
+  position:relative;
+}
+.flow-card-head{
+  padding:14px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;
+  background:rgba(0,0,0,.3);
+}
+.flow-card-title{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
+.flow-status{
+  font-family:var(--mono);font-size:10px;
+  padding:3px 12px;border-radius:100px;
+  border:1px solid rgba(0,229,192,.2);
+  background:var(--teal-glow);color:var(--teal);
+  margin-left:auto;
+}
+
+/* PIPELINE NODES */
+.pipeline-visual{
+  padding:36px 40px;
+  display:flex;align-items:center;gap:0;
+  overflow-x:auto;position:relative;
+  min-height:200px;
+}
+.pv-node{
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:10px;
+  width:120px;position:relative;z-index:2;
+}
+.pv-icon{
+  width:64px;height:64px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;border:2px solid;
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.pv-icon::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.1) 0%,transparent 70%);
+  opacity:0;transition:opacity .4s;
+}
+.pv-icon.active{animation:nodeActive .8s ease;transform:scale(1.08);}
+.pv-icon.active::before{opacity:1;}
+.pv-icon.done::after{
+  content:'✓';position:absolute;bottom:4px;right:4px;
+  font-size:9px;font-family:var(--mono);font-weight:700;
+}
+@keyframes nodeActive{
+  0%{transform:scale(1);}
+  30%{transform:scale(1.15);}
+  60%{transform:scale(1.05);}
+  100%{transform:scale(1.08);}
+}
+.pv-label{font-family:var(--mono);font-size:9px;text-align:center;letter-spacing:.5px;line-height:1.5;}
+.pv-sub{font-size:8px;opacity:.5;margin-top:2px;}
+
+/* CONNECTOR (SVG canvas for particles) */
+.pv-connector{
+  flex:1;flex-shrink:0;min-width:40px;max-width:80px;
+  height:64px;position:relative;margin-top:-10px;
+}
+.pv-connector canvas{display:block;width:100%;height:100%;}
+
+/* Stage colors */
+.node-ingest .pv-icon{border-color:rgba(56,217,245,.4);background:rgba(56,217,245,.06);color:var(--sky);}
+.node-ingest.done .pv-icon,.node-ingest.active .pv-icon{box-shadow:0 0 24px rgba(56,217,245,.35),inset 0 0 20px rgba(56,217,245,.08);}
+.node-chunk .pv-icon{border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.06);color:var(--amber);}
+.node-chunk.done .pv-icon,.node-chunk.active .pv-icon{box-shadow:0 0 24px rgba(245,166,35,.35),inset 0 0 20px rgba(245,166,35,.08);}
+.node-embed .pv-icon{border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.06);color:var(--violet);}
+.node-embed.done .pv-icon,.node-embed.active .pv-icon{box-shadow:0 0 24px rgba(167,139,250,.35),inset 0 0 20px rgba(167,139,250,.08);}
+.node-store .pv-icon{border-color:rgba(0,229,192,.4);background:rgba(0,229,192,.06);color:var(--teal);}
+.node-store.done .pv-icon,.node-store.active .pv-icon{box-shadow:0 0 24px rgba(0,229,192,.35),inset 0 0 20px rgba(0,229,192,.08);}
+.node-qembed .pv-icon{border-color:rgba(255,107,138,.4);background:rgba(255,107,138,.06);color:var(--rose);}
+.node-qembed.done .pv-icon,.node-qembed.active .pv-icon{box-shadow:0 0 24px rgba(255,107,138,.35),inset 0 0 20px rgba(255,107,138,.08);}
+.node-search .pv-icon{border-color:rgba(0,229,192,.4);background:rgba(0,229,192,.06);color:var(--teal);}
+.node-search.done .pv-icon,.node-search.active .pv-icon{box-shadow:0 0 24px rgba(0,229,192,.35),inset 0 0 20px rgba(0,229,192,.08);}
+.node-llm .pv-icon{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.06);color:var(--emerald);}
+.node-llm.done .pv-icon,.node-llm.active .pv-icon{box-shadow:0 0 24px rgba(74,222,128,.35),inset 0 0 20px rgba(74,222,128,.08);}
+
+/* ACTIVE GLOW RINGS */
+.pv-node.active .pv-icon::after,
+.pv-node.done .pv-icon::after{
+  content:'';position:absolute;inset:-6px;border-radius:20px;
+  border:1px solid currentColor;opacity:.3;
+  animation:ringPulse 1.5s ease infinite;
+}
+.pv-node.done .pv-icon::after{animation:none;opacity:.2;}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.05);opacity:.15}}
+
+/* PROGRESS BAR */
+.flow-progress{
+  height:3px;background:var(--border);position:relative;overflow:hidden;
+}
+.flow-progress-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--teal2),var(--teal),#7fffd4);
+  transition:width .5s ease;
+  position:relative;
+}
+.flow-progress-fill::after{
+  content:'';position:absolute;right:0;top:-2px;width:8px;height:7px;border-radius:50%;
+  background:var(--teal);box-shadow:0 0 12px var(--teal);
+}
+
+/* STAGE INFO TICKER */
+.flow-ticker{
+  padding:10px 24px;
+  display:flex;align-items:center;gap:12px;
+  border-top:1px solid var(--border);
+  background:rgba(0,0,0,.2);
+}
+.ticker-stage{
+  font-family:var(--mono);font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--teal);
+}
+.ticker-msg{font-family:var(--mono);font-size:10px;color:var(--text2);}
+.ticker-time{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--text3);}
+
+/* ─── WORKSPACE ─── */
+.workspace{
+  max-width:1440px;margin:0 auto;
+  padding:0 36px 80px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+@media(max-width:1000px){.workspace{grid-template-columns:1fr;}}
+
+/* CARDS */
+.card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+  backdrop-filter:blur(12px);
+}
+.card-hd{
+  padding:11px 18px;background:rgba(0,0,0,.3);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.card-hd-title{font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
+.card-hd-badge{
+  font-family:var(--mono);font-size:8px;padding:2px 9px;
+  border-radius:100px;margin-left:auto;
+}
+.b-teal{background:var(--teal-glow);color:var(--teal);border:1px solid rgba(0,229,192,.2);}
+.b-amber{background:var(--amber-glow);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
+.b-violet{background:var(--violet-glow);color:var(--violet);border:1px solid rgba(167,139,250,.2);}
+.b-rose{background:var(--rose-glow);color:var(--rose);border:1px solid rgba(255,107,138,.2);}
+.b-emerald{background:var(--emerald-glow);color:var(--emerald);border:1px solid rgba(74,222,128,.2);}
+
+.col{display:flex;flex-direction:column;gap:18px;}
+
+/* DOC AREA */
+.doc-textarea{
+  width:100%;padding:16px 18px;
+  background:transparent;border:none;outline:none;
+  font-family:var(--mono);font-size:11.5px;color:#b8d4ef;
+  resize:vertical;min-height:200px;line-height:2;
+}
+.doc-footer{
+  padding:8px 18px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.doc-footer-stat{font-family:var(--mono);font-size:9px;color:var(--text3);}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px var(--teal);animation:blink 1.5s infinite;}
+
+/* CHUNKS */
+.chunks-body{padding:14px 16px;display:flex;flex-wrap:wrap;gap:6px;}
+.chunk-pill{
+  font-family:var(--mono);font-size:9.5px;
+  padding:4px 11px;border-radius:6px;
+  border:1px solid var(--border);background:var(--bg3);
+  color:var(--text2);cursor:pointer;transition:all .25s;
+  max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.chunk-pill:hover{border-color:var(--teal);color:var(--teal);}
+.chunk-pill.retrieved{
+  border-color:var(--teal);background:var(--teal-glow);color:var(--teal);
+  box-shadow:0 0 10px rgba(0,229,192,.2);
+  animation:chunkPop .3s ease;
+}
+@keyframes chunkPop{0%{transform:scale(.95)}100%{transform:scale(1)}}
+
+/* EMBED BARS */
+.embed-wrap{padding:14px 18px;}
+.embed-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.embed-lbl{font-family:var(--mono);font-size:8.5px;color:var(--text3);width:54px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.embed-bars{display:flex;gap:2px;flex:1;align-items:center;}
+.eb{height:14px;border-radius:2px;flex-shrink:0;transition:all .6s ease;}
+
+/* QUERY */
+.query-wrap{padding:16px;}
+.q-textarea{
+  width:100%;padding:12px 14px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  outline:none;font-family:var(--mono);font-size:12px;
+  color:var(--text);resize:none;min-height:68px;line-height:1.7;
+  transition:border-color .2s;
+}
+.q-textarea:focus{border-color:var(--teal);}
+.q-textarea::placeholder{color:var(--text3);}
+
+.examples{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0;}
+.ex-btn{
+  font-family:var(--mono);font-size:9px;padding:4px 10px;
+  border-radius:4px;border:1px solid var(--border);background:var(--bg3);
+  color:var(--text2);cursor:pointer;transition:all .2s;text-align:left;line-height:1.5;
+}
+.ex-btn:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-glow);}
+
+.ask-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 26px;margin-top:4px;
+  background:var(--teal);color:#020c14;
+  border:none;border-radius:8px;
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;
+  cursor:pointer;transition:all .25s;width:100%;justify-content:center;
+}
+.ask-btn:hover{background:#1affd9;box-shadow:0 0 30px rgba(0,229,192,.4);transform:translateY(-1px);}
+.ask-btn:disabled{background:var(--text3);color:var(--bg3);transform:none;box-shadow:none;cursor:not-allowed;}
+.ask-btn .spinner{
+  width:14px;height:14px;border:2px solid rgba(0,0,0,.2);
+  border-top-color:#020c14;border-radius:50%;
+  animation:spin .8s linear infinite;display:none;
+}
+.ask-btn.loading .spinner{display:block;}
+.ask-btn.loading .btn-text{opacity:.6;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SIM BARS */
+.sim-wrap{padding:14px 18px;}
+.sim-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.sim-lbl{font-family:var(--mono);font-size:8.5px;color:var(--text2);width:110px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sim-track{flex:1;height:10px;background:var(--bg3);border-radius:100px;overflow:hidden;}
+.sim-fill{height:100%;border-radius:100px;transition:width 1.1s cubic-bezier(.4,0,.2,1);width:0;}
+.sim-pct{font-family:var(--mono);font-size:8.5px;color:var(--text3);width:28px;text-align:right;}
+
+/* ANSWER */
+.answer-wrap{padding:20px;}
+.answer-empty{
+  text-align:center;padding:40px 20px;
+  font-family:var(--mono);font-size:11px;color:var(--text3);
+}
+.answer-empty .big{font-size:36px;display:block;margin-bottom:12px;opacity:.3;}
+.answer-main{display:none;}
+.answer-main.show{display:block;animation:fadeUp .4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.answer-text{
+  font-family:var(--serif);font-size:14px;color:var(--text);
+  line-height:1.9;margin-bottom:18px;font-weight:300;
+}
+.answer-sources-lbl{
+  font-family:var(--mono);font-size:8.5px;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--text3);margin-bottom:8px;
+}
+.answer-chunk{
+  background:var(--bg3);border:1px solid rgba(0,229,192,.15);
+  border-radius:7px;padding:10px 14px;margin-bottom:6px;
+  font-family:var(--mono);font-size:10.5px;color:var(--teal);
+  line-height:1.7;position:relative;
+}
+.answer-chunk-score{
+  position:absolute;top:8px;right:10px;
+  font-size:8px;color:var(--text3);
+}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:32px;width:460px;animation:fadeUp .3s ease;}
+.modal h3{font-family:var(--serif);font-size:26px;margin-bottom:6px;font-weight:300;font-style:italic;}
+.modal p{font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:18px;line-height:1.7;}
+.modal input{
+  width:100%;padding:11px 14px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:8px;
+  font-family:var(--mono);font-size:12px;color:var(--text);
+  outline:none;margin-bottom:8px;transition:border-color .2s;
+}
+.modal input:focus{border-color:var(--teal);}
+.modal-note{font-family:var(--mono);font-size:9.5px;color:var(--text3);margin-bottom:18px;line-height:1.7;}
+.modal-btns{display:flex;gap:8px;}
+.modal-save{padding:10px 22px;background:var(--teal);color:#020c14;border:none;border-radius:7px;font-family:var(--mono);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.modal-save:hover{background:#1affd9;}
+.modal-cancel{padding:10px 16px;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:7px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .2s;}
+.modal-cancel:hover{border-color:var(--border2);}
+
+/* ERROR */
+.err-box{background:var(--rose-glow);border:1px solid rgba(255,107,138,.3);border-radius:7px;padding:11px 14px;font-family:var(--mono);font-size:10px;color:var(--rose);line-height:1.6;}
+
+/* CONCEPT SECTION */
+.concepts-section{max-width:1440px;margin:0 auto;padding:0 36px 100px;}
+.section-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:4px;color:var(--teal);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
+.section-eyebrow::before{content:'';width:28px;height:1px;background:var(--teal);}
+.section-h{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1px;margin-bottom:36px;}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+.concept-card{
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:22px 22px 20px;transition:all .25s;
+  background:rgba(10,16,32,.6);
+}
+.concept-card:hover{border-color:var(--border2);transform:translateY(-3px);}
+.cc-icon{font-size:22px;margin-bottom:12px;}
+.cc-title{font-size:13px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px;}
+.cc-body{font-family:var(--mono);font-size:10.5px;color:var(--text2);line-height:1.8;}
+.cc-tip{
+  margin-top:12px;padding:8px 12px;border-radius:6px;
+  font-family:var(--mono);font-size:9.5px;line-height:1.6;
+  border-left:2px solid;
+}
+
+footer{border-top:1px solid var(--border);padding:24px 36px;display:flex;align-items:center;justify-content:space-between;}
+.ft-logo{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--teal);letter-spacing:3px;}
+.ft-note{font-family:var(--mono);font-size:9px;color:var(--text3);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3>Set API Key</h3>
+    <p>Paste your Anthropic API key to enable live Claude synthesis. Stored only in sessionStorage — never sent anywhere except Anthropic's API.</p>
+    <input type="password" id="api-key-in" placeholder="sk-ant-api03-…" />
+    <div class="modal-note">🔒 Stays in your browser tab only. Get a key at console.anthropic.com</div>
+    <div class="modal-btns">
+      <button class="modal-save" onclick="saveKey()">Save & Close</button>
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><div class="dot"></div> RAG · Explainer</div>
+  <div class="nav-right">
+    <a href="#playground" class="nav-pill">Playground</a>
+    <a href="#concepts" class="nav-pill">Concepts</a>
+    <button class="nav-pill key" onclick="openModal()">⚙ API Key</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Interactive ML Demo</div>
+  <h1>
+    Retrieval<br>
+    <span class="line2">Augmented Generation</span>
+  </h1>
+  <p class="hero-desc">
+    Paste any text. Ask a question. Watch live as your document is chunked,<br>
+    embedded, retrieved and synthesized — every step animated in real time.
+  </p>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ANIMATED FLOW DIAGRAM
+══════════════════════════════════════════════════ -->
+<div class="flow-section">
+  <div class="flow-card">
+    <div class="flow-card-head">
+      <span class="flow-card-title">Live Pipeline Visualization</span>
+      <span class="flow-status" id="flow-status-badge">● Idle — paste a doc and ask a question</span>
+    </div>
+    <div class="flow-progress"><div class="flow-progress-fill" id="flow-progress"></div></div>
+
+    <!-- NODES ROW -->
+    <div class="pipeline-visual" id="pipeline-visual">
+      <!-- Built by JS -->
+    </div>
+
+    <!-- CANVAS LAYER for particles (sits behind nodes) -->
+    <canvas id="particle-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+
+    <div class="flow-ticker">
+      <span class="ticker-stage" id="ticker-stage">WAITING</span>
+      <span class="ticker-msg" id="ticker-msg">Add your document and ask a question to start the pipeline.</span>
+      <span class="ticker-time" id="ticker-time">—</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     WORKSPACE
+══════════════════════════════════════════════════ -->
+<div class="workspace" id="playground">
+
+  <!-- LEFT COL -->
+  <div class="col">
+
+    <!-- DOCUMENT INPUT -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">Your Document</span>
+        <span class="card-hd-badge b-sky" id="doc-badge">10 chunks</span>
+      </div>
+      <textarea class="doc-textarea" id="doc-input" placeholder="Paste any text here — articles, notes, research papers, wikis…" rows="11">Retrieval-Augmented Generation (RAG) is a powerful AI architecture that combines information retrieval with language model generation. It was introduced by researchers at Facebook AI Research in 2020.
+
+In a RAG system, the process begins when a user submits a question or query. The system first encodes this query into a high-dimensional vector representation using an embedding model. This embedding captures the semantic meaning of the question.
+
+The document corpus is preprocessed by splitting it into smaller chunks, typically 200-500 tokens each. Each chunk is embedded separately and stored in a vector database alongside its original text.
+
+When a query arrives, the system performs a similarity search against all stored chunk embeddings using metrics like cosine similarity or dot product. The top-k most similar chunks are retrieved as context.
+
+These retrieved chunks are then passed to a large language model along with the original query. The LLM synthesizes an answer grounded strictly in the provided context, avoiding hallucination by relying only on retrieved information.
+
+RAG has several key advantages over pure language model generation. It allows models to access up-to-date information without retraining. It provides source attribution by showing which documents were used. It significantly reduces hallucination by grounding answers in real retrieved text.
+
+Vector databases like Pinecone, Weaviate, Chroma, and FAISS are commonly used for efficient similarity search at scale. They use approximate nearest neighbor algorithms to retrieve relevant chunks in milliseconds even across millions of documents.
+
+Embedding models such as OpenAI text-embedding-ada-002, Cohere Embed, and open-source models like sentence-transformers convert text into dense vector representations. The quality of these embeddings directly impacts retrieval accuracy.
+
+Chunk size is a critical hyperparameter in RAG systems. Smaller chunks provide more precise retrieval but may lack context. Larger chunks preserve context but may dilute the relevance signal. Overlapping chunks with a stride can help bridge contextual boundaries.
+
+Advanced RAG techniques include query expansion, re-ranking with cross-encoders, hypothetical document embedding (HyDE), and multi-vector retrieval. These techniques improve retrieval precision and answer quality significantly.</textarea>
+      <div class="doc-footer">
+        <div class="live-dot"></div>
+        <span class="doc-footer-stat" id="doc-stat">Ready · 10 chunks · ~890 words</span>
+      </div>
+    </div>
+
+    <!-- CHUNKS -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">Text Chunks</span>
+        <span class="card-hd-badge b-amber">Step 2 · Chunking</span>
+      </div>
+      <div class="chunks-body" id="chunks-body">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);padding:6px;">Loading chunks…</div>
+      </div>
+    </div>
+
+    <!-- EMBEDDING VIS -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">Embedding Space</span>
+        <span class="card-hd-badge b-violet">Step 3 · Vectors</span>
+      </div>
+      <div class="embed-wrap" id="embed-wrap">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);padding:6px;">Vector bars appear after a query runs…</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COL -->
+  <div class="col">
+
+    <!-- QUERY -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">Your Question</span>
+        <span class="card-hd-badge b-teal">Query Input</span>
+      </div>
+      <div class="query-wrap">
+        <textarea class="q-textarea" id="q-input" placeholder="Ask anything about the document…" rows="3"></textarea>
+        <div class="examples" id="examples-row"></div>
+        <button class="ask-btn" id="ask-btn" onclick="runRAG()">
+          <div class="spinner"></div>
+          <span class="btn-text">▶ &nbsp;Run RAG Pipeline</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SIMILARITY -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">Similarity Scores</span>
+        <span class="card-hd-badge b-teal">Step 4 · Vector Search</span>
+      </div>
+      <div class="sim-wrap">
+        <div id="sim-grid"><div style="font-family:var(--mono);font-size:10px;color:var(--text3);padding:6px;">Scores appear after query runs…</div></div>
+      </div>
+    </div>
+
+    <!-- ANSWER -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-hd-title">Synthesized Answer</span>
+        <span class="card-hd-badge b-emerald" id="answer-badge">Step 5 · LLM</span>
+      </div>
+      <div class="answer-wrap">
+        <div class="answer-empty" id="answer-empty">
+          <span class="big">◈</span>
+          Ask a question to see the RAG pipeline synthesize<br>a grounded answer from retrieved chunks.
+        </div>
+        <div class="answer-main" id="answer-main">
+          <div class="answer-text" id="answer-text"></div>
+          <div class="answer-sources-lbl">Retrieved Context</div>
+          <div id="answer-chunks"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONCEPTS -->
+<div class="concepts-section" id="concepts">
+  <div class="section-eyebrow">Key Concepts</div>
+  <div class="section-h">How Every Stage Works</div>
+  <div class="concept-grid">
+    <div class="concept-card" style="border-color:rgba(56,217,245,.15)">
+      <div class="cc-icon">📄</div>
+      <div class="cc-title" style="color:var(--sky)">Document Ingestion</div>
+      <div class="cc-body">Raw documents are loaded, cleaned and stripped of noise. Metadata like source, page and date is preserved alongside the text for later attribution.</div>
+      <div class="cc-tip" style="border-color:var(--sky);background:var(--sky-glow);color:var(--sky)">⚡ Garbage in, garbage out — preprocessing quality determines answer quality.</div>
+    </div>
+    <div class="concept-card" style="border-color:rgba(245,166,35,.15)">
+      <div class="cc-icon">✂</div>
+      <div class="cc-title" style="color:var(--amber)">Text Chunking</div>
+      <div class="cc-body">Documents are split into overlapping passages of 200–500 tokens. Chunk size and stride are critical hyperparameters: too small loses context; too large dilutes relevance.</div>
+      <div class="cc-tip" style="border-color:var(--amber);background:var(--amber-glow);color:var(--amber)">⚡ Overlapping windows (10-20% stride) prevent key facts splitting across boundaries.</div>
+    </div>
+    <div class="concept-card" style="border-color:rgba(167,139,250,.15)">
+      <div class="cc-icon">🔢</div>
+      <div class="cc-title" style="color:var(--violet)">Embedding Generation</div>
+      <div class="cc-body">Each chunk is transformed into a dense vector of 768–3072 numbers. Semantically similar text lands close together in this high-dimensional space — the heart of semantic search.</div>
+      <div class="cc-tip" style="border-color:var(--violet);background:var(--violet-glow);color:var(--violet)">⚡ The embedding model is the backbone. Better embeddings = better retrieval accuracy.</div>
+    </div>
+    <div class="concept-card" style="border-color:rgba(0,229,192,.15)">
+      <div class="cc-icon">🗄</div>
+      <div class="cc-title" style="color:var(--teal)">Vector Store</div>
+      <div class="cc-body">Embeddings are indexed in a vector database (Pinecone, FAISS, Chroma). ANN algorithms like HNSW retrieve the nearest neighbors in milliseconds across millions of vectors.</div>
+      <div class="cc-tip" style="border-color:var(--teal);background:var(--teal-glow);color:var(--teal)">⚡ ANN search is O(log n). Cosine similarity is the most common distance metric used.</div>
+    </div>
+    <div class="concept-card" style="border-color:rgba(255,107,138,.15)">
+      <div class="cc-icon">🔍</div>
+      <div class="cc-title" style="color:var(--rose)">Similarity Search</div>
+      <div class="cc-body">The query vector is compared against all stored embeddings. Top-k chunks (typically 3–5) with highest similarity scores become the context window for the LLM.</div>
+      <div class="cc-tip" style="border-color:var(--rose);background:var(--rose-glow);color:var(--rose)">⚡ Re-ranking with a cross-encoder after ANN retrieval dramatically lifts precision.</div>
+    </div>
+    <div class="concept-card" style="border-color:rgba(74,222,128,.15)">
+      <div class="cc-icon">🧠</div>
+      <div class="cc-title" style="color:var(--emerald)">LLM Synthesis</div>
+      <div class="cc-body">Retrieved chunks + query are injected into the LLM prompt. The model synthesizes a grounded answer using only provided context — no hallucination, full attribution.</div>
+      <div class="cc-tip" style="border-color:var(--emerald);background:var(--emerald-glow);color:var(--emerald)">⚡ Prompt: "Answer ONLY from context. If absent, say so." eliminates confabulation.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft-logo">RAG · EXPLAINER</div>
+  <div class="ft-note">Embeddings simulated via TF-IDF · LLM powered by Claude claude-sonnet-4-20250514 · Static GitHub Pages demo</div>
+</footer>
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════ -->
+<script>
+// ══════ CONFIG ══════
+const PIPELINE = [
+  {id:'ingest', icon:'📄', label:'Ingest',     sub:'Document',    color:'#38d9f5', pct:14},
+  {id:'chunk',  icon:'✂',  label:'Chunk',      sub:'Text',        color:'#f5a623', pct:28},
+  {id:'embed',  icon:'🔢', label:'Embed',      sub:'Vectors',     color:'#a78bfa', pct:42},
+  {id:'store',  icon:'🗄', label:'Store',      sub:'Index',       color:'#00e5c0', pct:56},
+  {id:'qembed', icon:'❓', label:'Q·Embed',    sub:'Query',       color:'#ff6b8a', pct:70},
+  {id:'search', icon:'🔍', label:'Search',     sub:'Top-K',       color:'#00e5c0', pct:84},
+  {id:'llm',    icon:'🧠', label:'Synthesize', sub:'LLM Answer',  color:'#4ade80', pct:100},
+];
+
+const EXAMPLES = [
+  'What is RAG and why was it created?',
+  'How do vector databases improve retrieval?',
+  'What are the advantages of RAG over pure LLM?',
+  'What embedding models are commonly used?',
+  'How does chunk size affect performance?',
+  'What are advanced RAG techniques?',
+];
+
+const STOPWORDS = new Set(['the','and','for','are','was','that','this','with','have','from','they','been','has','its','but','not','also','can','all','more','will','into','which','when','their','than','there','about','out','over','just','some','each','what','how','who','may','use','used','using','like','such','then','them','these','those','would','could','should','does','did','had']);
+
+// ══════ STATE ══════
+let chunks=[], nodeEls={}, particles=[], animFrame=null, pipelineRunning=false;
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+
+// ══════ INIT ══════
+window.addEventListener('DOMContentLoaded', () => {
+  buildPipelineNodes();
+  buildExamples();
+  processDoc();
+  document.getElementById('doc-input').addEventListener('input', debounce(processDoc, 500));
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  startParticleLoop();
+});
+
+function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);}}
+
+// ══════ CANVAS ══════
+function resizeCanvas(){
+  const pv = document.getElementById('pipeline-visual');
+  const rect = pv.getBoundingClientRect();
+  canvas.width = pv.offsetWidth;
+  canvas.height = pv.offsetHeight + 80;
+  canvas.style.top = pv.offsetTop + 'px';
+}
+
+// ══════ PIPELINE NODES ══════
+function buildPipelineNodes(){
+  const pv = document.getElementById('pipeline-visual');
+  pv.innerHTML = PIPELINE.map((s,i) => `
+    <div class="pv-node node-${s.id}" id="pn-${s.id}" data-i="${i}" data-color="${s.color}">
+      <div class="pv-icon" id="pi-${s.id}">${s.icon}</div>
+      <div class="pv-label" style="color:${s.color}">${s.label}</div>
+      <div class="pv-sub">${s.sub}</div>
+    </div>
+    ${i < PIPELINE.length-1 ? `<div class="pv-connector" id="pc-${i}"></div>` : ''}
+  `).join('');
+  PIPELINE.forEach(s=>{nodeEls[s.id]=document.getElementById(`pn-${s.id}`);});
+}
+
+function setNodeState(id, state){
+  const n = nodeEls[id]; if(!n) return;
+  n.classList.remove('active','done');
+  if(state==='active'||state==='done') n.classList.add(state);
+}
+function resetNodes(){PIPELINE.forEach(s=>setNodeState(s.id,'idle'));}
+
+// ══════ PARTICLE SYSTEM ══════
+function getNodeCenter(id){
+  const n = nodeEls[id]; if(!n) return null;
+  const pv = document.getElementById('pipeline-visual');
+  const nr = n.getBoundingClientRect();
+  const pvr = pv.getBoundingClientRect();
+  return {
+    x: nr.left - pvr.left + nr.width/2,
+    y: nr.top - pvr.top + nr.height/2
+  };
+}
+
+function spawnParticles(fromId, toId, color, count=6){
+  const from = getNodeCenter(fromId);
+  const to   = getNodeCenter(toId);
+  if(!from||!to) return;
+  for(let i=0;i<count;i++){
+    particles.push({
+      x:from.x, y:from.y,
+      tx:to.x, ty:to.y,
+      color, progress:0,
+      speed: 0.012 + Math.random()*0.010,
+      size: 2.5 + Math.random()*2,
+      offsetY: (Math.random()-0.5)*18,
+      alive:true
+    });
+  }
+}
+
+function startParticleLoop(){
+  function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles = particles.filter(p=>p.alive);
+    particles.forEach(p=>{
+      p.progress = Math.min(1, p.progress+p.speed);
+      // Bezier curve
+      const t = p.progress;
+      const mx = (p.x+p.tx)/2;
+      const my = (p.y+p.ty)/2 + p.offsetY;
+      const bx = (1-t)*(1-t)*p.x + 2*(1-t)*t*mx + t*t*p.tx;
+      const by = (1-t)*(1-t)*p.y + 2*(1-t)*t*my + t*t*p.ty;
+
+      // Trail
+      ctx.beginPath();
+      ctx.arc(bx,by,p.size,0,Math.PI*2);
+      ctx.fillStyle = p.color+'cc';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = p.color;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      if(p.progress>=1) p.alive=false;
+    });
+    animFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ══════ DOC PROCESSING ══════
+function processDoc(){
+  const text = document.getElementById('doc-input').value.trim();
+  if(!text){chunks=[];renderChunks();return;}
+  const paras = text.split(/\n\n+/).map(p=>p.trim()).filter(p=>p.length>30);
+  chunks = paras.map((p,i)=>({id:i, text:p, preview:p.slice(0,55)+(p.length>55?'…':''), tokens:Math.round(p.split(/\s+/).length*1.3)}));
+  document.getElementById('doc-badge').textContent = chunks.length+' chunks';
+  document.getElementById('doc-stat').textContent = `Ready · ${chunks.length} chunks · ~${text.split(/\s+/).length} words`;
+  renderChunks();
+}
+
+function renderChunks(){
+  const b = document.getElementById('chunks-body');
+  if(!chunks.length){b.innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--text3);padding:6px;">No document loaded.</div>';return;}
+  b.innerHTML = chunks.map((c,i)=>`
+    <div class="chunk-pill" id="cp-${i}" title="${c.text}" onclick="peekChunk(${i})">[${i+1}] ${c.preview}</div>`).join('');
+}
+
+function peekChunk(i){
+  document.querySelectorAll('.chunk-pill').forEach(p=>p.classList.remove('retrieved'));
+  document.getElementById(`cp-${i}`)?.classList.add('retrieved');
+}
+
+function highlightChunks(retrieved){
+  document.querySelectorAll('.chunk-pill').forEach(p=>p.classList.remove('retrieved'));
+  retrieved.forEach(c=>document.getElementById(`cp-${c.id}`)?.classList.add('retrieved'));
+}
+
+// ══════ EXAMPLES ══════
+function buildExamples(){
+  document.getElementById('examples-row').innerHTML = EXAMPLES.map(q=>
+    `<button class="ex-btn" onclick="setQ(this)">${q}</button>`).join('');
+}
+function setQ(btn){
+  document.getElementById('q-input').value=btn.textContent;
+  document.querySelectorAll('.ex-btn').forEach(b=>b.style.borderColor='');
+  btn.style.borderColor='var(--violet)';
+}
+
+// ══════ TF-IDF ══════
+function tokenize(t){
+  return t.toLowerCase().replace(/[^a-z0-9\s]/g,'').split(/\s+/).filter(w=>w.length>2&&!STOPWORDS.has(w));
+}
+function tfidf(query,docs){
+  const qt=tokenize(query), dls=docs.map(d=>tokenize(d)), N=docs.length;
+  const idf={};
+  qt.forEach(t=>{const df=dls.filter(d=>d.includes(t)).length;idf[t]=df>0?Math.log((N+1)/(df+1))+1:0;});
+  return dls.map(tokens=>{
+    const tf={};tokens.forEach(t=>tf[t]=(tf[t]||0)+1);
+    let s=0;qt.forEach(t=>{s+=(tf[t]||0)*(idf[t]||0);});
+    return s/(Math.sqrt(tokens.length||1)*Math.sqrt(qt.length||1));
+  });
+}
+
+// ══════ TICKER ══════
+function tick(stageId, msg){
+  const s = PIPELINE.find(p=>p.id===stageId);
+  document.getElementById('ticker-stage').textContent = (s?.label||stageId).toUpperCase();
+  document.getElementById('ticker-msg').textContent = msg;
+  document.getElementById('ticker-time').textContent = new Date().toLocaleTimeString();
+  if(s) document.getElementById('ticker-stage').style.color=s.color;
+}
+function setProgress(pct){document.getElementById('flow-progress').style.width=pct+'%';}
+function setFlowBadge(text){document.getElementById('flow-status-badge').textContent=text;}
+
+// ══════ EMBED VIS ══════
+function renderEmbedVis(){
+  const colors=['#a78bfa','#00e5c0','#f5a623','#ff6b8a','#38d9f5','#4ade80','#c084fc','#fb7185','#fbbf24','#60a5fa'];
+  document.getElementById('embed-wrap').innerHTML=`<div>${
+    chunks.slice(0,8).map((c,i)=>{
+      const bars=Array.from({length:14},()=>Math.random());
+      return `<div class="embed-row">
+        <div class="embed-lbl" title="${c.text}">[${i+1}]</div>
+        <div class="embed-bars">${bars.map(v=>`
+          <div class="eb" style="width:${v*14+3}px;background:${colors[i%colors.length]};opacity:${.25+v*.75}"></div>`).join('')}
+        </div>
+        <span style="font-family:var(--mono);font-size:8px;color:var(--text3);margin-left:4px">${c.tokens}t</span>
+      </div>`;
+    }).join('')
+  }</div>`;
+}
+
+// ══════ SIM BARS ══════
+function renderSim(ranked){
+  const max=ranked[0]?.score||1;
+  document.getElementById('sim-grid').innerHTML=ranked.slice(0,8).map((c,i)=>{
+    const pct=max>0?(c.score/max)*100:0;
+    const col=i<3?'linear-gradient(90deg,var(--teal2),var(--teal))':'linear-gradient(90deg,rgba(0,229,192,.3),rgba(0,229,192,.5))';
+    return `<div class="sim-row">
+      <div class="sim-lbl" title="${c.text}">[${c.id+1}] ${c.preview?.slice(0,22)||'…'}…</div>
+      <div class="sim-track"><div class="sim-fill" style="background:${col}" data-w="${pct.toFixed(1)}"></div></div>
+      <div class="sim-pct">${(c.score*100).toFixed(0)}%</div>
+    </div>`;
+  }).join('');
+  setTimeout(()=>document.querySelectorAll('.sim-fill').forEach(b=>b.style.width=b.dataset.w+'%'),60);
+}
+
+// ══════ ANSWER ══════
+function showAnswer(text,retrieved,fallback=false){
+  document.getElementById('answer-empty').style.display='none';
+  const m=document.getElementById('answer-main');
+  m.classList.add('show');
+  document.getElementById('answer-text').textContent=text;
+  document.getElementById('answer-chunks').innerHTML=retrieved.map((c,i)=>`
+    <div class="answer-chunk">
+      <span class="answer-chunk-score">sim ${(c.score*100).toFixed(0)}%</span>
+      <strong>[Chunk ${c.id+1}]</strong> ${c.text.slice(0,220)}${c.text.length>220?'…':''}
+    </div>`).join('');
+  document.getElementById('answer-badge').textContent=fallback?'Fallback Mode':'Step 5 · LLM ✓';
+}
+function clearAnswer(){
+  document.getElementById('answer-empty').style.display='';
+  document.getElementById('answer-main').classList.remove('show');
+}
+
+// ══════ CLAUDE API ══════
+async function callClaude(query,retrieved){
+  const key=sessionStorage.getItem('anthropic_key');
+  if(!key) throw new Error('No API key');
+  const context=retrieved.map((c,i)=>`[Chunk ${i+1} · similarity ${c.score.toFixed(3)}]\n${c.text}`).join('\n\n---\n\n');
+  const prompt=`You are a RAG system. Answer the user's question STRICTLY based on the document chunks provided. Do not use outside knowledge. If the answer is not present in the chunks, clearly state that.
+
+RETRIEVED CHUNKS:
+${context}
+
+QUESTION: ${query}
+
+Give a clear, concise answer grounded entirely in the retrieved chunks above.`;
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})
+  });
+  if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||'API error '+resp.status);}
+  const data=await resp.json();
+  return data.content[0].text;
+}
+
+// ══════ MAIN PIPELINE ══════
+async function runRAG(){
+  const query=document.getElementById('q-input').value.trim();
+  if(!query){alert('Please enter a question.');return;}
+  if(!chunks.length){alert('Please add a document first.');return;}
+
+  const btn=document.getElementById('ask-btn');
+  btn.disabled=true; btn.classList.add('loading');
+  resetNodes(); clearAnswer();
+  document.getElementById('embed-wrap').innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--text3);padding:6px;">Computing…</div>';
+  document.getElementById('sim-grid').innerHTML='<div style="font-family:var(--mono);font-size:10px;color:var(--text3);padding:6px;">Computing…</div>';
+  setProgress(0);
+  setFlowBadge('● Running pipeline…');
+  const t0=performance.now();
+
+  // ── 1 INGEST ──
+  setNodeState('ingest','active');
+  tick('ingest',`Loaded ${document.getElementById('doc-input').value.split(/\s+/).length} words from document`);
+  await delay(320);
+  spawnParticles('ingest','chunk','#38d9f5',7);
+  setNodeState('ingest','done'); setProgress(14);
+
+  // ── 2 CHUNK ──
+  setNodeState('chunk','active');
+  tick('chunk',`Splitting into ${chunks.length} overlapping chunks…`);
+  await delay(380);
+  spawnParticles('chunk','embed','#f5a623',7);
+  setNodeState('chunk','done'); setProgress(28);
+
+  // ── 3 EMBED ──
+  setNodeState('embed','active');
+  tick('embed','Encoding each chunk into high-dimensional vector space…');
+  await delay(420);
+  renderEmbedVis();
+  spawnParticles('embed','store','#a78bfa',8);
+  setNodeState('embed','done'); setProgress(42);
+
+  // ── 4 STORE ──
+  setNodeState('store','active');
+  tick('store',`Indexed ${chunks.length} embeddings in vector store`);
+  await delay(260);
+  setNodeState('store','done'); setProgress(56);
+
+  // ── 5 QUERY EMBED ──
+  setNodeState('qembed','active');
+  tick('qembed',`Embedding query: "${query.slice(0,50)}${query.length>50?'…':''}"`);
+  await delay(320);
+  spawnParticles('qembed','search','#ff6b8a',7);
+  setNodeState('qembed','done'); setProgress(70);
+
+  // ── 6 SIMILARITY SEARCH ──
+  setNodeState('search','active');
+  tick('search','Computing cosine similarity against all chunk embeddings…');
+  await delay(380);
+  const scores=tfidf(query,chunks.map(c=>c.text));
+  const ranked=chunks.map((c,i)=>({...c,score:scores[i]})).sort((a,b)=>b.score-a.score);
+  const topK=ranked.slice(0,3);
+  renderSim(ranked);
+  highlightChunks(topK);
+  spawnParticles('search','llm','#00e5c0',10);
+  setNodeState('search','done');
+  setProgress(84);
+  tick('search',`Retrieved top-${topK.length} chunks · scores: ${topK.map(c=>c.score.toFixed(3)).join(', ')}`);
+
+  // ── 7 LLM ──
+  setNodeState('llm','active');
+  tick('llm','Synthesizing answer from retrieved context with Claude…');
+  await delay(200);
+
+  try{
+    const answer=await callClaude(query,topK);
+    setNodeState('llm','done'); setProgress(100);
+    const elapsed=Math.round(performance.now()-t0);
+    setFlowBadge(`✓ Complete · ${elapsed}ms`);
+    tick('llm',`Answer synthesized · ${answer.split(/\s+/).length} words · ${elapsed}ms total`);
+    showAnswer(answer,topK);
+  } catch(e){
+    setNodeState('llm','idle');
+    const fallback=topK.length?`Based on the most relevant chunk:\n\n"${topK[0].text.slice(0,280)}…"\n\n[Set your API key via ⚙ API Key to get a full synthesized answer from Claude]`:'No relevant chunks found.';
+    setProgress(95);
+    setFlowBadge('⚠ Fallback mode (no API key)');
+    tick('llm','No API key — showing raw chunk. Set key via ⚙ API Key button.');
+    showAnswer(fallback,topK,true);
+  }
+
+  btn.disabled=false; btn.classList.remove('loading');
+}
+
+// ══════ MODAL ══════
+function openModal(){document.getElementById('modal').classList.add('open');const k=sessionStorage.getItem('anthropic_key');if(k)document.getElementById('api-key-in').value=k;}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function saveKey(){const k=document.getElementById('api-key-in').value.trim();if(k){sessionStorage.setItem('anthropic_key',k);closeModal();setFlowBadge('● API key set — ready');}}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+</script>
+</body>
+</html>

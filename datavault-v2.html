@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Vault 2.0 — Visual Architecture | Siddhartha Siripragada</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Fira+Code:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f3ed;
+  --bg2:#ede8e0;
+  --bg3:#e3ddd4;
+  --ink:#1a1c24;
+  --ink2:#4a4d5a;
+  --ink3:#9a9daa;
+  --paper:#faf8f4;
+  --rust:#c4622d;
+  --rust2:#e07040;
+  --rust3:rgba(196,98,45,.1);
+  --rust4:rgba(196,98,45,.05);
+  --navy:#1e3a5f;
+  --navy2:#2a4f7c;
+  --navy3:rgba(30,58,95,.08);
+  --teal:#1a7a6e;
+  --teal2:rgba(26,122,110,.1);
+  --plum:#6b3f6b;
+  --plum2:rgba(107,63,107,.1);
+  --gold:#b8860b;
+  --gold2:rgba(184,134,11,.1);
+  --border:rgba(26,28,36,.1);
+  --border2:rgba(26,28,36,.2);
+  --mono:'Fira Code',monospace;
+  --display:'Cabinet Grotesk',sans-serif;
+  --serif:'Fraunces',serif;
+  --r:10px;
+  --shadow:0 1px 3px rgba(26,28,36,.08),0 8px 24px rgba(26,28,36,.06);
+  --shadow2:0 2px 8px rgba(26,28,36,.12),0 16px 40px rgba(26,28,36,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--display);background:var(--bg);color:var(--ink);overflow-x:hidden;line-height:1.6;}
+
+/* TEXTURE */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='.6' fill='rgba(26,28,36,.04)'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;
+}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:300;height:54px;
+  background:rgba(247,243,237,.95);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 40px;gap:0;
+}
+.nav-brand{
+  font-family:var(--display);font-size:14px;font-weight:900;
+  color:var(--ink);letter-spacing:-.5px;
+  display:flex;align-items:center;gap:8px;
+}
+.nav-brand .dot{
+  width:8px;height:8px;border-radius:2px;
+  background:var(--rust);
+}
+.nav-links{display:flex;gap:0;margin-left:auto;list-style:none;}
+.nav-links a{
+  font-family:var(--mono);font-size:9px;letter-spacing:.5px;
+  padding:0 16px;height:54px;display:flex;align-items:center;
+  color:var(--ink3);text-decoration:none;transition:color .2s;
+  border-left:1px solid var(--border);text-transform:uppercase;
+}
+.nav-links a:hover{color:var(--rust);}
+.nav-author{font-family:var(--mono);font-size:9px;color:var(--ink3);padding-left:20px;border-left:1px solid var(--border);}
+
+/* HERO */
+.hero{
+  padding:70px 60px 50px;max-width:1200px;margin:0 auto;
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
+}
+@media(max-width:900px){.hero{grid-template-columns:1fr;}}
+.hero-left{}
+.hero-tag{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--rust);text-transform:uppercase;margin-bottom:16px;}
+.hero-h{font-family:var(--serif);font-size:clamp(48px,7vw,88px);line-height:.9;letter-spacing:-2px;font-weight:700;margin-bottom:20px;}
+.hero-h em{font-style:italic;color:var(--rust);font-weight:300;}
+.hero-desc{font-size:15px;color:var(--ink2);line-height:1.8;font-weight:400;max-width:420px;margin-bottom:28px;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;}
+.h-pill{
+  font-family:var(--mono);font-size:9px;padding:5px 14px;
+  border-radius:100px;border:1px solid var(--border2);
+  background:var(--paper);color:var(--ink2);letter-spacing:.5px;
+}
+
+/* HERO MINI DIAGRAM */
+.hero-diagram{
+  background:var(--paper);border:1px solid var(--border);
+  border-radius:16px;padding:24px;box-shadow:var(--shadow2);
+}
+
+/* SECTION */
+.sec{max-width:1200px;margin:0 auto;padding:70px 60px;position:relative;z-index:1;}
+.sec-tag{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--rust);text-transform:uppercase;margin-bottom:10px;}
+.sec-h{font-family:var(--serif);font-size:clamp(30px,5vw,52px);font-weight:700;line-height:.95;letter-spacing:-1.5px;margin-bottom:8px;}
+.sec-h em{font-style:italic;color:var(--rust);font-weight:300;}
+.sec-sub{font-size:14px;color:var(--ink2);margin-bottom:44px;max-width:600px;font-weight:400;line-height:1.7;}
+hr.sec-rule{border:none;border-top:1px solid var(--border);margin:0 60px;position:relative;z-index:1;}
+
+/* CARD */
+.card{
+  background:var(--paper);border:1px solid var(--border);
+  border-radius:var(--r);box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+/* ════ WHY — PROBLEM VISUAL GRID ════ */
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:900px){.why-grid{grid-template-columns:1fr 1fr;}}
+.why-card{
+  background:var(--paper);border:1px solid var(--border);
+  border-radius:var(--r);padding:22px 22px 18px;
+  position:relative;overflow:hidden;transition:all .25s;
+  box-shadow:var(--shadow);
+}
+.why-card:hover{transform:translateY(-3px);box-shadow:var(--shadow2);}
+.why-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--rust);
+}
+.why-icon{
+  width:44px;height:44px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:14px;
+  background:var(--rust3);border:1px solid rgba(196,98,45,.15);
+}
+.why-title{font-size:13px;font-weight:800;margin-bottom:6px;color:var(--ink);letter-spacing:-.3px;}
+.why-from{
+  font-family:var(--mono);font-size:9px;padding:2px 8px;
+  border-radius:100px;background:var(--bg3);
+  color:var(--ink3);margin-bottom:10px;display:inline-block;
+}
+.why-body{font-size:12px;color:var(--ink2);line-height:1.7;font-weight:400;}
+
+/* ════ THREE PILLARS SVG DIAGRAM ════ */
+.pillars-wrap{
+  background:var(--paper);border:1px solid var(--border);
+  border-radius:16px;padding:32px;box-shadow:var(--shadow2);
+  overflow-x:auto;
+}
+#pillars-svg{width:100%;max-width:1000px;display:block;margin:0 auto;}
+
+/* ════ ENTITY DIAGRAM ════ */
+.entity-wrap{
+  background:var(--paper);border:1px solid var(--border);
+  border-radius:16px;box-shadow:var(--shadow2);
+  overflow:hidden;
+}
+.entity-tabs{
+  display:flex;border-bottom:1px solid var(--border);
+  background:var(--bg2);
+}
+.etab{
+  padding:12px 22px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.5px;text-transform:uppercase;cursor:pointer;
+  border-right:1px solid var(--border);transition:all .2s;
+  color:var(--ink3);background:transparent;border-bottom:none;
+}
+.etab.active{background:var(--paper);color:var(--rust);border-bottom:2px solid var(--rust);}
+.etab:hover{color:var(--rust);}
+.entity-body{padding:0;min-height:380px;position:relative;}
+.entity-panel{display:none;padding:28px;}
+.entity-panel.show{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ════ ARCHITECTURE LAYERS (visual) ════ */
+.layers-visual{display:flex;flex-direction:column;gap:0;max-width:900px;margin:0 auto;}
+.lv-layer{
+  display:grid;grid-template-columns:80px 1fr 200px;
+  gap:0;border:1px solid var(--border);position:relative;
+  transition:all .25s;cursor:pointer;
+}
+.lv-layer:hover{z-index:2;box-shadow:var(--shadow2);}
+.lv-layer:first-child{border-radius:14px 14px 0 0;}
+.lv-layer:last-child{border-radius:0 0 14px 14px;}
+.lv-layer+.lv-layer{margin-top:-1px;}
+.lv-num{
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:32px;font-style:italic;
+  font-weight:700;border-right:1px solid var(--border);
+}
+.lv-content{padding:22px 26px;}
+.lv-name{font-size:16px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px;}
+.lv-desc{font-size:12px;color:var(--ink2);line-height:1.7;font-weight:400;margin-bottom:10px;}
+.lv-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.lv-tag{font-family:var(--mono);font-size:8.5px;padding:2px 9px;border-radius:100px;border:1px solid var(--border2);color:var(--ink3);background:var(--bg2);}
+.lv-icon{
+  display:flex;align-items:center;justify-content:center;
+  border-left:1px solid var(--border);font-size:40px;
+  background:var(--bg2);
+}
+/* layer colors */
+.lv-src{background:rgba(26,122,110,.03);}
+.lv-src .lv-num{color:var(--teal);background:rgba(26,122,110,.05);}
+.lv-src .lv-name{color:var(--teal);}
+.lv-raw{background:var(--rust4);}
+.lv-raw .lv-num{color:var(--rust);background:var(--rust3);}
+.lv-raw .lv-name{color:var(--rust);}
+.lv-biz{background:rgba(184,134,11,.03);}
+.lv-biz .lv-num{color:var(--gold);background:var(--gold2);}
+.lv-biz .lv-name{color:var(--gold);}
+.lv-mart{background:rgba(107,63,107,.03);}
+.lv-mart .lv-num{color:var(--plum);background:var(--plum2);}
+.lv-mart .lv-name{color:var(--plum);}
+.lv-dim{background:var(--navy3);}
+.lv-dim .lv-num{color:var(--navy);background:rgba(30,58,95,.1);}
+.lv-dim .lv-name{color:var(--navy);}
+
+/* LAYER CONNECTOR ARROW */
+.lv-arrow{
+  text-align:center;padding:6px 0;
+  font-size:16px;color:var(--ink3);
+  background:var(--bg);
+  border-left:1px solid var(--border);
+  border-right:1px solid var(--border);
+  position:relative;z-index:1;
+}
+
+/* ════ COMPARISON TABLE ════ */
+.ct-wrap{overflow-x:auto;}
+.ct{width:100%;border-collapse:collapse;}
+.ct th{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:14px 18px;border-bottom:2px solid var(--border2);text-align:left;font-weight:500;}
+.ct th.h-feat{color:var(--ink3);}
+.ct th.h-3nf{color:var(--rust);}
+.ct th.h-star{color:var(--teal);}
+.ct th.h-dv{color:var(--navy);background:rgba(30,58,95,.04);}
+.ct td{padding:11px 18px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12px;color:var(--ink2);font-weight:400;}
+.ct tr:hover td{background:rgba(26,28,36,.02);}
+.ct td:first-child{font-family:var(--mono);font-size:10px;color:var(--ink);font-weight:500;background:var(--bg2);}
+.ct td.h-dv{background:rgba(30,58,95,.03);}
+.ct-y{color:#1a7a6e;font-weight:700;font-family:var(--mono);font-size:11px;}
+.ct-n{color:#c4622d;font-weight:700;font-family:var(--mono);font-size:11px;}
+.ct-p{color:#b8860b;font-weight:700;font-family:var(--mono);font-size:11px;}
+
+/* ════ RULES VISUAL ════ */
+.rules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.rule-card{
+  background:var(--paper);border:1px solid var(--border);border-radius:var(--r);
+  padding:18px;box-shadow:var(--shadow);transition:all .25s;
+  display:flex;gap:14px;align-items:flex-start;
+}
+.rule-card:hover{transform:translateY(-2px);box-shadow:var(--shadow2);}
+.rule-num{
+  flex-shrink:0;width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:500;
+  background:var(--bg2);color:var(--rust);border:1px solid var(--border);
+}
+.rule-body{}
+.rule-title{font-size:12px;font-weight:800;margin-bottom:4px;letter-spacing:-.2px;}
+.rule-desc{font-size:11px;color:var(--ink2);line-height:1.7;font-weight:400;}
+
+/* ════ DV → DIM BRIDGE ════ */
+.bridge-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
+@media(max-width:900px){.bridge-grid{grid-template-columns:1fr;}}
+.bridge-col{padding:28px;border-right:1px solid var(--border);}
+.bridge-col:last-child{border-right:none;}
+.bc-title{
+  font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid;
+}
+.bc-title.dv{color:var(--rust);border-color:var(--rust);}
+.bc-title.arrow{color:var(--ink3);border-color:var(--border);}
+.bc-title.dim{color:var(--navy);border-color:var(--navy);}
+.bc-node{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:12px 14px;margin-bottom:8px;
+  font-family:var(--mono);font-size:10px;line-height:1.7;
+  transition:all .2s;
+}
+.bc-node:hover{border-color:var(--border2);background:var(--bg3);}
+.bc-node .nn{font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-weight:500;}
+.bc-node .nf{font-size:9px;color:var(--ink3);line-height:1.8;}
+.bc-arrow-node{
+  display:flex;align-items:center;justify-content:center;
+  height:54px;font-size:22px;color:var(--ink3);margin-bottom:8px;
+  position:relative;
+}
+.bc-arrow-label{font-family:var(--mono);font-size:8px;color:var(--ink3);text-align:center;margin-top:-6px;margin-bottom:8px;letter-spacing:.5px;}
+
+/* ════ QUIZ ════ */
+.quiz-card{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:32px;box-shadow:var(--shadow2);max-width:720px;}
+.quiz-prog{display:flex;align-items:center;gap:10px;margin-bottom:22px;}
+.qp-dots{display:flex;gap:4px;}
+.qp-dot{width:8px;height:8px;border-radius:50%;background:var(--bg3);transition:all .3s;}
+.qp-dot.done{background:var(--rust);}
+.qp-dot.current{background:var(--rust);box-shadow:0 0 0 3px rgba(196,98,45,.2);}
+.qp-score{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-left:auto;}
+.quiz-q{font-family:var(--serif);font-size:18px;font-weight:700;margin-bottom:20px;color:var(--ink);line-height:1.4;letter-spacing:-.3px;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{
+  padding:12px 18px;border-radius:8px;
+  border:1.5px solid var(--border);background:var(--bg);
+  font-size:13px;color:var(--ink2);cursor:pointer;
+  transition:all .2s;text-align:left;font-family:var(--display);
+  font-weight:500;
+}
+.quiz-opt:hover{border-color:var(--border2);background:var(--paper);color:var(--ink);}
+.quiz-opt.correct{border-color:var(--teal);background:rgba(26,122,110,.07);color:var(--teal);}
+.quiz-opt.wrong{border-color:var(--rust);background:var(--rust3);color:var(--rust);}
+.quiz-fb{
+  font-size:12px;padding:12px 16px;border-radius:7px;
+  margin-top:12px;line-height:1.7;display:none;font-weight:400;
+}
+.quiz-fb.show{display:block;}
+.quiz-next{
+  margin-top:16px;padding:10px 24px;border-radius:8px;
+  font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.5px;
+  background:var(--ink);color:var(--bg);border:none;cursor:pointer;
+  transition:all .2s;display:none;
+}
+.quiz-next.show{display:inline-flex;align-items:center;gap:8px;}
+.quiz-next:hover{background:var(--rust);}
+
+/* CTA */
+.cta-box{
+  background:var(--ink);color:var(--bg);
+  border-radius:16px;padding:48px;
+  display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;
+}
+@media(max-width:700px){.cta-box{grid-template-columns:1fr;}}
+.cta-tag{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--rust2);text-transform:uppercase;margin-bottom:12px;}
+.cta-h{font-family:var(--serif);font-size:clamp(28px,4vw,44px);line-height:.95;margin-bottom:12px;font-weight:700;}
+.cta-h em{font-style:italic;color:var(--rust2);}
+.cta-body{font-size:14px;color:rgba(247,243,237,.6);line-height:1.8;font-weight:300;}
+.cta-links{display:flex;flex-direction:column;gap:8px;}
+.cta-btn{
+  padding:12px 24px;border-radius:8px;font-family:var(--mono);
+  font-size:10px;font-weight:500;text-decoration:none;
+  text-align:center;transition:all .2s;letter-spacing:.5px;
+  white-space:nowrap;cursor:pointer;border:none;display:block;
+}
+.cta-btn.p{background:var(--rust2);color:var(--bg);}
+.cta-btn.p:hover{background:var(--rust);}
+.cta-btn.s{background:rgba(247,243,237,.1);color:rgba(247,243,237,.8);border:1px solid rgba(247,243,237,.15);}
+.cta-btn.s:hover{background:rgba(247,243,237,.15);}
+
+footer{border-top:1px solid var(--border);padding:24px 60px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;position:relative;z-index:1;}
+.ft-brand{font-weight:900;font-size:13px;color:var(--ink);}
+.ft-note{font-family:var(--mono);font-size:9px;color:var(--ink3);}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:2px}
+.z1{position:relative;z-index:1;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand"><div class="dot"></div>Data Vault 2.0</div>
+  <ul class="nav-links">
+    <li><a href="#why">Why</a></li>
+    <li><a href="#pillars">Pillars</a></li>
+    <li><a href="#layers">Layers</a></li>
+    <li><a href="#compare">Compare</a></li>
+    <li><a href="#bridge">→ Dim Model</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+  <div class="nav-author">Siddhartha Siripragada</div>
+</nav>
+
+<!-- ════ HERO ════ -->
+<div class="hero z1">
+  <div class="hero-left">
+    <div class="hero-tag">Principal Data Architect · Architecture Showcase</div>
+    <h1 class="hero-h">Data<br><em>Vault</em><br>2.0</h1>
+    <p class="hero-desc">The enterprise-grade methodology that separates identity, relationships, and context — enabling auditable, parallel-loadable, infinitely scalable data warehouses.</p>
+    <div class="hero-pills">
+      <span class="h-pill">Insert-Only</span>
+      <span class="h-pill">Hash Keys</span>
+      <span class="h-pill">Fully Auditable</span>
+      <span class="h-pill">Source Agnostic</span>
+      <span class="h-pill">Parallel Load</span>
+    </div>
+  </div>
+
+  <!-- HERO MINI HUB-LINK-SAT DIAGRAM -->
+  <div class="hero-diagram">
+    <svg id="hero-svg" width="100%" viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg">
+      <!-- DEFS -->
+      <defs>
+        <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="rgba(26,28,36,.3)"/>
+        </marker>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- Lines -->
+      <line x1="100" y1="68" x2="210" y2="148" stroke="rgba(196,98,45,.3)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <line x1="320" y1="68" x2="210" y2="148" stroke="rgba(26,58,95,.3)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <line x1="100" y1="68" x2="80" y2="175" stroke="rgba(196,98,45,.2)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <line x1="100" y1="68" x2="118" y2="230" stroke="rgba(196,98,45,.2)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <line x1="320" y1="68" x2="342" y2="175" stroke="rgba(26,58,95,.2)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <line x1="210" y1="148" x2="210" y2="240" stroke="rgba(184,134,11,.3)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+      <!-- HUB CUSTOMER -->
+      <rect x="44" y="28" width="112" height="72" rx="10" fill="rgba(196,98,45,.08)" stroke="#c4622d" stroke-width="1.5"/>
+      <text x="100" y="50" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#c4622d" font-weight="500" letter-spacing="1">HUB</text>
+      <text x="100" y="65" text-anchor="middle" font-family="Cabinet Grotesk" font-size="11" fill="#1a1c24" font-weight="800">CUSTOMER</text>
+      <text x="100" y="78" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">CUSTOMER_HK</text>
+      <text x="100" y="89" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">CUSTOMER_ID</text>
+
+      <!-- HUB PRODUCT -->
+      <rect x="264" y="28" width="112" height="72" rx="10" fill="rgba(30,58,95,.06)" stroke="#1e3a5f" stroke-width="1.5"/>
+      <text x="320" y="50" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#1e3a5f" font-weight="500" letter-spacing="1">HUB</text>
+      <text x="320" y="65" text-anchor="middle" font-family="Cabinet Grotesk" font-size="11" fill="#1a1c24" font-weight="800">PRODUCT</text>
+      <text x="320" y="78" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">PRODUCT_HK</text>
+      <text x="320" y="89" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">PRODUCT_ID</text>
+
+      <!-- LINK -->
+      <rect x="152" y="118" width="116" height="72" rx="10" fill="rgba(184,134,11,.07)" stroke="#b8860b" stroke-width="1.5"/>
+      <text x="210" y="138" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#b8860b" font-weight="500" letter-spacing="1">LINK</text>
+      <text x="210" y="153" text-anchor="middle" font-family="Cabinet Grotesk" font-size="11" fill="#1a1c24" font-weight="800">ORDER</text>
+      <text x="210" y="166" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">CUSTOMER_HK</text>
+      <text x="210" y="177" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">PRODUCT_HK</text>
+
+      <!-- SAT CUSTOMER CRM -->
+      <rect x="28" y="148" width="104" height="64" rx="8" fill="rgba(26,122,110,.05)" stroke="#1a7a6e" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="80" y="167" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#1a7a6e" letter-spacing="1">SAT</text>
+      <text x="80" y="180" text-anchor="middle" font-family="Cabinet Grotesk" font-size="10" fill="#1a1c24" font-weight="700">CUST · CRM</text>
+      <text x="80" y="193" text-anchor="middle" font-family="Fira Code" font-size="7" fill="#9a9daa">name · email</text>
+      <text x="80" y="203" text-anchor="middle" font-family="Fira Code" font-size="7" fill="#9a9daa">segment · phone</text>
+
+      <!-- SAT CUSTOMER ERP -->
+      <rect x="62" y="222" width="104" height="60" rx="8" fill="rgba(26,122,110,.05)" stroke="#1a7a6e" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="114" y="240" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#1a7a6e" letter-spacing="1">SAT</text>
+      <text x="114" y="253" text-anchor="middle" font-family="Cabinet Grotesk" font-size="10" fill="#1a1c24" font-weight="700">CUST · ERP</text>
+      <text x="114" y="266" text-anchor="middle" font-family="Fira Code" font-size="7" fill="#9a9daa">credit · region</text>
+
+      <!-- SAT PRODUCT -->
+      <rect x="290" y="148" width="104" height="64" rx="8" fill="rgba(26,122,110,.05)" stroke="#1a7a6e" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="342" y="167" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#1a7a6e" letter-spacing="1">SAT</text>
+      <text x="342" y="180" text-anchor="middle" font-family="Cabinet Grotesk" font-size="10" fill="#1a1c24" font-weight="700">PRODUCT</text>
+      <text x="342" y="193" text-anchor="middle" font-family="Fira Code" font-size="7" fill="#9a9daa">name · category</text>
+      <text x="342" y="203" text-anchor="middle" font-family="Fira Code" font-size="7" fill="#9a9daa">price · sku</text>
+
+      <!-- LSAT ORDER -->
+      <rect x="152" y="240" width="116" height="52" rx="8" fill="rgba(107,63,107,.05)" stroke="#6b3f6b" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="210" y="258" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#6b3f6b" letter-spacing="1">LSAT</text>
+      <text x="210" y="271" text-anchor="middle" font-family="Cabinet Grotesk" font-size="10" fill="#1a1c24" font-weight="700">ORDER · METRICS</text>
+      <text x="210" y="284" text-anchor="middle" font-family="Fira Code" font-size="7" fill="#9a9daa">amount · qty · discount</text>
+
+      <!-- LEGEND -->
+      <rect x="0" y="0" width="0" height="0"/>
+    </svg>
+
+    <!-- LEGEND -->
+    <div style="display:flex;gap:16px;padding:12px 4px 0;flex-wrap:wrap;">
+      <span style="font-family:var(--mono);font-size:9px;color:var(--rust);display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(196,98,45,.12);border:1px solid #c4622d;display:inline-block"></span>Hub</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--gold);display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(184,134,11,.1);border:1px solid #b8860b;display:inline-block"></span>Link</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--teal);display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(26,122,110,.08);border:1px dashed #1a7a6e;display:inline-block"></span>Satellite</span>
+      <span style="font-family:var(--mono);font-size:9px;color:var(--plum);display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(107,63,107,.08);border:1px dashed #6b3f6b;display:inline-block"></span>Link Sat</span>
+    </div>
+  </div>
+</div>
+
+<hr class="sec-rule">
+
+<!-- ════ WHY DATA VAULT ════ -->
+<div class="sec z1" id="why">
+  <div class="sec-tag">The Problem Space</div>
+  <h2 class="sec-h">Why Traditional<br>Approaches <em>Break</em></h2>
+  <p class="sec-sub">Six architectural pain points that every enterprise data warehouse eventually hits — and how Data Vault solves each one.</p>
+
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-icon">🔄</div>
+      <span class="why-from">3NF + Star Schema</span>
+      <div class="why-title">Schema Rigidity</div>
+      <div class="why-body">New source system = ALTER TABLE cascade. Historical context is destroyed. DV adds a new satellite — zero impact to existing structures.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">⏱</div>
+      <span class="why-from">Star Schema</span>
+      <div class="why-title">Lost Audit Trail</div>
+      <div class="why-body">SCD2 tracks what changed but not <em>when it was loaded</em>. DV's insert-only + load_date provides full bit-temporal history natively.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🚫</div>
+      <span class="why-from">3NF (Inmon)</span>
+      <div class="why-title">Sequential Loading</div>
+      <div class="why-body">FK constraints force dims before facts. DV hash keys are deterministic — every table loads in parallel, no dependencies.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🔗</div>
+      <span class="why-from">All Approaches</span>
+      <div class="why-title">Source Coupling</div>
+      <div class="why-body">CRM, ERP, Billing have conflicting customer keys. Traditional models force early merging. DV isolates each source in its own satellite.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">📊</div>
+      <span class="why-from">ETL-first Design</span>
+      <div class="why-title">Business Rule Lock-in</div>
+      <div class="why-body">Business rules baked into load pipelines destroy source data. DV's Raw Vault preserves raw truth; Business Vault holds rules separately.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">📈</div>
+      <span class="why-from">Star Schema</span>
+      <div class="why-title">Upfront Bus Matrix</div>
+      <div class="why-body">Kimball requires enterprise-wide conformed dims from day one. DV is incrementally buildable — add hubs and satellites as needs arise.</div>
+    </div>
+  </div>
+</div>
+
+<hr class="sec-rule">
+
+<!-- ════ THREE PILLARS ════ -->
+<div class="sec z1" id="pillars">
+  <div class="sec-tag">Core Constructs</div>
+  <h2 class="sec-h">Three <em>Pillars</em></h2>
+  <p class="sec-sub">Every table in Data Vault is one of three types. Click each tab to explore the structure in detail.</p>
+
+  <div class="card" style="margin-bottom:32px;">
+    <div class="entity-tabs">
+      <button class="etab active" onclick="showTab('hub',this)">◈ Hub</button>
+      <button class="etab" onclick="showTab('link',this)">⬡ Link</button>
+      <button class="etab" onclick="showTab('sat',this)">◉ Satellite</button>
+      <button class="etab" onclick="showTab('pit',this)">📅 PIT Table</button>
+    </div>
+    <div class="entity-body">
+
+      <!-- HUB TAB -->
+      <div class="entity-panel show" id="tab-hub">
+        <svg width="100%" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main Hub -->
+          <rect x="290" y="30" width="220" height="240" rx="12" fill="rgba(196,98,45,.06)" stroke="#c4622d" stroke-width="2"/>
+          <text x="400" y="56" text-anchor="middle" font-family="Fira Code" font-size="9" fill="#c4622d" letter-spacing="2" font-weight="500">HUB</text>
+          <text x="400" y="76" text-anchor="middle" font-family="Cabinet Grotesk" font-size="16" fill="#1a1c24" font-weight="900">HUB_CUSTOMER</text>
+          <line x1="306" y1="86" x2="494" y2="86" stroke="rgba(196,98,45,.2)" stroke-width="1"/>
+          <!-- Fields with type badges -->
+          <rect x="306" y="94" width="178" height="22" rx="4" fill="rgba(196,98,45,.12)"/>
+          <text x="318" y="109" font-family="Fira Code" font-size="9.5" fill="#c4622d" font-weight="700">CUSTOMER_HK</text>
+          <rect x="434" y="96" width="42" height="16" rx="3" fill="rgba(196,98,45,.2)"/>
+          <text x="455" y="108" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#c4622d">PK · HASH</text>
+
+          <text x="318" y="136" font-family="Fira Code" font-size="9.5" fill="#4a4d5a">CUSTOMER_ID</text>
+          <rect x="438" y="122" width="48" height="16" rx="3" fill="var(--bg3)"/>
+          <text x="462" y="134" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">BIZ KEY</text>
+
+          <text x="318" y="162" font-family="Fira Code" font-size="9.5" fill="#4a4d5a">LOAD_DATE</text>
+          <rect x="438" y="148" width="48" height="16" rx="3" fill="var(--bg3)"/>
+          <text x="462" y="160" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">DATETIME</text>
+
+          <text x="318" y="188" font-family="Fira Code" font-size="9.5" fill="#4a4d5a">RECORD_SOURCE</text>
+          <rect x="438" y="174" width="48" height="16" rx="3" fill="var(--bg3)"/>
+          <text x="462" y="186" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">VARCHAR</text>
+
+          <line x1="306" y1="198" x2="494" y2="198" stroke="rgba(26,28,36,.06)" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="400" y="218" text-anchor="middle" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa" font-style="italic">— NO attributes here —</text>
+          <text x="400" y="235" text-anchor="middle" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa" font-style="italic">Attributes live in Satellites</text>
+          <text x="400" y="254" text-anchor="middle" font-family="Fira Code" font-size="8.5" fill="#c4622d">ONCE INSERTED, NEVER CHANGED</text>
+
+          <!-- Source arrows -->
+          <text x="80" y="70" font-family="Fira Code" font-size="9" fill="#9a9daa" letter-spacing=".5">CRM SYSTEM</text>
+          <rect x="30" y="78" width="120" height="30" rx="6" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1"/>
+          <text x="90" y="97" text-anchor="middle" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">CUST_001</text>
+          <line x1="150" y1="93" x2="288" y2="130" stroke="rgba(196,98,45,.35)" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="4,3"/>
+
+          <text x="80" y="165" font-family="Fira Code" font-size="9" fill="#9a9daa" letter-spacing=".5">ERP SYSTEM</text>
+          <rect x="30" y="173" width="120" height="30" rx="6" fill="var(--bg2)" stroke="var(--border2)" stroke-width="1"/>
+          <text x="90" y="192" text-anchor="middle" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">CUST_001</text>
+          <line x1="150" y1="188" x2="288" y2="175" stroke="rgba(196,98,45,.35)" stroke-width="1.5" marker-end="url(#arr)" stroke-dasharray="4,3"/>
+
+          <!-- MD5 annotation -->
+          <text x="170" y="128" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#b8860b">MD5('CUST_001')</text>
+          <text x="170" y="142" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#b8860b">= a3f1b9c2…</text>
+
+          <!-- Right annotation -->
+          <text x="590" y="80" font-family="Cabinet Grotesk" font-size="12" fill="#4a4d5a" font-weight="700">Key Principle</text>
+          <text x="590" y="100" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">Multiple sources contribute</text>
+          <text x="590" y="118" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">to the SAME Hub. The Hub</text>
+          <text x="590" y="136" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">deduplicates on business key.</text>
+          <text x="590" y="170" font-family="Cabinet Grotesk" font-size="12" fill="#4a4d5a" font-weight="700">Why hash keys?</text>
+          <text x="590" y="190" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">Deterministic = no sequence</text>
+          <text x="590" y="208" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">generators, no FK waits,</text>
+          <text x="590" y="226" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">full parallel loading enabled.</text>
+        </svg>
+      </div>
+
+      <!-- LINK TAB -->
+      <div class="entity-panel" id="tab-link">
+        <svg width="100%" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+          <defs><marker id="arr2" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="rgba(184,134,11,.5)"/></marker></defs>
+          <!-- Hub Left -->
+          <rect x="20" y="80" width="140" height="90" rx="10" fill="rgba(196,98,45,.06)" stroke="#c4622d" stroke-width="1.5"/>
+          <text x="90" y="100" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#c4622d" letter-spacing="1">HUB</text>
+          <text x="90" y="116" text-anchor="middle" font-family="Cabinet Grotesk" font-size="12" fill="#1a1c24" font-weight="800">CUSTOMER</text>
+          <text x="90" y="132" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">CUSTOMER_HK (PK)</text>
+          <text x="90" y="145" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">CUSTOMER_ID</text>
+          <text x="90" y="158" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">LOAD_DATE</text>
+          <!-- Hub Right -->
+          <rect x="640" y="80" width="140" height="90" rx="10" fill="rgba(30,58,95,.06)" stroke="#1e3a5f" stroke-width="1.5"/>
+          <text x="710" y="100" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#1e3a5f" letter-spacing="1">HUB</text>
+          <text x="710" y="116" text-anchor="middle" font-family="Cabinet Grotesk" font-size="12" fill="#1a1c24" font-weight="800">PRODUCT</text>
+          <text x="710" y="132" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">PRODUCT_HK (PK)</text>
+          <text x="710" y="145" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">PRODUCT_ID</text>
+          <text x="710" y="158" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">LOAD_DATE</text>
+          <!-- Link Center -->
+          <rect x="290" y="50" width="220" height="200" rx="12" fill="rgba(184,134,11,.07)" stroke="#b8860b" stroke-width="2"/>
+          <text x="400" y="76" text-anchor="middle" font-family="Fira Code" font-size="9" fill="#b8860b" letter-spacing="2">LINK</text>
+          <text x="400" y="96" text-anchor="middle" font-family="Cabinet Grotesk" font-size="14" fill="#1a1c24" font-weight="900">LINK_ORDER</text>
+          <line x1="306" y1="106" x2="494" y2="106" stroke="rgba(184,134,11,.2)" stroke-width="1"/>
+          <rect x="306" y="114" width="178" height="22" rx="4" fill="rgba(184,134,11,.12)"/>
+          <text x="318" y="129" font-family="Fira Code" font-size="9" fill="#b8860b">ORDER_HK</text>
+          <rect x="436" y="116" width="40" height="16" rx="3" fill="rgba(184,134,11,.2)"/>
+          <text x="456" y="128" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#b8860b">PK·HASH</text>
+          <text x="318" y="157" font-family="Fira Code" font-size="9" fill="#c4622d">CUSTOMER_HK</text>
+          <rect x="430" y="143" width="54" height="16" rx="3" fill="rgba(196,98,45,.1)"/>
+          <text x="457" y="155" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#c4622d">FK→HUB</text>
+          <text x="318" y="183" font-family="Fira Code" font-size="9" fill="#1e3a5f">PRODUCT_HK</text>
+          <rect x="430" y="169" width="54" height="16" rx="3" fill="rgba(30,58,95,.1)"/>
+          <text x="457" y="181" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#1e3a5f">FK→HUB</text>
+          <text x="318" y="209" font-family="Fira Code" font-size="8.5" fill="#9a9daa">LOAD_DATE</text>
+          <text x="318" y="229" font-family="Fira Code" font-size="8.5" fill="#9a9daa">RECORD_SOURCE</text>
+          <line x1="306" y1="236" x2="494" y2="236" stroke="rgba(184,134,11,.1)" stroke-width="1" stroke-dasharray="3,2"/>
+          <!-- Arrows -->
+          <line x1="160" y1="125" x2="288" y2="155" stroke="#b8860b" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+          <line x1="640" y1="140" x2="512" y2="175" stroke="#b8860b" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+          <!-- Link Sat below -->
+          <rect x="290" y="266" width="220" height="30" rx="6" fill="rgba(107,63,107,.06)" stroke="#6b3f6b" stroke-width="1" stroke-dasharray="4,3"/>
+          <text x="400" y="285" text-anchor="middle" font-family="Fira Code" font-size="8.5" fill="#6b3f6b">LSAT_ORDER: amount · qty · discount</text>
+          <line x1="400" y1="250" x2="400" y2="265" stroke="rgba(107,63,107,.3)" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <text x="400" y="260" text-anchor="middle" font-family="Fira Code" font-size="7" fill="#6b3f6b">metrics go here ↓</text>
+          <!-- Rule note -->
+          <text x="30" y="240" font-family="Cabinet Grotesk" font-size="11" fill="#c4622d" font-weight="700">⚑ Rule</text>
+          <text x="30" y="258" font-family="Cabinet Grotesk" font-size="10.5" fill="#9a9daa">Link has NO metrics.</text>
+          <text x="30" y="274" font-family="Cabinet Grotesk" font-size="10.5" fill="#9a9daa">Amounts go in LSAT.</text>
+        </svg>
+      </div>
+
+      <!-- SAT TAB -->
+      <div class="entity-panel" id="tab-sat">
+        <svg width="100%" viewBox="0 0 800 310" xmlns="http://www.w3.org/2000/svg">
+          <defs><marker id="arr3" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="rgba(26,122,110,.4)"/></marker></defs>
+          <!-- Hub -->
+          <rect x="20" y="110" width="140" height="80" rx="10" fill="rgba(196,98,45,.06)" stroke="#c4622d" stroke-width="1.5"/>
+          <text x="90" y="130" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#c4622d" letter-spacing="1">HUB</text>
+          <text x="90" y="146" text-anchor="middle" font-family="Cabinet Grotesk" font-size="12" fill="#1a1c24" font-weight="800">CUSTOMER</text>
+          <text x="90" y="162" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">CUSTOMER_HK</text>
+          <text x="90" y="175" text-anchor="middle" font-family="Fira Code" font-size="7.5" fill="#9a9daa">CUSTOMER_ID</text>
+          <!-- Arrows -->
+          <line x1="160" y1="150" x2="230" y2="100" stroke="#1a7a6e" stroke-width="1.5" marker-end="url(#arr3)"/>
+          <line x1="160" y1="150" x2="230" y2="220" stroke="#1a7a6e" stroke-width="1.5" marker-end="url(#arr3)"/>
+          <!-- SAT CRM -->
+          <rect x="232" y="40" width="200" height="140" rx="10" fill="rgba(26,122,110,.05)" stroke="#1a7a6e" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="332" y="62" text-anchor="middle" font-family="Fira Code" font-size="8.5" fill="#1a7a6e" letter-spacing="1">SAT · SOURCE CRM</text>
+          <line x1="248" y1="70" x2="416" y2="70" stroke="rgba(26,122,110,.2)" stroke-width="1"/>
+          <text x="248" y="88" font-family="Fira Code" font-size="8.5" fill="#9a9daa">CUSTOMER_HK  (FK)</text>
+          <text x="248" y="106" font-family="Fira Code" font-size="8.5" fill="#9a9daa">LOAD_DATE       ← primary</text>
+          <text x="248" y="122" font-family="Fira Code" font-size="8.5" fill="#9a9daa">LOAD_END_DATE</text>
+          <text x="248" y="138" font-family="Fira Code" font-size="8.5" fill="#1a7a6e">HASH_DIFF       ← change det.</text>
+          <text x="248" y="154" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">name · email · segment</text>
+          <text x="248" y="169" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">phone · tier · status</text>
+          <!-- SAT ERP -->
+          <rect x="232" y="200" width="200" height="110" rx="10" fill="rgba(26,122,110,.05)" stroke="#1a7a6e" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="332" y="222" text-anchor="middle" font-family="Fira Code" font-size="8.5" fill="#1a7a6e" letter-spacing="1">SAT · SOURCE ERP</text>
+          <line x1="248" y1="230" x2="416" y2="230" stroke="rgba(26,122,110,.2)" stroke-width="1"/>
+          <text x="248" y="248" font-family="Fira Code" font-size="8.5" fill="#9a9daa">CUSTOMER_HK  (FK)</text>
+          <text x="248" y="264" font-family="Fira Code" font-size="8.5" fill="#9a9daa">LOAD_DATE · HASH_DIFF</text>
+          <text x="248" y="280" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">credit_limit · region</text>
+          <text x="248" y="295" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">payment_terms</text>
+          <!-- Timeline -->
+          <rect x="480" y="30" width="300" height="250" rx="10" fill="var(--bg2)" stroke="var(--border)" stroke-width="1"/>
+          <text x="630" y="54" text-anchor="middle" font-family="Cabinet Grotesk" font-size="12" fill="#4a4d5a" font-weight="700">SAT Insert-Only History</text>
+          <text x="630" y="70" text-anchor="middle" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">SAT_CUSTOMER_CRM rows over time</text>
+          <!-- Timeline rows -->
+          <rect x="496" y="80" width="268" height="28" rx="4" fill="rgba(26,122,110,.08)" stroke="rgba(26,122,110,.2)" stroke-width="1"/>
+          <text x="504" y="97" font-family="Fira Code" font-size="8" fill="#1a7a6e">2024-01-01 | John Smith | john@a.com | Gold</text>
+          <rect x="496" y="116" width="268" height="28" rx="4" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+          <text x="504" y="133" font-family="Fira Code" font-size="8" fill="#4a4d5a">2024-03-15 | John Smith | john@b.com | Gold</text>
+          <text x="730" y="133" font-family="Fira Code" font-size="7" fill="#b8860b">email changed</text>
+          <rect x="496" y="152" width="268" height="28" rx="4" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+          <text x="504" y="169" font-family="Fira Code" font-size="8" fill="#4a4d5a">2024-07-20 | John Smith | john@b.com | Plat</text>
+          <text x="730" y="169" font-family="Fira Code" font-size="7" fill="#b8860b">tier changed</text>
+          <rect x="496" y="188" width="268" height="28" rx="4" fill="rgba(26,122,110,.05)" stroke="rgba(26,122,110,.15)" stroke-width="1"/>
+          <text x="504" y="205" font-family="Fira Code" font-size="8" fill="#4a4d5a">2025-01-10 | John Smith | john@b.com | Plat</text>
+          <text x="504" y="232" font-family="Cabinet Grotesk" font-size="10.5" fill="#9a9daa" font-style="italic">↑ Complete history. Never overwritten.</text>
+          <text x="504" y="248" font-family="Cabinet Grotesk" font-size="10.5" fill="#9a9daa" font-style="italic">HASH_DIFF detects changes.</text>
+          <text x="504" y="264" font-family="Cabinet Grotesk" font-size="10.5" fill="#1a7a6e" font-weight="700">→ Convert to SCD2 trivially.</text>
+        </svg>
+      </div>
+
+      <!-- PIT TAB -->
+      <div class="entity-panel" id="tab-pit">
+        <svg width="100%" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+          <!-- Problem title -->
+          <text x="20" y="30" font-family="Cabinet Grotesk" font-size="13" fill="#c4622d" font-weight="800">Problem: Joining multiple satellites is slow</text>
+          <text x="20" y="48" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">Each satellite has different LOAD_DATEs. Range-joining them for a point-in-time view is expensive.</text>
+          <!-- PIT Table -->
+          <rect x="20" y="66" width="280" height="220" rx="10" fill="rgba(107,63,107,.05)" stroke="#6b3f6b" stroke-width="1.5"/>
+          <text x="160" y="90" text-anchor="middle" font-family="Fira Code" font-size="9" fill="#6b3f6b" letter-spacing="1">PIT TABLE</text>
+          <text x="160" y="108" text-anchor="middle" font-family="Cabinet Grotesk" font-size="13" fill="#1a1c24" font-weight="900">PIT_CUSTOMER</text>
+          <line x1="36" y1="116" x2="284" y2="116" stroke="rgba(107,63,107,.2)" stroke-width="1"/>
+          <rect x="36" y="124" width="248" height="20" rx="3" fill="rgba(107,63,107,.1)"/>
+          <text x="44" y="138" font-family="Fira Code" font-size="8.5" fill="#6b3f6b">SNAPSHOT_DATE     PK</text>
+          <text x="44" y="160" font-family="Fira Code" font-size="8.5" fill="#9a9daa">CUSTOMER_HK</text>
+          <text x="44" y="180" font-family="Fira Code" font-size="8.5" fill="#c4622d">SAT_CRM_LDTS     ← active load dt</text>
+          <text x="44" y="200" font-family="Fira Code" font-size="8.5" fill="#c4622d">SAT_ERP_LDTS     ← active load dt</text>
+          <text x="44" y="220" font-family="Fira Code" font-size="8.5" fill="#1a7a6e">SAT_CONTACT_LDTS</text>
+          <text x="44" y="240" font-family="Fira Code" font-size="8.5" fill="#1a7a6e">SAT_SEGMENT_LDTS</text>
+          <line x1="36" y1="250" x2="284" y2="250" stroke="rgba(107,63,107,.1)" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="160" y="268" text-anchor="middle" font-family="Cabinet Grotesk" font-size="10" fill="#9a9daa" font-style="italic">Built at regular snapshots</text>
+          <!-- Arrow -->
+          <line x1="302" y1="175" x2="360" y2="175" stroke="#6b3f6b" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="332" y="167" text-anchor="middle" font-family="Fira Code" font-size="8" fill="#6b3f6b">lookup</text>
+          <!-- Benefit box -->
+          <rect x="362" y="66" width="416" height="220" rx="10" fill="var(--bg2)" stroke="var(--border)" stroke-width="1"/>
+          <text x="570" y="94" text-anchor="middle" font-family="Cabinet Grotesk" font-size="13" fill="#1a7a6e" font-weight="800">✓ Solution: O(1) Mart Joins</text>
+          <text x="378" y="120" font-family="Fira Code" font-size="8.5" fill="#9a9daa">-- Without PIT: expensive range join</text>
+          <text x="378" y="138" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">JOIN sat_crm ON sat.ldts = (</text>
+          <text x="378" y="154" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">  SELECT MAX(ldts) FROM sat_crm</text>
+          <text x="378" y="170" font-family="Fira Code" font-size="8.5" fill="#4a4d5a">  WHERE ldts &lt;= :snapshot_dt)</text>
+          <line x1="378" y1="182" x2="762" y2="182" stroke="rgba(26,28,36,.06)" stroke-width="1"/>
+          <text x="378" y="200" font-family="Fira Code" font-size="8.5" fill="#9a9daa">-- With PIT: simple equi-join</text>
+          <text x="378" y="218" font-family="Fira Code" font-size="8.5" fill="#1a7a6e">JOIN pit ON pit.snapshot = :dt</text>
+          <text x="378" y="234" font-family="Fira Code" font-size="8.5" fill="#1a7a6e">JOIN sat_crm ON crm.ldts = pit.sat_crm_ldts</text>
+          <text x="378" y="250" font-family="Fira Code" font-size="8.5" fill="#1a7a6e">JOIN sat_erp ON erp.ldts = pit.sat_erp_ldts</text>
+          <text x="378" y="272" font-family="Cabinet Grotesk" font-size="11" fill="#1a7a6e" font-weight="700">10x faster. Same result.</text>
+        </svg>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<hr class="sec-rule">
+
+<!-- ════ ARCHITECTURE LAYERS ════ -->
+<div class="sec z1" id="layers">
+  <div class="sec-tag">The Architecture</div>
+  <h2 class="sec-h"><em>Layered</em> Design</h2>
+  <p class="sec-sub">Each layer has a single responsibility. Raw data is permanent. Business rules are separate. Marts are disposable and rebuildable.</p>
+
+  <div class="layers-visual">
+    <div class="lv-layer lv-src">
+      <div class="lv-num">0</div>
+      <div class="lv-content">
+        <div class="lv-name">Source Systems</div>
+        <div class="lv-desc">CRM, ERP, POS, APIs, Events — raw operational data in any format. No transformations applied here.</div>
+        <div class="lv-tags"><span class="lv-tag">CRM</span><span class="lv-tag">ERP</span><span class="lv-tag">Kafka</span><span class="lv-tag">REST APIs</span><span class="lv-tag">Files</span></div>
+      </div>
+      <div class="lv-icon">📡</div>
+    </div>
+    <div class="lv-arrow">▾ Load date stamped · Hash keys computed</div>
+    <div class="lv-layer lv-raw">
+      <div class="lv-num">1</div>
+      <div class="lv-content">
+        <div class="lv-name">Raw Vault</div>
+        <div class="lv-desc">Zero business rules. Insert-only Hubs, Links, Satellites. Full audit trail. The system of record — immutable forever.</div>
+        <div class="lv-tags"><span class="lv-tag">Insert-Only</span><span class="lv-tag">Hash Keys</span><span class="lv-tag">Load Date</span><span class="lv-tag">Record Source</span><span class="lv-tag">No Transforms</span></div>
+      </div>
+      <div class="lv-icon">🗄</div>
+    </div>
+    <div class="lv-arrow">▾ Business rules applied · Computed attributes derived</div>
+    <div class="lv-layer lv-biz">
+      <div class="lv-num">2</div>
+      <div class="lv-content">
+        <div class="lv-name">Business Vault</div>
+        <div class="lv-desc">Computed Satellites, Reference Tables, Exploration Links. Business logic isolated from raw data. Change a rule → rebuild only this layer.</div>
+        <div class="lv-tags"><span class="lv-tag">Computed Sats</span><span class="lv-tag">Bridge Tables</span><span class="lv-tag">Reference Data</span><span class="lv-tag">Rule Versioning</span></div>
+      </div>
+      <div class="lv-icon">⚙</div>
+    </div>
+    <div class="lv-arrow">▾ Dimensional model constructed · Purpose-built per domain</div>
+    <div class="lv-layer lv-mart">
+      <div class="lv-num">3</div>
+      <div class="lv-content">
+        <div class="lv-name">Information Mart</div>
+        <div class="lv-desc">Star schemas, dimensional models, aggregates. Optimized for query performance. Fully disposable — always rebuildable from the vault.</div>
+        <div class="lv-tags"><span class="lv-tag">Star Schema</span><span class="lv-tag">Fact Tables</span><span class="lv-tag">SCD2 Dims</span><span class="lv-tag">Disposable</span></div>
+      </div>
+      <div class="lv-icon">📊</div>
+    </div>
+    <div class="lv-arrow">▾ Pre-aggregated · Query-optimized</div>
+    <div class="lv-layer lv-dim">
+      <div class="lv-num">4</div>
+      <div class="lv-content">
+        <div class="lv-name">BI / Analytics Layer</div>
+        <div class="lv-desc">Tableau, Power BI, Looker — end-user consumption. Reports, dashboards, ad-hoc queries against the Information Mart.</div>
+        <div class="lv-tags"><span class="lv-tag">Tableau</span><span class="lv-tag">Power BI</span><span class="lv-tag">Looker</span><span class="lv-tag">SQL</span></div>
+      </div>
+      <div class="lv-icon">📈</div>
+    </div>
+  </div>
+</div>
+
+<hr class="sec-rule">
+
+<!-- ════ COMPARISON ════ -->
+<div class="sec z1" id="compare">
+  <div class="sec-tag">Side by Side</div>
+  <h2 class="sec-h">DV vs 3NF vs <em>Star</em></h2>
+  <p class="sec-sub">Data Vault doesn't replace Star Schema — it <em>precedes</em> it. Here's how they compare on enterprise capabilities.</p>
+  <div class="card" style="box-shadow:var(--shadow2);">
+    <div class="ct-wrap">
+      <table class="ct">
+        <thead>
+          <tr>
+            <th class="h-feat">Capability</th>
+            <th class="h-3nf">3NF (Inmon)</th>
+            <th class="h-star">Star Schema (Kimball)</th>
+            <th class="h-dv">Data Vault 2.0</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Parallel Loading</td><td class="ct-n">✗ FK dependencies</td><td class="ct-p">~ Partial</td><td class="ct-y ct-dv h-dv">✓ Full parallel</td></tr>
+          <tr><td>Insert-Only (No Updates)</td><td class="ct-n">✗</td><td class="ct-n">✗ SCD updates</td><td class="ct-y h-dv">✓ Pure append</td></tr>
+          <tr><td>Full Bit-Temporal History</td><td class="ct-n">✗</td><td class="ct-p">~ SCD2 only</td><td class="ct-y h-dv">✓ Native</td></tr>
+          <tr><td>Per-Source Schema Isolation</td><td class="ct-p">~ Partial</td><td class="ct-n">✗ Merged early</td><td class="ct-y h-dv">✓ Per-satellite</td></tr>
+          <tr><td>Additive Schema Evolution</td><td class="ct-n">✗ Breaking changes</td><td class="ct-n">✗ Conformed dims</td><td class="ct-y h-dv">✓ Add satellites</td></tr>
+          <tr><td>Business Rule Separation</td><td class="ct-n">✗ In ETL</td><td class="ct-n">✗ In dim design</td><td class="ct-y h-dv">✓ Business Vault</td></tr>
+          <tr><td>Full Compliance / Audit</td><td class="ct-p">~ Partial</td><td class="ct-n">✗</td><td class="ct-y h-dv">✓ LOAD_DATE + SRC</td></tr>
+          <tr><td>Query Simplicity for BI</td><td class="ct-p">~ Complex joins</td><td class="ct-y">✓ Optimised</td><td class="ct-p h-dv">~ Via Mart layer</td></tr>
+          <tr><td>Agile / Incremental Build</td><td class="ct-n">✗</td><td class="ct-p">~ Iterative</td><td class="ct-y h-dv">✓ Native pattern</td></tr>
+          <tr><td>Multi-Source Integration</td><td class="ct-p">~ Via ETL</td><td class="ct-p">~ Conformed dims</td><td class="ct-y h-dv">✓ Hub-based merge</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<hr class="sec-rule">
+
+<!-- ════ DV → DIM BRIDGE ════ -->
+<div class="sec z1" id="bridge">
+  <div class="sec-tag">The Bridge</div>
+  <h2 class="sec-h">Data Vault <em>→</em><br>Dimensional Model</h2>
+  <p class="sec-sub">DV and Kimball are complementary. The vault provides governed raw storage. The Information Mart delivers query-optimized Star Schemas from it.</p>
+
+  <div class="card" style="box-shadow:var(--shadow2);">
+    <div class="bridge-grid">
+      <div class="bridge-col">
+        <div class="bc-title dv">Data Vault Layer</div>
+        <div class="bc-node">
+          <div class="nn" style="color:var(--rust)">◈ Hub</div>
+          <div class="nf">HUB_CUSTOMER<br>CUSTOMER_HK · CUSTOMER_ID<br>LOAD_DATE · RECORD_SOURCE</div>
+        </div>
+        <div class="bc-node">
+          <div class="nn" style="color:var(--teal)">◉ Satellite (CRM)</div>
+          <div class="nf">SAT_CUSTOMER_CRM<br>CUSTOMER_HK · LOAD_DATE<br>HASH_DIFF · name · email · segment</div>
+        </div>
+        <div class="bc-node">
+          <div class="nn" style="color:var(--teal)">◉ Satellite (ERP)</div>
+          <div class="nf">SAT_CUSTOMER_ERP<br>CUSTOMER_HK · LOAD_DATE<br>credit_limit · region</div>
+        </div>
+        <div class="bc-node" style="border-color:rgba(107,63,107,.2)">
+          <div class="nn" style="color:var(--plum)">📅 PIT Table</div>
+          <div class="nf">PIT_CUSTOMER<br>snapshot_date · customer_hk<br>sat_crm_ldts · sat_erp_ldts</div>
+        </div>
+      </div>
+      <div class="bridge-col" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div class="bc-title arrow" style="text-align:center;width:100%">Transformation</div>
+        <div class="bc-arrow-node">→</div>
+        <div class="bc-arrow-label">Latest SAT rows<br>joined via PIT</div>
+        <div class="bc-arrow-node">→</div>
+        <div class="bc-arrow-label">LOAD_DATE<br>→ effective_from/to</div>
+        <div class="bc-arrow-node">→</div>
+        <div class="bc-arrow-label">HUB HASH_KEY<br>→ surrogate key</div>
+        <div class="bc-arrow-node">→</div>
+        <div class="bc-arrow-label">LINK + LSAT<br>→ fact table</div>
+      </div>
+      <div class="bridge-col" style="border-right:none;">
+        <div class="bc-title dim">Star Schema Output</div>
+        <div class="bc-node" style="border-color:rgba(30,58,95,.2)">
+          <div class="nn" style="color:var(--navy)">⬡ Dimension</div>
+          <div class="nf">DIM_CUSTOMER<br>customer_sk (from HK) · customer_id<br>name · email · segment · credit_limit<br>effective_from · effective_to · is_current</div>
+        </div>
+        <div class="bc-node" style="border-color:rgba(30,58,95,.2)">
+          <div class="nn" style="color:var(--navy)">⭐ Fact Table</div>
+          <div class="nf">FCT_ORDERS<br>order_sk · customer_sk · product_sk<br>order_date_sk · order_amount<br>quantity · discount · margin</div>
+        </div>
+        <div class="bc-node" style="border-color:rgba(30,58,95,.1);background:rgba(30,58,95,.03)">
+          <div class="nn" style="color:var(--navy)">📈 BI Layer</div>
+          <div class="nf" style="color:var(--navy2)">Tableau · Power BI · Snowflake<br>Slice by customer segment<br>Trend by time · Drill to order</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="sec-rule">
+
+<!-- ════ RULES ════ -->
+<div class="sec z1">
+  <div class="sec-tag">Standards</div>
+  <h2 class="sec-h">Key <em>Rules</em></h2>
+  <p class="sec-sub">Data Vault 2.0 is a standards-based methodology. These rules are non-negotiable.</p>
+  <div class="rules-grid">
+    <div class="rule-card"><div class="rule-num">R01</div><div class="rule-body"><div class="rule-title">Hash Keys on All Tables</div><div class="rule-desc">MD5/SHA-1 of business key. Deterministic. Eliminates sequence dependencies. Enables parallel loading.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R02</div><div class="rule-body"><div class="rule-title">Insert-Only Architecture</div><div class="rule-desc">No UPDATE or DELETE. Ever. New satellite row = new load date. Complete immutable audit trail.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R03</div><div class="rule-body"><div class="rule-title">Load Date on Every Row</div><div class="rule-desc">LOAD_DATE = when data arrived in the warehouse. Distinct from EFFECTIVE_DATE (business reality).</div></div></div>
+    <div class="rule-card"><div class="rule-num">R04</div><div class="rule-body"><div class="rule-title">Record Source Mandatory</div><div class="rule-desc">Every row identifies its source system. Enables full data lineage and source system auditing.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R05</div><div class="rule-body"><div class="rule-title">One Satellite Per Source</div><div class="rule-desc">SAT_CUSTOMER_CRM and SAT_CUSTOMER_ERP coexist. Schema changes in CRM don't affect ERP.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R06</div><div class="rule-body"><div class="rule-title">HASH_DIFF for Change Detection</div><div class="rule-desc">Composite hash of all attributes. If HASH_DIFF matches last row → no insert needed. Efficient CDC.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R07</div><div class="rule-body"><div class="rule-title">Hubs Hold Business Keys Only</div><div class="rule-desc">No descriptive attributes in Hubs. Ever. Attributes in Satellites. Hubs become immutable anchors.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R08</div><div class="rule-body"><div class="rule-title">Links Hold No Attributes</div><div class="rule-desc">Metrics of a relationship (amounts, dates) go in Link Satellites, not the Link itself.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R09</div><div class="rule-body"><div class="rule-title">No Business Logic in Raw Vault</div><div class="rule-desc">Raw Vault is technical only. Business rules live in Business Vault. Enables rule versioning and reprocessing.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R10</div><div class="rule-body"><div class="rule-title">Information Mart Is Disposable</div><div class="rule-desc">Marts are derived from the vault and fully rebuildable. Change requirements → rebuild mart. Vault stays intact.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R11</div><div class="rule-body"><div class="rule-title">Metadata-Driven ETL</div><div class="rule-desc">Loads driven by configuration, not hardcoded SQL. Enables automated code generation and consistent patterns at scale.</div></div></div>
+    <div class="rule-card"><div class="rule-num">R12</div><div class="rule-body"><div class="rule-title">Parallel Load Pattern</div><div class="rule-desc">No FK constraints between tables. All Hubs and Links load simultaneously. Satellites load after parent confirmed.</div></div></div>
+  </div>
+</div>
+
+<hr class="sec-rule">
+
+<!-- ════ QUIZ ════ -->
+<div class="sec z1" id="quiz">
+  <div class="sec-tag">Test Your Knowledge</div>
+  <h2 class="sec-h">Architect <em>Quiz</em></h2>
+  <p class="sec-sub">8 questions covering Data Vault fundamentals, design decisions, and the bridge to dimensional modeling.</p>
+  <div class="quiz-card">
+    <div class="quiz-prog">
+      <div class="qp-dots" id="qp-dots"></div>
+      <span class="qp-score" id="q-score">Score: 0 / 8</span>
+    </div>
+    <div class="quiz-q" id="quiz-q"></div>
+    <div class="quiz-opts" id="quiz-opts"></div>
+    <div class="quiz-fb" id="quiz-fb"></div>
+    <button class="quiz-next" id="quiz-next" onclick="nextQ()">Next →</button>
+  </div>
+</div>
+
+<!-- ════ CTA ════ -->
+<div class="sec z1">
+  <div class="cta-box">
+    <div>
+      <div class="cta-tag">Portfolio · Principal Data Architect</div>
+      <h2 class="cta-h">Siddhartha<br><em>Siripragada</em></h2>
+      <p class="cta-body">10+ years designing petabyte-scale data platforms, dimensional models, and enterprise analytics ecosystems across AWS, Azure, and Snowflake.</p>
+    </div>
+    <div class="cta-links">
+      <a href="https://siddarthasiripragada.github.io" class="cta-btn p">View Portfolio →</a>
+      <a href="https://siddarthasiripragada.github.io/sql-explainer.html" class="cta-btn s">SQL Explainer</a>
+      <a href="https://siddarthasiripragada.github.io/rag-explainer-v2.html" class="cta-btn s">RAG Explainer</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="ft-brand">Data Vault 2.0 · Visual Architecture</div>
+  <div class="ft-note">Siddhartha Siripragada · Principal Data Architect · siddarthasiripragada.github.io</div>
+</footer>
+
+<script>
+// ── TABS ──
+function showTab(id, btn) {
+  document.querySelectorAll('.entity-panel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.etab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('show');
+  btn.classList.add('active');
+}
+
+// ── QUIZ ──
+const Qs = [
+  {q:"What does a Hub in Data Vault store?",opts:["Business key + metadata only","Descriptive attributes","Relationships between entities","Computed business rules"],ans:0,exp:"A Hub stores ONLY the business key (natural key), its hash, load date, and record source. No attributes — those live in Satellites."},
+  {q:"Why is Data Vault insert-only?",opts:["Performance optimization","Complete immutable audit trail for compliance","Hash keys prevent updates","SQL doesn't support updates"],ans:1,exp:"Insert-only means every row ever written is permanently preserved. Full historical replay and compliance auditing become possible."},
+  {q:"What is HASH_DIFF used for in a Satellite?",opts:["Encrypt sensitive data","Generate surrogate keys","Detect changed attributes — avoid duplicate inserts","Link Satellites to Hubs"],ans:2,exp:"HASH_DIFF is a composite hash of all attribute values. If it matches the last row, data hasn't changed — no insert needed."},
+  {q:"A LINK table should contain:",opts:["Hub keys + metrics + load date","ONLY hub hash keys, its own hash, load date, record source","All relationship attributes","Business keys of related entities"],ans:1,exp:"Links contain NO attributes. Only their own hash key, the hub hash keys, load date and record source. Metrics go in Link Satellites."},
+  {q:"Which layer is considered DISPOSABLE in Data Vault?",opts:["Raw Vault","Business Vault","Information Mart","All layers"],ans:2,exp:"Information Marts are derived from the vault and fully rebuildable. The Raw Vault is permanent and immutable — the Mart is not."},
+  {q:"How does a Hub relate to a Kimball Dimension?",opts:["Hub replaces the dimension","Hub provides the surrogate key; Satellites fill the attributes","Hub becomes a fact table","There is no relationship"],ans:1,exp:"The Hub hash key becomes the dimension surrogate key. Satellite attributes join (current or point-in-time) to build the complete dimension."},
+  {q:"Why can Data Vault load ALL tables in parallel?",opts:["Cloud databases support it","Hash keys are deterministic — no FK constraints between tables","Columnar storage enables it","Parallel loading is not possible in DV"],ans:1,exp:"Deterministic hash keys remove the need for sequence-generated IDs and FK constraints, so every Hub and Link loads simultaneously."},
+  {q:"What problem does a PIT (Point-in-Time) Table solve?",opts:["Time-series metrics storage","Recording business transactions","Pre-joining multiple Satellite load dates for fast mart construction","Replacing Bridge Tables"],ans:2,exp:"PIT Tables store the active LOAD_DATE for each Satellite at snapshot intervals, enabling efficient mart joins without expensive range queries."},
+];
+
+let qIdx=0, score=0;
+
+function buildDots(){
+  document.getElementById('qp-dots').innerHTML=Qs.map((_,i)=>`<div class="qp-dot ${i===0?'current':''}" id="qd-${i}"></div>`).join('');
+}
+
+function loadQ(){
+  const q=Qs[qIdx];
+  document.getElementById('quiz-q').textContent=q.q;
+  document.getElementById('quiz-opts').innerHTML=q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answer(${i},this)">${o}</button>`).join('');
+  document.getElementById('quiz-fb').classList.remove('show');
+  document.getElementById('quiz-next').classList.remove('show');
+  document.querySelectorAll('.qp-dot').forEach((d,i)=>{
+    d.className='qp-dot'+(i<qIdx?' done':i===qIdx?' current':'');
+  });
+}
+
+function answer(i, btn){
+  const q=Qs[qIdx];
+  document.querySelectorAll('.quiz-opt').forEach(b=>{b.style.pointerEvents='none';});
+  const fb=document.getElementById('quiz-fb');
+  if(i===q.ans){
+    btn.classList.add('correct'); score++;
+    fb.style.background='rgba(26,122,110,.08)';fb.style.border='1px solid rgba(26,122,110,.2)';fb.style.color='#1a7a6e';
+    fb.textContent='✓ Correct! '+q.exp;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct');
+    fb.style.background='var(--rust3)';fb.style.border='1px solid rgba(196,98,45,.2)';fb.style.color='var(--rust)';
+    fb.textContent='✗ '+q.exp;
+  }
+  fb.classList.add('show');
+  document.getElementById('quiz-next').classList.add('show');
+  document.getElementById('q-score').textContent=`Score: ${score} / ${Qs.length}`;
+}
+
+function nextQ(){
+  qIdx++;
+  if(qIdx>=Qs.length){
+    document.getElementById('quiz-q').textContent=`Complete! You scored ${score} / ${Qs.length}.`;
+    document.getElementById('quiz-opts').innerHTML=`<div style="font-size:14px;color:var(--ink2);padding:8px 0;font-weight:400;">${score>=7?'🏆 Excellent — architect-level understanding.':score>=5?'✓ Good foundation. Review the diagrams to strengthen gaps.':'📖 Review the Hub, Link, Satellite sections and try again.'}</div>`;
+    document.getElementById('quiz-fb').classList.remove('show');
+    document.getElementById('quiz-next').classList.remove('show');
+    document.querySelectorAll('.qp-dot').forEach(d=>d.className='qp-dot done');
+    return;
+  }
+  loadQ();
+}
+
+window.addEventListener('DOMContentLoaded',()=>{buildDots();loadQ();});
+</script>
+</body>
+</html>
