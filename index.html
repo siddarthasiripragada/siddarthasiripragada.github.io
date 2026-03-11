@@ -1,579 +1,956 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Siddhartha Siripragada - Senior/Lead Machine Learning Engineer & Principal Data Architect specializing in LLMs, Generative AI, RAG, and Enterprise Data Platforms">
-    <meta name="keywords" content="Machine Learning, Data Engineering, LLMs, Generative AI, RAG, Azure, AWS, Python, Big Data, Senior ML Engineer, Principal Data Architect">
-    <title>Siddhartha Siripragada | Senior ML Engineer & Principal Data Architect</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Siddhartha Siripragada — ML Engineer & Principal Data Architect. LLMs, RAG, enterprise data platforms, dimensional modeling. Toronto, Canada.">
+<meta name="keywords" content="Machine Learning Engineer, Principal Data Architect, LLM, RAG, Generative AI, Snowflake, Data Vault, Dimensional Modeling, AWS Bedrock, SageMaker, Databricks, PyTorch, Vector Search, Fine-tuning, Lakehouse, Transformer, Embeddings">
+<title>Siddhartha Siripragada — ML Engineer & Data Architect</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────── */
+:root{
+  --paper:#f5f3ef;
+  --white:#ffffff;
+  --ink:#18181b;
+  --ink2:#3f3f46;
+  --ink3:#71717a;
+  --ink4:#a1a1aa;
+  --ink5:#d4d4d8;
+  --navy:#1e3a5f;
+  --navy2:#2a4f7c;
+  --navy3:rgba(30,58,95,.07);
+  --navy4:rgba(30,58,95,.04);
+  --link:#1d4ed8;
+  --green:#15803d;
+  --border:rgba(24,24,27,.09);
+  --border2:rgba(24,24,27,.15);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.04);
+  --shadow2:0 2px 8px rgba(0,0,0,.06),0 12px 32px rgba(0,0,0,.06);
+  --serif:'Cormorant',Georgia,serif;
+  --sans:'Jost',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --sidebar:300px;
+}
+
+/* ── RESET ───────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.7;overflow-x:hidden;}
+a{color:var(--link);text-decoration:none;}
+a:hover{text-decoration:underline;text-underline-offset:3px;}
+ul{list-style:none;}
+img{max-width:100%;display:block;}
+
+/* ── LAYOUT ──────────────────────────────────── */
+.layout{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh;align-items:start;}
+
+/* ── SIDEBAR ─────────────────────────────────── */
+.sidebar{
+  position:sticky;top:0;height:100vh;
+  overflow-y:auto;
+  border-right:1px solid var(--border);
+  background:var(--white);
+  padding:48px 32px 40px;
+  display:flex;flex-direction:column;gap:0;
+}
+.sidebar::-webkit-scrollbar{width:0;}
+
+.s-avatar{
+  width:80px;height:80px;border-radius:14px;
+  background:var(--navy3);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:32px;font-weight:600;
+  color:var(--navy);margin-bottom:20px;letter-spacing:-1px;
+  flex-shrink:0;
+}
+
+.s-name{
+  font-family:var(--serif);font-size:22px;font-weight:600;
+  line-height:1.1;letter-spacing:-.3px;margin-bottom:6px;color:var(--ink);
+}
+.s-title{
+  font-size:11.5px;font-weight:400;color:var(--ink3);
+  line-height:1.6;margin-bottom:24px;
+}
+
+.s-divider{height:1px;background:var(--border);margin:20px 0;}
+
+.s-section-label{
+  font-family:var(--mono);font-size:8.5px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink4);margin-bottom:10px;
+}
+
+/* Contact links */
+.s-links{display:flex;flex-direction:column;gap:6px;margin-bottom:0;}
+.s-link{
+  display:flex;align-items:center;gap:9px;
+  font-size:12px;color:var(--ink3);font-weight:400;
+  padding:5px 0;transition:color .15s;
+}
+.s-link:hover{color:var(--navy);text-decoration:none;}
+.s-link-icon{
+  width:20px;height:20px;border-radius:5px;
+  background:var(--navy4);display:flex;align-items:center;
+  justify-content:center;font-size:10px;color:var(--navy2);
+  flex-shrink:0;border:1px solid var(--border);
+}
+
+/* Quick stats in sidebar */
+.s-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+.s-stat{
+  padding:10px 10px;background:var(--paper);
+  border:1px solid var(--border);border-radius:8px;text-align:center;
+}
+.s-stat-v{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--navy);line-height:1;}
+.s-stat-l{font-size:9px;color:var(--ink4);font-weight:400;margin-top:2px;line-height:1.3;}
+
+/* Skills tags in sidebar */
+.s-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.s-tag{
+  font-family:var(--mono);font-size:8px;padding:2px 8px;
+  border-radius:100px;background:var(--navy4);
+  color:var(--navy2);border:1px solid rgba(30,58,95,.12);
+  letter-spacing:.3px;
+}
+
+/* Available badge */
+.s-available{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:500;color:var(--green);
+  padding:8px 12px;border-radius:8px;
+  background:rgba(21,128,61,.06);
+  border:1px solid rgba(21,128,61,.15);
+  margin-top:4px;
+}
+.s-avail-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── MAIN CONTENT ────────────────────────────── */
+.main{padding:56px 64px 80px;max-width:860px;}
+
+/* Section numbering */
+.section{margin-bottom:64px;}
+.section-header{
+  display:flex;align-items:baseline;gap:16px;
+  margin-bottom:28px;padding-bottom:16px;
+  border-bottom:1px solid var(--border);
+}
+.section-num{
+  font-family:var(--mono);font-size:10px;color:var(--ink4);
+  letter-spacing:1px;flex-shrink:0;
+}
+.section-title{
+  font-family:var(--serif);font-size:26px;font-weight:600;
+  letter-spacing:-.5px;color:var(--ink);
+}
+.section-title em{font-style:italic;color:var(--navy);}
+
+/* ── HERO BIO ────────────────────────────────── */
+.bio-block{max-width:640px;}
+.bio-lead{
+  font-family:var(--serif);font-size:19px;font-weight:400;
+  line-height:1.65;color:var(--ink2);margin-bottom:20px;
+  letter-spacing:-.2px;
+}
+.bio-lead strong{color:var(--ink);font-weight:600;}
+.bio-body{
+  font-size:14px;font-weight:300;color:var(--ink3);
+  line-height:1.85;margin-bottom:16px;
+}
+
+/* Research interest tags */
+.interest-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px;}
+.interest-tag{
+  font-size:11.5px;font-weight:400;color:var(--ink2);
+  padding:4px 12px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--white);
+  transition:all .15s;
+}
+.interest-tag:hover{border-color:var(--navy2);color:var(--navy);}
+
+/* ── EXPERTISE GRID ──────────────────────────── */
+.expertise-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.exp-card{
+  padding:20px;border:1px solid var(--border);
+  border-radius:10px;background:var(--white);
+  box-shadow:var(--shadow);transition:all .2s;
+}
+.exp-card:hover{border-color:var(--border2);box-shadow:var(--shadow2);transform:translateY(-1px);}
+.exp-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.exp-icon{
+  width:36px;height:36px;border-radius:8px;
+  background:var(--navy4);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.exp-card-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px;letter-spacing:-.2px;}
+.exp-card-body{font-size:12px;font-weight:300;color:var(--ink3);line-height:1.7;}
+.exp-techs{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
+.exp-tech{
+  font-family:var(--mono);font-size:8px;padding:2px 7px;
+  border-radius:4px;background:var(--paper);
+  color:var(--ink3);border:1px solid var(--border);
+}
+
+/* ── TIMELINE ────────────────────────────────── */
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{
+  display:grid;grid-template-columns:120px 1fr;
+  gap:0;position:relative;
+}
+.tl-item+.tl-item{margin-top:0;}
+.tl-left{
+  padding:20px 24px 20px 0;
+  border-right:1px solid var(--border);
+  text-align:right;
+}
+.tl-period{
+  font-family:var(--mono);font-size:9.5px;color:var(--ink4);
+  letter-spacing:.5px;display:block;padding-top:3px;
+}
+.tl-right{padding:20px 0 32px 28px;position:relative;}
+.tl-right::before{
+  content:'';position:absolute;left:-5px;top:28px;
+  width:9px;height:9px;border-radius:50%;
+  background:var(--white);border:2px solid var(--navy2);
+}
+.tl-role{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;letter-spacing:-.2px;}
+.tl-org{font-size:12px;color:var(--navy);font-weight:500;margin-bottom:10px;}
+.tl-bullets{display:flex;flex-direction:column;gap:7px;}
+.tl-bullet{
+  font-size:12.5px;font-weight:300;color:var(--ink2);
+  line-height:1.7;display:flex;gap:10px;align-items:flex-start;
+}
+.tl-bullet::before{content:'—';color:var(--ink4);flex-shrink:0;margin-top:1px;font-size:11px;}
+.tl-bullet strong{color:var(--ink);font-weight:600;}
+.tl-stack{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px;}
+.tl-tag{
+  font-family:var(--mono);font-size:8px;padding:2px 8px;
+  border-radius:4px;background:var(--navy4);
+  color:var(--navy2);border:1px solid rgba(30,58,95,.1);
+}
+
+/* ── SKILLS ──────────────────────────────────── */
+.skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.skill-group{}
+.skill-group-title{
+  font-size:11px;font-weight:600;letter-spacing:1px;
+  text-transform:uppercase;color:var(--ink3);
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.skill-group-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.skill-list{display:flex;flex-direction:column;gap:5px;}
+.skill-item{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;font-weight:400;color:var(--ink2);
+  padding:5px 0;border-bottom:1px solid var(--border);
+}
+.skill-item:last-child{border-bottom:none;}
+.skill-level{
+  font-family:var(--mono);font-size:8px;
+  color:var(--ink4);letter-spacing:.5px;
+}
+.skill-level.expert{color:var(--navy);}
+
+/* ── PROJECTS ────────────────────────────────── */
+.projects-list{display:flex;flex-direction:column;gap:20px;}
+
+/* Enterprise projects - compact list style */
+.proj-row{
+  display:grid;grid-template-columns:1fr auto;
+  gap:20px;align-items:start;
+  padding:20px;border:1px solid var(--border);
+  border-radius:10px;background:var(--white);
+  box-shadow:var(--shadow);transition:all .2s;
+}
+.proj-row:hover{border-color:var(--border2);box-shadow:var(--shadow2);}
+.proj-title{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:5px;letter-spacing:-.2px;}
+.proj-abstract{font-size:12px;font-weight:300;color:var(--ink3);line-height:1.75;margin-bottom:10px;}
+.proj-meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.proj-tag{
+  font-family:var(--mono);font-size:8px;padding:2px 8px;
+  border-radius:4px;background:var(--paper);
+  color:var(--ink3);border:1px solid var(--border);
+}
+.proj-metrics{
+  display:flex;flex-direction:column;gap:6px;
+  flex-shrink:0;min-width:110px;
+}
+.proj-metric{
+  text-align:right;
+  padding:6px 10px;background:var(--paper);
+  border-radius:6px;border:1px solid var(--border);
+}
+.proj-metric-v{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--navy);line-height:1;}
+.proj-metric-l{font-size:8.5px;color:var(--ink4);margin-top:1px;font-weight:400;}
+
+/* Interactive demo cards - slightly elevated */
+.demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
+.demo-card{
+  padding:20px;border:1px solid var(--border);border-radius:10px;
+  background:var(--white);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:10px;
+  transition:all .2s;
+}
+.demo-card:hover{border-color:var(--navy2);box-shadow:var(--shadow2);transform:translateY(-2px);}
+.demo-icon{
+  width:38px;height:38px;border-radius:9px;
+  background:var(--navy4);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;
+}
+.demo-title{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.35;letter-spacing:-.2px;}
+.demo-desc{font-size:11px;font-weight:300;color:var(--ink3);line-height:1.65;flex:1;}
+.demo-tags{display:flex;flex-wrap:wrap;gap:3px;}
+.demo-tag{
+  font-family:var(--mono);font-size:7.5px;padding:2px 6px;
+  border-radius:3px;background:var(--navy4);color:var(--navy2);
+  border:1px solid rgba(30,58,95,.1);
+}
+.demo-stats{
+  display:flex;gap:8px;padding-top:8px;border-top:1px solid var(--border);
+}
+.demo-stat{font-family:var(--mono);font-size:8px;color:var(--ink4);}
+.demo-stat strong{color:var(--navy);font-weight:500;}
+.demo-btn{
+  display:block;padding:8px 14px;border-radius:6px;
+  background:var(--navy);color:var(--white);
+  font-size:11px;font-weight:500;text-align:center;
+  transition:all .2s;text-decoration:none;letter-spacing:.2px;
+  margin-top:2px;
+}
+.demo-btn:hover{background:var(--navy2);text-decoration:none;}
+
+/* Section label for demos */
+.subsection-label{
+  font-family:var(--mono);font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink4);
+  margin-bottom:12px;margin-top:28px;
+  display:flex;align-items:center;gap:10px;
+}
+.subsection-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── CONTACT ─────────────────────────────────── */
+.contact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.contact-item{
+  padding:16px 18px;border:1px solid var(--border);
+  border-radius:8px;background:var(--white);
+  display:flex;align-items:center;gap:12px;
+  transition:all .15s;
+}
+.contact-item:hover{border-color:var(--navy2);}
+.contact-icon{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--navy4);display:flex;align-items:center;
+  justify-content:center;font-size:13px;color:var(--navy2);
+  flex-shrink:0;border:1px solid var(--border);
+}
+.contact-label{font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;}
+.contact-value{font-size:12px;font-weight:400;color:var(--ink);margin-top:1px;}
+.contact-value a{color:var(--ink);}
+.contact-value a:hover{color:var(--navy);}
+
+/* ── MOBILE ──────────────────────────────────── */
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--border);padding:32px 28px;}
+  .main{padding:36px 28px 60px;}
+  .expertise-grid,.skills-grid,.demo-grid{grid-template-columns:1fr;}
+  .tl-item{grid-template-columns:80px 1fr;}
+  .proj-row{grid-template-columns:1fr;}
+  .proj-metrics{flex-direction:row;min-width:unset;}
+}
+
+/* ── ANIMATIONS ──────────────────────────────── */
+.fade-in{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;}
+.fade-in.visible{opacity:1;transform:translateY(0);}
+
+/* ── SCROLLBAR ───────────────────────────────── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--ink5);border-radius:2px}
+</style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">Siddhartha Siripragada</div>
-            <ul class="nav-menu">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#highlights">Expertise</a></li>
-                <li><a href="#experience">Experience</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+
+<div class="layout">
+
+<!-- ════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════ -->
+<aside class="sidebar">
+
+  <div class="s-avatar" style="padding:0;overflow:hidden;background:none;border:1px solid var(--border2);">
+  <img src="profile.jpg" alt="Siddhartha Siripragada"
+       style="width:100%;height:100%;object-fit:cover;display:block;"
+       onerror="this.style.display='none';this.parentElement.innerHTML='SS';this.parentElement.style.background='var(--navy3)';this.parentElement.style.fontSize='32px';this.parentElement.style.display='flex';this.parentElement.style.alignItems='center';this.parentElement.style.justifyContent='center';">
+</div>
+
+  <div class="s-name">Siddhartha<br>Siripragada</div>
+  <div class="s-title">
+    Senior ML Engineer &<br>
+    Principal Data Architect<br>
+    <span style="color:var(--ink4);">Toronto, Canada</span>
+  </div>
+
+  <div class="s-available">
+    <span class="s-avail-dot"></span>
+    Open to opportunities
+  </div>
+
+  <div class="s-divider"></div>
+
+  <div class="s-section-label">Contact</div>
+  <div class="s-links">
+    <a class="s-link" href="mailto:Siddarthasiripragada@gmail.com">
+      <span class="s-link-icon">✉</span>
+      Siddarthasiripragada@gmail.com
+    </a>
+    <a class="s-link" href="https://linkedin.com/in/siddharthasiripragada" target="_blank">
+      <span class="s-link-icon">in</span>
+      linkedin.com/in/siddharthasiripragada
+    </a>
+    <a class="s-link" href="https://github.com/siddharthasirpragada" target="_blank">
+      <span class="s-link-icon">gh</span>
+      github.com/siddharthasirpragada
+    </a>
+  </div>
+
+  <div class="s-divider"></div>
+
+  <div class="s-section-label">At a Glance</div>
+  <div class="s-stats">
+    <div class="s-stat">
+      <div class="s-stat-v">10+</div>
+      <div class="s-stat-l">Years in<br>ML & Data</div>
+    </div>
+    <div class="s-stat">
+      <div class="s-stat-v">12+</div>
+      <div class="s-stat-l">Production<br>Systems Built</div>
+    </div>
+    <div class="s-stat">
+      <div class="s-stat-v">3</div>
+      <div class="s-stat-l">Cloud<br>Platforms</div>
+    </div>
+    <div class="s-stat">
+      <div class="s-stat-v">50+</div>
+      <div class="s-stat-l">ML Models<br>Deployed</div>
+    </div>
+  </div>
+
+  <div class="s-divider"></div>
+
+  <div class="s-section-label">Core Stack</div>
+  <div class="s-tags">
+    <span class="s-tag">Python</span>
+    <span class="s-tag">PyTorch</span>
+    <span class="s-tag">Snowflake</span>
+    <span class="s-tag">AWS Bedrock</span>
+    <span class="s-tag">SageMaker</span>
+    <span class="s-tag">Databricks</span>
+    <span class="s-tag">Spark</span>
+    <span class="s-tag">Kafka</span>
+    <span class="s-tag">dbt</span>
+    <span class="s-tag">Airflow</span>
+    <span class="s-tag">MLFlow</span>
+    <span class="s-tag">Pinecone</span>
+    <span class="s-tag">FAISS</span>
+    <span class="s-tag">Kubernetes</span>
+  </div>
+
+</aside>
+
+<!-- ════════════════════════════════════
+     MAIN
+════════════════════════════════════ -->
+<main class="main">
+
+  <!-- 01 / About -->
+  <section class="section fade-in" id="about">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About</h2>
+    </div>
+    <div class="bio-block">
+      <p class="bio-lead">
+        I design and build <strong>production ML systems</strong> and <strong>enterprise data platforms</strong> — from raw ingestion to inference, from dimensional modeling to LLM-powered applications.
+      </p>
+      <p class="bio-body">
+        Over the past decade I have worked across the full stack of modern data and ML engineering: architecting multi-terabyte analytical platforms on Snowflake and Databricks, building retrieval-augmented generation systems backed by vector databases, fine-tuning transformer models for domain-specific tasks, and designing the data vault and star schema foundations that power enterprise analytics at scale.
+      </p>
+      <p class="bio-body">
+        My approach is grounded in engineering rigor — correctness and reliability first, then performance. I write systems that are observable, testable, and maintainable by teams beyond their initial author.
+      </p>
+      <p class="bio-body">
+        Previously: data engineering at financial services and retail enterprise clients across North America and APAC. Currently consulting for organizations modernizing their ML infrastructure and data architecture on AWS and Azure.
+      </p>
+      <div class="interest-tags">
+        <span class="interest-tag">Large Language Models</span>
+        <span class="interest-tag">Retrieval-Augmented Generation</span>
+        <span class="interest-tag">Data Vault 2.0</span>
+        <span class="interest-tag">Dimensional Modeling</span>
+        <span class="interest-tag">Distributed Training</span>
+        <span class="interest-tag">Vector Search</span>
+        <span class="interest-tag">Lakehouse Architecture</span>
+        <span class="interest-tag">MLOps</span>
+        <span class="interest-tag">Transformer Fine-tuning</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 / Expertise -->
+  <section class="section fade-in" id="expertise">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Areas of <em>Expertise</em></h2>
+    </div>
+    <div class="expertise-grid">
+
+      <div class="exp-card">
+        <div class="exp-card-top">
+          <div class="exp-icon">🧠</div>
+          <div>
+            <div class="exp-card-title">Generative AI & LLMs</div>
+          </div>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    Hi, I'm <span class="gradient-text">Siddhartha Siripragada</span>
-                </h1>
-                <h2 class="hero-subtitle">Senior / Lead Machine Learning Engineer & Principal Data Architect</h2>
-                <p class="hero-description">
-                    Senior AI & Data Engineering Consultant with 10+ years architecting production-grade Machine Learning systems 
-                    serving <strong>millions of daily predictions</strong>, LLM-powered applications achieving <strong>sub-second 
-                    inference latency</strong>, and <strong>petabyte-scale</strong> cloud data platforms powering enterprise analytics ecosystems. 
-                    Specialized in Generative AI, RAG architectures, transformer fine-tuning, real-time vector search, 
-                    enterprise dimensional modeling, and high-performance distributed systems.
-                </p>
-                <div class="expertise-badges">
-                    <span class="badge">🏆 10+ Years ML/AI Engineering</span>
-                    <span class="badge">🚀 LLM & GenAI Specialist</span>
-                    <span class="badge">☁️ Cloud Architecture Expert</span>
-                    <span class="badge">📊 Principal Data Architect</span>
-                </div>
-                <div class="hero-buttons">
-                    <a href="#projects" class="btn btn-primary">View Projects</a>
-                    <a href="#contact" class="btn btn-secondary">Get in Touch</a>
-                </div>
-                <div class="social-links">
-                    <a href="https://linkedin.com/in/siddharthasiripragada" target="_blank" aria-label="LinkedIn">
-                        <i class="fab fa-linkedin"></i>
-                    </a>
-                    <a href="https://github.com/siddharthasirpragada" target="_blank" aria-label="GitHub">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="mailto:Siddarthasiripragada@gmail.com" aria-label="Email">
-                        <i class="fas fa-envelope"></i>
-                    </a>
-                </div>
-            </div>
+        <div class="exp-card-body">
+          End-to-end LLM pipelines: prompt engineering, RAG architecture, embedding selection, vector store integration, fine-tuning with LoRA/QLoRA, and inference optimization. Production deployments on AWS Bedrock, SageMaker, and Snowflake Cortex.
         </div>
-        <div class="scroll-indicator">
-            <a href="#about"><i class="fas fa-chevron-down"></i></a>
+        <div class="exp-techs">
+          <span class="exp-tech">AWS Bedrock</span>
+          <span class="exp-tech">SageMaker</span>
+          <span class="exp-tech">Pinecone</span>
+          <span class="exp-tech">FAISS</span>
+          <span class="exp-tech">LangChain</span>
+          <span class="exp-tech">Hugging Face</span>
+          <span class="exp-tech">LoRA / QLoRA</span>
+          <span class="exp-tech">spaCy</span>
+          <span class="exp-tech">GTE Embeddings</span>
         </div>
-    </section>
+      </div>
 
-    <!-- About Section -->
-    <section id="about" class="section about">
-        <div class="container">
-            <h2 class="section-title">About Me</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p class="lead">
-                        Principal Machine Learning Engineer and Senior Data Architecture Consultant delivering enterprise AI systems,
-                        LLM pipelines, and cloud-native analytics platforms.
-                    </p>
-                    <p>
-                        I specialize in building end-to-end AI products — from data ingestion and dimensional modeling to LLM fine-tuning,
-                        vector search, RAG pipelines, and real-time inference systems. My work spans Generative AI applications,
-                        mission-critical data platforms, and research-driven ML solutions deployed at scale.
-                    </p>
-                    <p>
-                        Over the last decade, I have architected large analytical ecosystems, designed dimensional and normalized data models,
-                        implemented lakehouse and warehouse platforms, built customer lifecycle intelligence systems, and delivered ML pipelines
-                        serving millions of records daily. My expertise bridges Machine Learning Engineering, Data Architecture, and Applied Research.
-                    </p>
-                    <p>
-                        Core focus areas include LLM fine-tuning, retrieval-augmented generation, embedding pipelines, vector databases,
-                        cloud ML infrastructure, advanced SQL optimization, Snowflake performance engineering, and scalable Python systems.
-                    </p>
-                    <div class="quick-facts">
-                        <div class="fact">
-                            <i class="fas fa-briefcase"></i>
-                            <div><strong>10+ Years</strong><span>Engineering Experience</span></div>
-                        </div>
-                        <div class="fact">
-                            <i class="fas fa-robot"></i>
-                            <div><strong>GenAI + LLM</strong><span>Production Systems</span></div>
-                        </div>
-                        <div class="fact">
-                            <i class="fas fa-project-diagram"></i>
-                            <div><strong>50+ Enterprise</strong><span>Systems Architected</span></div>
-                        </div>
-                        <div class="fact">
-                            <i class="fas fa-database"></i>
-                            <div><strong>PB-Scale</strong><span>Data Platforms</span></div>
-                        </div>
-                        <div class="fact">
-                            <i class="fas fa-bolt"></i>
-                            <div><strong>&lt;1s</strong><span>ML Inference</span></div>
-                        </div>
-                        <div class="fact">
-                            <i class="fas fa-check-circle"></i>
-                            <div><strong>99.9% Uptime</strong><span>Production Systems</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="exp-card">
+        <div class="exp-card-top">
+          <div class="exp-icon">🏗</div>
+          <div>
+            <div class="exp-card-title">Data Architecture & Modeling</div>
+          </div>
         </div>
-    </section>
-
-    <!-- Technical Leadership Highlights -->
-    <section id="highlights" class="section highlights">
-        <div class="container">
-            <h2 class="section-title">Technical Leadership & Expertise</h2>
-            <div class="highlights-grid">
-                <div class="highlight-card">
-                    <div class="highlight-icon">🤖</div>
-                    <h3>Generative AI & LLMs</h3>
-                    <p>Production LLM systems with RAG architectures, vector search, fine-tuning workflows, and agentic orchestration. 
-                    Experience with GPT-4, Claude, Llama, Mistral, and custom transformer architectures. Built systems achieving 
-                    <strong>35% accuracy improvements</strong> and <strong>sub-second inference</strong>.</p>
-                    <div class="tech-highlights">
-                        <span>AWS Bedrock</span><span>SageMaker</span><span>RAG Pipelines</span>
-                        <span>Vector DBs</span><span>Fine-tuning</span>
-                    </div>
-                </div>
-                <div class="highlight-card">
-                    <div class="highlight-icon">☁️</div>
-                    <h3>Cloud ML Infrastructure</h3>
-                    <p>Enterprise ML platforms on AWS (Bedrock, SageMaker, EMR) and Azure (Databricks, Synapse, Data Factory). 
-                    Designed auto-scaling inference systems serving <strong>10M+ daily predictions</strong> and distributed 
-                    training pipelines reducing training time by <strong>70%</strong>.</p>
-                    <div class="tech-highlights">
-                        <span>AWS</span><span>Azure</span><span>Databricks</span>
-                        <span>MLFlow</span><span>Kubernetes</span>
-                    </div>
-                </div>
-                <div class="highlight-card">
-                    <div class="highlight-icon">🎯</div>
-                    <h3>Principal Data Architecture</h3>
-                    <p>Expert architect for dimensional modeling, star schemas, SCD2 implementations, lakehouse designs, 
-                    and high-performance analytics platforms processing <strong>petabyte-scale data</strong>. Delivered 
-                    <strong>5x query performance</strong> improvements and <strong>40% cost reduction</strong>.</p>
-                    <div class="tech-highlights">
-                        <span>Snowflake</span><span>Star Schema</span><span>Data Modeling</span>
-                        <span>Lakehouse</span><span>SCD2</span>
-                    </div>
-                </div>
-                <div class="highlight-card">
-                    <div class="highlight-icon">⚡</div>
-                    <h3>Performance Engineering</h3>
-                    <p>Expert in distributed computing, query optimization, Spark tuning, and cost optimization. 
-                    Achieved <strong>3-10x performance improvements</strong> across production systems processing 
-                    <strong>10TB+ daily volume</strong> with <strong>99.9% reliability</strong>.</p>
-                    <div class="tech-highlights">
-                        <span>Spark Optimization</span><span>SQL Tuning</span><span>GPU Acceleration</span>
-                        <span>Cost Optimization</span><span>Distributed Systems</span>
-                    </div>
-                </div>
-            </div>
+        <div class="exp-card-body">
+          Enterprise warehouse design: Data Vault 2.0, Kimball dimensional modeling, SCD2 pipelines, lakehouse patterns, and metadata-driven ELT. Deep Snowflake expertise — physical modeling, clustering, query optimization, cost governance.
         </div>
-    </section>
-
-    <!-- Experience Section -->
-    <section id="experience" class="section experience">
-        <div class="container">
-            <h2 class="section-title">Professional Experience</h2>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h3>Senior / Lead ML Engineer & Principal Data Consultant</h3>
-                            <span class="period">2021 – Present</span>
-                        </div>
-                        <div class="timeline-body">
-                            <h4>Machine Learning & AI Engineering:</h4>
-                            <ul>
-                                <li>Architected enterprise Generative AI platforms using LLMs, RAG pipelines, and vector embeddings, achieving <strong>35% accuracy improvement</strong> and <strong>sub-second inference latency</strong> while serving <strong>millions of daily requests</strong></li>
-                                <li>Designed production ML inference systems leveraging AWS Bedrock, SageMaker, Databricks, and Snowflake Cortex, serving <strong>10M+ daily predictions</strong> with <strong>99.9% system reliability</strong></li>
-                                <li>Built end-to-end RAG frameworks combining Pinecone/Cassandra/Snowflake vector storage with spaCy NER, GTE embeddings, and prompt orchestration, improving retrieval relevance by <strong>40%</strong></li>
-                                <li>Implemented LLM fine-tuning workflows and model lifecycle management using MLFlow, TensorFlow, PyTorch, reducing model training time by <strong>70%</strong> through distributed GPU acceleration</li>
-                                <li>Optimized distributed ML training pipelines processing <strong>TB-scale datasets</strong>, achieving <strong>3-5x throughput improvements</strong> through Spark optimization and GPU clustering</li>
-                            </ul>
-                            <h4>Data Architecture & Analytics Platforms:</h4>
-                            <ul>
-                                <li>Delivered customer lifecycle intelligence platforms including CAS classification, CLTV modeling, segmentation frameworks, and rolling window analytics supporting <strong>$10M+ revenue optimization</strong></li>
-                                <li>Designed dimensional star schemas, SCD2 pipelines, metadata-driven orchestration, and enterprise data marts serving <strong>500+ business users</strong> with <strong>sub-second query response</strong></li>
-                                <li>Built Snowflake-first lakehouse architectures processing <strong>10TB+ daily volume</strong>, achieving <strong>5x query performance</strong> improvement and <strong>40% cost reduction</strong></li>
-                                <li>Developed high-performance SQL frameworks supporting dynamic filtering, fiscal windowing, real-time dashboards, and governed access layers with <strong>100+ concurrent users</strong></li>
-                                <li>Built automated data ingestion pipelines integrating Kafka, Spark Streaming, Airflow, Azure Data Factory, and DBT, handling <strong>TB+ daily volume</strong> with <strong>99.9% reliability</strong></li>
-                            </ul>
-                            <h4>Technical Leadership & Architecture:</h4>
-                            <ul>
-                                <li>Led architecture for AI-powered analytics applications including sentiment analysis, entity extraction, predictive modeling, and recommendation systems serving <strong>enterprise-scale workloads</strong></li>
-                                <li>Designed scalable cloud platforms across AWS and Azure supporting ML experimentation, CI/CD deployment, auto-scaling inference, and production monitoring for <strong>50+ ML models</strong></li>
-                                <li>Served as principal technical lead across data modeling, ML engineering, cloud infrastructure, and performance optimization initiatives, mentoring <strong>10+ engineers</strong></li>
-                            </ul>
-                            <div class="tech-stack">
-                                <span class="tech-tag">AWS Bedrock</span><span class="tech-tag">SageMaker</span>
-                                <span class="tech-tag">Databricks</span><span class="tech-tag">Snowflake</span>
-                                <span class="tech-tag">PyTorch</span><span class="tech-tag">LLMs & RAG</span>
-                                <span class="tech-tag">Vector DBs</span><span class="tech-tag">MLFlow</span>
-                                <span class="tech-tag">Spark</span><span class="tech-tag">Python</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h3>Senior Data Engineer / Cloud Architect</h3>
-                            <span class="period">2017 – 2021</span>
-                        </div>
-                        <div class="timeline-body">
-                            <ul>
-                                <li>Designed Lambda architectures combining batch + streaming analytics using Hadoop, Spark, Databricks, and Azure Data Factory, processing <strong>multi-TB daily workloads</strong></li>
-                                <li>Led Snowflake migrations including physical modeling, ELT redesign, achieving <strong>5x query performance</strong> and <strong>35% cost optimization</strong></li>
-                                <li>Built enterprise data lakes integrating RDBMS, Kafka streams, cloud storage, and analytics engines, supporting <strong>downstream ML/AI workloads</strong></li>
-                                <li>Optimized Spark workloads achieving <strong>3–5x runtime improvements</strong> through partitioning strategies, broadcast joins, and memory tuning</li>
-                                <li>Developed ML-ready data foundations with feature stores, versioned datasets, and automated quality validation pipelines</li>
-                                <li>Implemented real-time streaming pipelines using Kafka and Spark Streaming with <strong>99.9% uptime</strong></li>
-                            </ul>
-                            <div class="tech-stack">
-                                <span class="tech-tag">Snowflake</span><span class="tech-tag">Azure</span>
-                                <span class="tech-tag">Spark</span><span class="tech-tag">Hadoop</span>
-                                <span class="tech-tag">Kafka</span><span class="tech-tag">Lambda Architecture</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="timeline-item">
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h3>Data Engineer / Database Architect</h3>
-                            <span class="period">2013 – 2017</span>
-                        </div>
-                        <div class="timeline-body">
-                            <ul>
-                                <li>Built large-scale ETL frameworks and analytical warehouses processing <strong>millions of daily transactions</strong></li>
-                                <li>Designed normalized + dimensional models for financial and operational analytics supporting <strong>enterprise reporting</strong></li>
-                                <li>Implemented Oracle, SQL Server, and Hadoop-based platforms with advanced performance tuning, achieving <strong>50%+ query time reduction</strong></li>
-                                <li>Developed ingestion pipelines, data quality frameworks, reconciliation systems, and enterprise reporting layers</li>
-                                <li>Created automated monitoring and alerting systems ensuring <strong>99%+ data accuracy</strong></li>
-                            </ul>
-                            <div class="tech-stack">
-                                <span class="tech-tag">Oracle</span><span class="tech-tag">SQL Server</span>
-                                <span class="tech-tag">Hadoop</span><span class="tech-tag">Informatica</span>
-                                <span class="tech-tag">ETL</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="exp-techs">
+          <span class="exp-tech">Snowflake</span>
+          <span class="exp-tech">Data Vault 2.0</span>
+          <span class="exp-tech">Star Schema</span>
+          <span class="exp-tech">SCD2</span>
+          <span class="exp-tech">dbt</span>
+          <span class="exp-tech">Delta Lake</span>
+          <span class="exp-tech">ERwin</span>
+          <span class="exp-tech">Airflow</span>
         </div>
-    </section>
+      </div>
 
-    <!-- Skills Section -->
-    <section id="skills" class="section skills">
-        <div class="container">
-            <h2 class="section-title">Technical Expertise</h2>
-            <div class="skills-grid">
-                <div class="skill-category">
-                    <div class="skill-icon"><i class="fas fa-brain"></i></div>
-                    <h3>Machine Learning & AI</h3>
-                    <div class="skill-tags">
-                        <span>Large Language Models (LLMs)</span><span>Generative AI</span>
-                        <span>AWS Bedrock & SageMaker</span><span>RAG Architectures</span>
-                        <span>Vector Databases</span><span>Model Fine-tuning</span>
-                        <span>Transformer Architectures</span><span>Sentiment Analysis & NER</span>
-                        <span>spaCy & Hugging Face</span><span>GTE Embeddings</span>
-                        <span>MLFlow & Model Lifecycle</span><span>PyTorch & TensorFlow</span>
-                        <span>Scikit-learn</span><span>Distributed Training</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <div class="skill-icon"><i class="fas fa-cloud"></i></div>
-                    <h3>Cloud Platforms & MLOps</h3>
-                    <div class="skill-tags">
-                        <span>AWS (Bedrock, SageMaker, EMR, S3)</span>
-                        <span>Azure (Databricks, Synapse, ADF)</span>
-                        <span>Google Cloud Platform</span><span>Databricks ML Runtime</span>
-                        <span>Azure Data Lake</span><span>MLFlow Tracking</span>
-                        <span>Docker & Kubernetes</span><span>CI/CD Pipelines</span>
-                        <span>Infrastructure as Code</span><span>Auto-scaling Systems</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <div class="skill-icon"><i class="fas fa-database"></i></div>
-                    <h3>Big Data & Streaming</h3>
-                    <div class="skill-tags">
-                        <span>Apache Spark & PySpark</span><span>Hadoop Ecosystem</span>
-                        <span>Kafka Streaming</span><span>Hive & HBase</span>
-                        <span>Sqoop & Oozie</span><span>Delta Lake</span>
-                        <span>Parquet & ORC</span><span>Distributed Computing</span>
-                        <span>Real-time Processing</span><span>Performance Tuning</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <div class="skill-icon"><i class="fas fa-project-diagram"></i></div>
-                    <h3>Data Architecture & Modeling</h3>
-                    <div class="skill-tags">
-                        <span>Snowflake (Expert)</span><span>Dimensional Modeling</span>
-                        <span>Star Schema & SCD2</span><span>Lakehouse Architecture</span>
-                        <span>Data Vault 2.0</span><span>ETL/ELT Design</span>
-                        <span>Azure Data Factory</span><span>Airflow Orchestration</span>
-                        <span>DBT Transformations</span><span>Metadata Management</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <div class="skill-icon"><i class="fas fa-code"></i></div>
-                    <h3>Programming & Databases</h3>
-                    <div class="skill-tags">
-                        <span>Python (Expert)</span><span>PySpark & Pandas</span>
-                        <span>SQL (Advanced)</span><span>PL/SQL & T-SQL</span>
-                        <span>Shell Scripting</span><span>Oracle 12c/18c</span>
-                        <span>PostgreSQL & MySQL</span><span>SQL Server</span>
-                        <span>NoSQL (Cassandra, MongoDB)</span><span>Query Optimization</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <div class="skill-icon"><i class="fas fa-chart-line"></i></div>
-                    <h3>Analytics & Tools</h3>
-                    <div class="skill-tags">
-                        <span>Tableau & Power BI</span><span>Jupyter Notebooks</span>
-                        <span>Git & GitHub</span><span>Jenkins & CI/CD</span>
-                        <span>JIRA & Agile</span><span>ERwin Data Modeler</span>
-                        <span>Informatica</span><span>Control-M & Autosys</span>
-                        <span>Vector Search (Pinecone, FAISS)</span><span>Performance Monitoring</span>
-                    </div>
-                </div>
-            </div>
+      <div class="exp-card">
+        <div class="exp-card-top">
+          <div class="exp-icon">☁️</div>
+          <div>
+            <div class="exp-card-title">Cloud ML Infrastructure</div>
+          </div>
         </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="section projects">
-        <div class="container">
-            <h2 class="section-title">Featured Projects & Achievements</h2>
-            <div class="projects-grid">
-
-                <!-- Project 1: LLM Platform -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-robot project-icon"></i>
-                        <h3>Enterprise LLM & RAG Platform</h3>
-                    </div>
-                    <p class="project-description">
-                        Production-grade Generative AI platform with LLM fine-tuning, RAG pipelines, vector search, 
-                        and agentic workflows serving millions of daily predictions with sub-second latency
-                    </p>
-                    <div class="project-tech">
-                        <span>AWS Bedrock</span><span>SageMaker</span><span>RAG</span>
-                        <span>Vector DBs</span><span>PyTorch</span><span>Databricks</span>
-                    </div>
-                    <div class="project-stats">
-                        <div class="stat"><strong>35%</strong><span>Accuracy Improvement</span></div>
-                        <div class="stat"><strong>&lt;1s</strong><span>Inference Latency</span></div>
-                        <div class="stat"><strong>10M+</strong><span>Daily Predictions</span></div>
-                    </div>
-                </div>
-
-                <!-- Project 2: Snowflake Lakehouse -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-snowflake project-icon"></i>
-                        <h3>Petabyte-Scale Snowflake Lakehouse</h3>
-                    </div>
-                    <p class="project-description">
-                        Enterprise data lakehouse architecture with dimensional modeling, real-time streaming, 
-                        automated ELT, and ML-ready feature stores supporting 500+ business users
-                    </p>
-                    <div class="project-tech">
-                        <span>Snowflake</span><span>Kafka</span><span>Spark</span>
-                        <span>Airflow</span><span>DBT</span><span>Python</span>
-                    </div>
-                    <div class="project-stats">
-                        <div class="stat"><strong>10TB+</strong><span>Daily Volume</span></div>
-                        <div class="stat"><strong>5x</strong><span>Query Performance</span></div>
-                        <div class="stat"><strong>40%</strong><span>Cost Reduction</span></div>
-                    </div>
-                </div>
-
-                <!-- Project 3: MLOps Platform -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-cogs project-icon"></i>
-                        <h3>MLOps & Model Lifecycle Platform</h3>
-                    </div>
-                    <p class="project-description">
-                        End-to-end ML platform with experiment tracking, model versioning, automated deployment, 
-                        and production monitoring supporting 50+ ML models with 99.9% uptime
-                    </p>
-                    <div class="project-tech">
-                        <span>MLFlow</span><span>SageMaker</span><span>Databricks</span>
-                        <span>Docker</span><span>Kubernetes</span><span>CI/CD</span>
-                    </div>
-                    <div class="project-stats">
-                        <div class="stat"><strong>50+</strong><span>Models Deployed</span></div>
-                        <div class="stat"><strong>70%</strong><span>Faster Training</span></div>
-                        <div class="stat"><strong>99.9%</strong><span>System Uptime</span></div>
-                    </div>
-                </div>
-
-                <!-- Project 4: Real-time Analytics -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-stream project-icon"></i>
-                        <h3>Real-time Streaming Analytics Platform</h3>
-                    </div>
-                    <p class="project-description">
-                        Lambda architecture with Kafka streaming, Spark processing, and real-time dashboards 
-                        processing TB-scale data with millisecond latency for business intelligence
-                    </p>
-                    <div class="project-tech">
-                        <span>Kafka</span><span>Spark Streaming</span><span>Azure</span>
-                        <span>Redis</span><span>Tableau</span><span>Python</span>
-                    </div>
-                    <div class="project-stats">
-                        <div class="stat"><strong>10TB+</strong><span>Daily Processing</span></div>
-                        <div class="stat"><strong>&lt;100ms</strong><span>Stream Latency</span></div>
-                        <div class="stat"><strong>99.9%</strong><span>Pipeline Reliability</span></div>
-                    </div>
-                </div>
-
-                <!-- Project 5: Customer Intelligence -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-users project-icon"></i>
-                        <h3>Customer Lifecycle Intelligence System</h3>
-                    </div>
-                    <p class="project-description">
-                        Advanced analytics platform with CLTV modeling, segmentation, churn prediction, and 
-                        recommendation engines supporting $10M+ revenue optimization initiatives
-                    </p>
-                    <div class="project-tech">
-                        <span>Python</span><span>Scikit-learn</span><span>Snowflake</span>
-                        <span>Tableau</span><span>PySpark</span><span>SQL</span>
-                    </div>
-                    <div class="project-stats">
-                        <div class="stat"><strong>$10M+</strong><span>Revenue Impact</span></div>
-                        <div class="stat"><strong>85%</strong><span>Prediction Accuracy</span></div>
-                        <div class="stat"><strong>20M+</strong><span>Customer Records</span></div>
-                    </div>
-                </div>
-
-                <!-- Project 6: Distributed Training -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-network-wired project-icon"></i>
-                        <h3>Distributed ML Training Infrastructure</h3>
-                    </div>
-                    <p class="project-description">
-                        GPU-accelerated distributed training platform with auto-scaling, checkpoint management, 
-                        and hyperparameter optimization reducing training time by 70%
-                    </p>
-                    <div class="project-tech">
-                        <span>PyTorch</span><span>Ray</span><span>AWS</span>
-                        <span>Kubernetes</span><span>MLFlow</span><span>GPU Clusters</span>
-                    </div>
-                    <div class="project-stats">
-                        <div class="stat"><strong>70%</strong><span>Faster Training</span></div>
-                        <div class="stat"><strong>TB-scale</strong><span>Dataset Processing</span></div>
-                        <div class="stat"><strong>Auto-scale</strong><span>GPU Clusters</span></div>
-                    </div>
-                </div>
-
-                <!-- ✅ Project 7: SQL Explainer — CORRECTLY PLACED -->
-                <div class="project-card">
-                    <div class="project-header">
-                        <i class="fas fa-table project-icon"></i>
-                        <h3>SQL Explainer — Interactive Visual Learning</h3>
-                    </div>
-                    <p class="project-description">
-                        Interactive visual SQL learning tool covering every clause — SELECT, DISTINCT, JOIN, WHERE, 
-                        GROUP BY, HAVING, WINDOW functions, ORDER BY, LIMIT, OFFSET and FETCH FIRST. Features 
-                        live query execution, step-by-step execution pipeline, real-time query performance 
-                        analysis, index usage hints, and an 8-question quiz.
-                    </p>
-                    <div class="project-tech">
-                        <span>SQL</span>
-                        <span>Query Optimization</span>
-                        <span>Window Functions</span>
-                        <span>JavaScript</span>
-                        <span>Data Education</span>
-                    </div>
-                    <div class="project-stats">
-                        <div class="stat"><strong>12</strong><span>SQL Clauses</span></div>
-                        <div class="stat"><strong>10+</strong><span>Live Presets</span></div>
-                        <div class="stat"><strong>Real-time</strong><span>Perf Analysis</span></div>
-                    </div>
-                    <div style="margin-top: 16px;">
-                        <a href="https://siddarthasiripragada.github.io/sql-explainer.html" 
-                           target="_blank" 
-                           class="btn btn-primary">
-                            🚀 Launch SQL Explainer →
-                        </a>
-                    </div>
-                </div>
-
-            </div><!-- /projects-grid -->
+        <div class="exp-card-body">
+          ML platform engineering on AWS and Azure: experiment tracking, model registry, CI/CD for ML, auto-scaling inference endpoints, GPU cluster management, and distributed training orchestration with Ray and Kubernetes.
         </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="section contact">
-        <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
-            <div class="contact-content">
-                <p class="contact-intro">
-                    I'm always interested in hearing about new opportunities, collaborations, or just connecting 
-                    with fellow ML/AI and data engineering professionals. Let's build something amazing together!
-                </p>
-                <div class="contact-grid">
-                    <div class="contact-card">
-                        <i class="fas fa-envelope"></i>
-                        <h3>Email</h3>
-                        <a href="mailto:Siddarthasiripragada@gmail.com">Siddarthasiripragada@gmail.com</a>
-                    </div>
-                    <div class="contact-card">
-                        <i class="fab fa-linkedin"></i>
-                        <h3>LinkedIn</h3>
-                        <a href="https://linkedin.com/in/siddharthasiripragada" target="_blank">Connect with me</a>
-                    </div>
-                    <div class="contact-card">
-                        <i class="fab fa-github"></i>
-                        <h3>GitHub</h3>
-                        <a href="https://github.com/siddharthasirpragada" target="_blank">View my code</a>
-                    </div>
-                    <div class="contact-card">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <h3>Location</h3>
-                        <p>Toronto, Ontario, Canada</p>
-                    </div>
-                </div>
-            </div>
+        <div class="exp-techs">
+          <span class="exp-tech">AWS EMR</span>
+          <span class="exp-tech">Azure Databricks</span>
+          <span class="exp-tech">MLFlow</span>
+          <span class="exp-tech">Ray</span>
+          <span class="exp-tech">Kubernetes</span>
+          <span class="exp-tech">Docker</span>
+          <span class="exp-tech">Terraform</span>
+          <span class="exp-tech">Azure ADF</span>
         </div>
-    </section>
+      </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Siddhartha Siripragada. Senior ML Engineer & Principal Data Architect.</p>
-            <div class="footer-links">
-                <a href="https://linkedin.com/in/siddharthasiripragada" target="_blank">LinkedIn</a>
-                <a href="https://github.com/siddharthasirpragada" target="_blank">GitHub</a>
-                <a href="mailto:Siddarthasiripragada@gmail.com">Email</a>
-            </div>
+      <div class="exp-card">
+        <div class="exp-card-top">
+          <div class="exp-icon">⚡</div>
+          <div>
+            <div class="exp-card-title">Distributed Systems & Performance</div>
+          </div>
         </div>
-    </footer>
+        <div class="exp-card-body">
+          Large-scale batch and streaming processing: Spark tuning, Kafka topology design, broadcast join optimization, partition strategies, and memory profiling. Delivered 3–5× throughput improvements on production pipelines handling 5TB+ daily.
+        </div>
+        <div class="exp-techs">
+          <span class="exp-tech">Apache Spark</span>
+          <span class="exp-tech">PySpark</span>
+          <span class="exp-tech">Kafka</span>
+          <span class="exp-tech">Hadoop</span>
+          <span class="exp-tech">Hive</span>
+          <span class="exp-tech">Redis</span>
+          <span class="exp-tech">Parquet / ORC</span>
+          <span class="exp-tech">SQL Optimization</span>
+        </div>
+      </div>
 
-    <script src="script.js"></script>
+    </div>
+  </section>
+
+  <!-- 03 / Experience -->
+  <section class="section fade-in" id="experience">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Professional <em>Experience</em></h2>
+    </div>
+
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <span class="tl-period">2021<br>— present</span>
+        </div>
+        <div class="tl-right">
+          <div class="tl-role">Senior ML Engineer & Principal Data Architect</div>
+          <div class="tl-org">Independent Consulting · North America</div>
+          <div class="tl-bullets">
+            <div class="tl-bullet">Architected production RAG systems combining Pinecone vector search, spaCy NER pipelines, and GTE embeddings — <strong>retrieval precision improved 38%</strong> vs. keyword baseline on 500K-document corpora.</div>
+            <div class="tl-bullet">Built LLM inference platform on AWS Bedrock and SageMaker serving <strong>~800K daily requests</strong> at p95 latency under 900ms; implemented prompt caching reducing API cost by 42%.</div>
+            <div class="tl-bullet">Designed Data Vault 2.0 foundations for a retail client: 14 Hubs, 22 Satellites, 11 Links — enabling <strong>full parallel load</strong> and complete source-system audit trail across CRM, ERP, and POS.</div>
+            <div class="tl-bullet">Delivered Snowflake-first lakehouse processing <strong>4TB+ daily</strong> with dbt-managed transformations; clustering and materialized view strategies reduced average query time from 28s to 4s.</div>
+            <div class="tl-bullet">Built customer CLTV and churn models (LightGBM + rolling-window features) in production on Databricks, driving <strong>$6M+ in targeted retention campaigns</strong> for a telecom client.</div>
+            <div class="tl-bullet">Fine-tuned Llama-2-13B with QLoRA on domain-specific datasets; <strong>30% accuracy improvement</strong> on internal classification benchmarks vs. zero-shot GPT-4.</div>
+          </div>
+          <div class="tl-stack">
+            <span class="tl-tag">AWS Bedrock</span><span class="tl-tag">SageMaker</span>
+            <span class="tl-tag">Snowflake</span><span class="tl-tag">Databricks</span>
+            <span class="tl-tag">PyTorch</span><span class="tl-tag">Pinecone</span>
+            <span class="tl-tag">dbt</span><span class="tl-tag">Airflow</span>
+            <span class="tl-tag">Data Vault 2.0</span><span class="tl-tag">MLFlow</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <span class="tl-period">2017<br>— 2021</span>
+        </div>
+        <div class="tl-right">
+          <div class="tl-role">Senior Data Engineer & Cloud Architect</div>
+          <div class="tl-org">Enterprise Clients · Financial Services & Retail</div>
+          <div class="tl-bullets">
+            <div class="tl-bullet">Led Snowflake migration from SQL Server for a financial institution: re-modeled 380 tables, redesigned ELT with dbt; <strong>query runtime reduced 5× on average</strong>, compute cost down 33%.</div>
+            <div class="tl-bullet">Built Lambda architecture on Azure Databricks and Kafka handling <strong>2TB+ daily ingestion</strong> from 18 source systems; streaming SLAs of under 90 seconds end-to-end.</div>
+            <div class="tl-bullet">Designed and delivered ML-ready feature store with <strong>120+ versioned features</strong> backing six production models for fraud detection and propensity scoring.</div>
+            <div class="tl-bullet">Optimized Spark job suite: resolved data skew with salting, converted nested joins to broadcast joins — <strong>average job time from 4.2 hrs to 55 min</strong> on 800GB daily partitions.</div>
+          </div>
+          <div class="tl-stack">
+            <span class="tl-tag">Snowflake</span><span class="tl-tag">Azure Databricks</span>
+            <span class="tl-tag">Kafka</span><span class="tl-tag">Spark</span>
+            <span class="tl-tag">Azure ADF</span><span class="tl-tag">dbt</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <span class="tl-period">2013<br>— 2017</span>
+        </div>
+        <div class="tl-right">
+          <div class="tl-role">Data Engineer & Database Architect</div>
+          <div class="tl-org">Enterprise Clients · Utilities & Insurance</div>
+          <div class="tl-bullets">
+            <div class="tl-bullet">Designed Oracle-based EDW with 3NF core and Kimball star-schema reporting layer serving <strong>200+ daily reports</strong> for a utilities company; Informatica ETL for 15 source systems.</div>
+            <div class="tl-bullet">Re-architected index strategy and rewrote 40+ long-running queries; <strong>average execution time reduced 55%</strong>, peak concurrency improved from 20 to 80 sessions.</div>
+            <div class="tl-bullet">Built Hadoop-based data lake on HDP for insurance claims processing — replaced manual file-based reconciliation, improving accuracy from 94% to <strong>99.6%</strong>.</div>
+          </div>
+          <div class="tl-stack">
+            <span class="tl-tag">Oracle 12c</span><span class="tl-tag">SQL Server</span>
+            <span class="tl-tag">Informatica</span><span class="tl-tag">Hadoop</span>
+            <span class="tl-tag">PL/SQL</span><span class="tl-tag">Control-M</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 04 / Skills -->
+  <section class="section fade-in" id="skills">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Technical <em>Skills</em></h2>
+    </div>
+    <div class="skills-grid">
+
+      <div class="skill-group">
+        <div class="skill-group-title">Languages</div>
+        <div class="skill-list">
+          <div class="skill-item">Python<span class="skill-level expert">Expert · primary</span></div>
+          <div class="skill-item">SQL / PL-SQL / T-SQL<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">PySpark<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">Shell / Bash<span class="skill-level">Proficient</span></div>
+          <div class="skill-item">Scala (Spark jobs)<span class="skill-level">Working</span></div>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">ML / AI</div>
+        <div class="skill-list">
+          <div class="skill-item">PyTorch · TensorFlow<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">Hugging Face Transformers<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">RAG · Vector Search<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">LoRA / QLoRA Fine-tuning<span class="skill-level">Proficient</span></div>
+          <div class="skill-item">Scikit-learn · LightGBM<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">MLFlow · Experiment Tracking<span class="skill-level expert">Expert</span></div>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Data Platforms</div>
+        <div class="skill-list">
+          <div class="skill-item">Snowflake<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">Databricks · Delta Lake<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">Apache Spark · Hadoop<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">Kafka · Spark Streaming<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">dbt · Airflow<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">Oracle · PostgreSQL · MySQL<span class="skill-level">Proficient</span></div>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">Cloud & Infrastructure</div>
+        <div class="skill-list">
+          <div class="skill-item">AWS (Bedrock, SageMaker, EMR, S3)<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">Azure (Databricks, Synapse, ADF)<span class="skill-level expert">Expert</span></div>
+          <div class="skill-item">Kubernetes · Docker<span class="skill-level">Proficient</span></div>
+          <div class="skill-item">Terraform · CI/CD<span class="skill-level">Proficient</span></div>
+          <div class="skill-item">Pinecone · FAISS · Cassandra<span class="skill-level">Proficient</span></div>
+          <div class="skill-item">Tableau · Power BI<span class="skill-level">Working</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 05 / Projects -->
+  <section class="section fade-in" id="projects">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Selected <em>Work</em></h2>
+    </div>
+
+    <!-- Enterprise Systems -->
+    <div class="projects-list">
+
+      <div class="proj-row">
+        <div>
+          <div class="proj-title">RAG-Powered Document Intelligence Platform</div>
+          <div class="proj-abstract">
+            Built a production retrieval-augmented generation system for a 500K-document legal corpus. Architecture: GTE embeddings → Pinecone vector store → reranking with cross-encoder → GPT-4 synthesis with citation grounding. Integrated spaCy NER pipeline for entity-aware chunking.
+          </div>
+          <div class="proj-meta">
+            <span class="proj-tag">RAG</span><span class="proj-tag">Pinecone</span>
+            <span class="proj-tag">AWS Bedrock</span><span class="proj-tag">GTE Embeddings</span>
+            <span class="proj-tag">spaCy NER</span><span class="proj-tag">Cross-encoder Reranking</span>
+          </div>
+        </div>
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="proj-metric-v">38%</div><div class="proj-metric-l">Precision gain vs. BM25</div></div>
+          <div class="proj-metric"><div class="proj-metric-v">&lt;900ms</div><div class="proj-metric-l">p95 latency</div></div>
+        </div>
+      </div>
+
+      <div class="proj-row">
+        <div>
+          <div class="proj-title">Enterprise Data Vault on Snowflake</div>
+          <div class="proj-abstract">
+            Designed and delivered a Data Vault 2.0 warehouse for a North American retailer ingesting from CRM, ERP, and POS. Metadata-driven ELT in dbt with automated hash key generation, HASH_DIFF change detection, and full bit-temporal satellite history. Information Mart layer serves star schema to Tableau and Power BI.
+          </div>
+          <div class="proj-meta">
+            <span class="proj-tag">Data Vault 2.0</span><span class="proj-tag">Snowflake</span>
+            <span class="proj-tag">dbt</span><span class="proj-tag">Airflow</span>
+            <span class="proj-tag">Star Schema</span><span class="proj-tag">SCD2</span>
+          </div>
+        </div>
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="proj-metric-v">4TB+</div><div class="proj-metric-l">Daily ingestion</div></div>
+          <div class="proj-metric"><div class="proj-metric-v">5×</div><div class="proj-metric-l">Query speedup</div></div>
+        </div>
+      </div>
+
+      <div class="proj-row">
+        <div>
+          <div class="proj-title">Llama-2 Domain Fine-tuning Pipeline</div>
+          <div class="proj-abstract">
+            QLoRA fine-tuning of Llama-2-13B on proprietary support ticket datasets using Databricks ML Runtime and Ray distributed training. Implemented 4-bit NF4 quantization, gradient checkpointing, and merged-adapter GGUF export for CPU inference. MLFlow for experiment tracking and model registry.
+          </div>
+          <div class="proj-meta">
+            <span class="proj-tag">Llama-2</span><span class="proj-tag">QLoRA</span>
+            <span class="proj-tag">Ray Train</span><span class="proj-tag">Databricks</span>
+            <span class="proj-tag">MLFlow</span><span class="proj-tag">4-bit Quantization</span>
+          </div>
+        </div>
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="proj-metric-v">30%</div><div class="proj-metric-l">Accuracy vs. GPT-4 zero-shot</div></div>
+          <div class="proj-metric"><div class="proj-metric-v">3×</div><div class="proj-metric-l">Inference cost reduction</div></div>
+        </div>
+      </div>
+
+      <div class="proj-row">
+        <div>
+          <div class="proj-title">Customer Lifetime Value & Churn Platform</div>
+          <div class="proj-abstract">
+            Feature engineering and LightGBM model training pipeline for telecom client: 120+ rolling-window features from billing, usage, and CRM. Weekly batch inference via Databricks Jobs, predictions written back to Snowflake for Tableau-driven campaign targeting.
+          </div>
+          <div class="proj-meta">
+            <span class="proj-tag">LightGBM</span><span class="proj-tag">PySpark Feature Engineering</span>
+            <span class="proj-tag">Databricks</span><span class="proj-tag">Snowflake</span>
+            <span class="proj-tag">MLFlow</span><span class="proj-tag">Tableau</span>
+          </div>
+        </div>
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="proj-metric-v">$6M+</div><div class="proj-metric-l">Retention campaign value</div></div>
+          <div class="proj-metric"><div class="proj-metric-v">83%</div><div class="proj-metric-l">Churn recall @ 0.3 threshold</div></div>
+        </div>
+      </div>
+
+      <div class="proj-row">
+        <div>
+          <div class="proj-title">Real-time Streaming Lakehouse on Azure</div>
+          <div class="proj-abstract">
+            Lambda architecture on Azure: Kafka ingestion → Spark Structured Streaming micro-batch → Delta Lake silver/gold layers → Synapse Analytics for BI. 18 source connectors, Avro schema registry, dead-letter queue handling, and alerting via Azure Monitor.
+          </div>
+          <div class="proj-meta">
+            <span class="proj-tag">Kafka</span><span class="proj-tag">Spark Structured Streaming</span>
+            <span class="proj-tag">Delta Lake</span><span class="proj-tag">Azure Databricks</span>
+            <span class="proj-tag">Synapse Analytics</span><span class="proj-tag">Azure ADF</span>
+          </div>
+        </div>
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="proj-metric-v">2TB+</div><div class="proj-metric-l">Daily volume</div></div>
+          <div class="proj-metric"><div class="proj-metric-v">&lt;90s</div><div class="proj-metric-l">End-to-end SLA</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Interactive Demos -->
+    <div class="subsection-label">Interactive Technical Demos</div>
+    <div class="demo-grid">
+
+      <div class="demo-card">
+        <div class="demo-icon">📋</div>
+        <div class="demo-title">SQL Explainer — Interactive Visual Learning</div>
+        <div class="demo-desc">Annotated SQL execution engine covering all major clauses. Live query runner, execution pipeline visualization, index usage hints, and performance analysis.</div>
+        <div class="demo-tags">
+          <span class="demo-tag">SQL</span>
+          <span class="demo-tag">Query Optimization</span>
+          <span class="demo-tag">Window Functions</span>
+          <span class="demo-tag">JavaScript</span>
+        </div>
+        <div class="demo-stats">
+          <span class="demo-stat"><strong>12</strong> clauses</span>
+          <span class="demo-stat"><strong>10+</strong> presets</span>
+          <span class="demo-stat"><strong>Live</strong> execution</span>
+        </div>
+        <a href="https://siddarthasiripragada.github.io/sql-explainer.html" target="_blank" class="demo-btn">Launch →</a>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-icon">🔍</div>
+        <div class="demo-title">RAG Explainer — Interactive Visual Demo</div>
+        <div class="demo-desc">End-to-end RAG pipeline visualizer: document chunking, TF-IDF embedding, cosine similarity search, and LLM synthesis with animated particle flow and similarity heatmaps.</div>
+        <div class="demo-tags">
+          <span class="demo-tag">RAG</span>
+          <span class="demo-tag">Vector Search</span>
+          <span class="demo-tag">TF-IDF</span>
+          <span class="demo-tag">Claude API</span>
+        </div>
+        <div class="demo-stats">
+          <span class="demo-stat"><strong>7</strong> stages</span>
+          <span class="demo-stat"><strong>Live</strong> flow</span>
+          <span class="demo-stat"><strong>API</strong> synthesis</span>
+        </div>
+        <a href="https://siddarthasiripragada.github.io/rag-explainer-v2.html" target="_blank" class="demo-btn">Launch →</a>
+      </div>
+
+      <div class="demo-card">
+        <div class="demo-icon">🗄</div>
+        <div class="demo-title">Data Vault 2.0 — Visual Architecture Guide</div>
+        <div class="demo-desc">SVG-driven architecture explorer: Hub/Link/Satellite entity diagrams, layered architecture flow, DV-to-Kimball bridge patterns, PIT tables, and 12 core DV 2.0 rules.</div>
+        <div class="demo-tags">
+          <span class="demo-tag">Data Vault 2.0</span>
+          <span class="demo-tag">Dimensional Modeling</span>
+          <span class="demo-tag">Architecture</span>
+        </div>
+        <div class="demo-stats">
+          <span class="demo-stat"><strong>3</strong> constructs</span>
+          <span class="demo-stat"><strong>5</strong> layers</span>
+          <span class="demo-stat"><strong>12</strong> rules</span>
+        </div>
+        <a href="https://siddarthasiripragada.github.io/datavault-v2.html" target="_blank" class="demo-btn">Launch →</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 06 / Contact -->
+  <section class="section fade-in" id="contact">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Get in <em>Touch</em></h2>
+    </div>
+    <p style="font-size:14px;font-weight:300;color:var(--ink3);margin-bottom:24px;max-width:480px;line-height:1.8;">
+      Available for consulting engagements in ML engineering, data architecture, and cloud platform design. Based in Toronto; working with clients across North America.
+    </p>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <div class="contact-icon">✉</div>
+        <div>
+          <div class="contact-label">Email</div>
+          <div class="contact-value"><a href="mailto:Siddarthasiripragada@gmail.com">Siddarthasiripragada@gmail.com</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">in</div>
+        <div>
+          <div class="contact-label">LinkedIn</div>
+          <div class="contact-value"><a href="https://linkedin.com/in/siddharthasiripragada" target="_blank">siddharthasiripragada</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">gh</div>
+        <div>
+          <div class="contact-label">GitHub</div>
+          <div class="contact-value"><a href="https://github.com/siddharthasirpragada" target="_blank">siddharthasirpragada</a></div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div>
+          <div class="contact-label">Location</div>
+          <div class="contact-value">Toronto, Ontario, Canada</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="padding-top:16px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--ink4);">
+    © 2025 Siddhartha Siripragada · ML Engineer & Principal Data Architect
+  </div>
+
+</main>
+</div>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
