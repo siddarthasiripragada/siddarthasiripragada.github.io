@@ -36,7 +36,7 @@
 
 html { scroll-behavior: smooth; }
 
-body {
+body{padding-top:44px;
   font-family: var(--sans);
   background: var(--bg);
   color: var(--text);
@@ -389,7 +389,7 @@ nav {
 .score-c{background:rgba(255,140,66,.12);color:var(--orange);border:1px solid rgba(255,140,66,.3);}
 .score-d{background:rgba(255,79,79,.12);color:var(--red);border:1px solid rgba(255,79,79,.3);}
 
-.perf-body{padding:16px;display:flex;flex-direction:column;gap:14px;}
+.perf-body{padding-top:44px;padding:16px;display:flex;flex-direction:column;gap:14px;}
 
 /* metric rows */
 .metric {display:flex;flex-direction:column;gap:5px;}
@@ -637,6 +637,16 @@ footer span{color:var(--green);}
 </style>
 </head>
 <body>
+<div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:10px 28px;background:rgba(5,5,15,0.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,229,160,0.2);font-family:'JetBrains Mono',monospace;box-sizing:border-box;">
+  <span style="font-size:11px;letter-spacing:2px;color:#00e5a0;">SQL EXPLAINER — INTERACTIVE</span>
+  <div style="display:flex;gap:14px;align-items:center;">
+    <a href="rag-explainer-v2.html" style="font-size:10px;color:rgba(255,255,255,0.35);text-decoration:none;letter-spacing:1px;">RAG</a>
+    <a href="datavault-v2.html" style="font-size:10px;color:rgba(255,255,255,0.35);text-decoration:none;letter-spacing:1px;">VAULT</a>
+    <a href="sql-explainer.html" style="font-size:10px;color:rgba(255,255,255,0.35);text-decoration:none;letter-spacing:1px;">SQL</a>
+    <a href="data-platform.html" style="font-size:10px;color:rgba(255,255,255,0.35);text-decoration:none;letter-spacing:1px;">PLATFORM</a>
+    <a href="index.html" style="font-size:10px;letter-spacing:2px;color:#00e5a0;text-decoration:none;border:1px solid rgba(0,229,160,0.2);padding:5px 14px;border-radius:5px;">← PORTFOLIO</a>
+  </div>
+</div>
 
 <!-- NAV -->
 <nav>

@@ -24,7 +24,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--display);background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;}
+body{padding-top:44px;font-family:var(--display);background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6;}
 
 /* ─── CURSOR ─── */
 *{cursor:crosshair}
@@ -420,6 +420,16 @@ footer{border-top:1px solid var(--border);padding:24px 36px;display:flex;align-i
 </style>
 </head>
 <body>
+<div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:10px 28px;background:rgba(5,5,15,0.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,229,192,0.2);font-family:'JetBrains Mono',monospace;box-sizing:border-box;">
+  <span style="font-size:11px;letter-spacing:2px;color:#00e5c0;">RAG EXPLAINER — LIVE DEMO</span>
+  <div style="display:flex;gap:14px;align-items:center;">
+    <a href="rag-explainer-v2.html" style="font-size:10px;color:rgba(255,255,255,0.35);text-decoration:none;letter-spacing:1px;">RAG</a>
+    <a href="datavault-v2.html" style="font-size:10px;color:rgba(255,255,255,0.35);text-decoration:none;letter-spacing:1px;">VAULT</a>
+    <a href="sql-explainer.html" style="font-size:10px;color:rgba(255,255,255,0.35);text-decoration:none;letter-spacing:1px;">SQL</a>
+    <a href="data-platform.html" style="font-size:10px;color:rgba(255,255,255,0.35);text-decoration:none;letter-spacing:1px;">PLATFORM</a>
+    <a href="index.html" style="font-size:10px;letter-spacing:2px;color:#00e5c0;text-decoration:none;border:1px solid rgba(0,229,192,0.2);padding:5px 14px;border-radius:5px;">← PORTFOLIO</a>
+  </div>
+</div>
 
 <!-- MODAL -->
 <div class="modal-bg" id="modal">
@@ -442,6 +452,7 @@ footer{border-top:1px solid var(--border);padding:24px 36px;display:flex;align-i
     <a href="#playground" class="nav-pill">Playground</a>
     <a href="#concepts" class="nav-pill">Concepts</a>
     <button class="nav-pill key" onclick="openModal()">⚙ API Key</button>
+    <a href="https://siddarthasiripragada.github.io" class="nav-pill" style="color:#00d4aa;border:1px solid rgba(0,212,170,.3);">← Portfolio</a>
   </div>
 </nav>
 

@@ -4,36 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Siddhartha Siripragada — ML Engineer & Principal Data Architect. LLMs, RAG, enterprise data platforms, dimensional modeling. Toronto, Canada.">
-<meta name="keywords" content="Machine Learning Engineer, Principal Data Architect, LLM, RAG, Generative AI, Snowflake, Data Vault, Dimensional Modeling, AWS Bedrock, SageMaker, Databricks, PyTorch, Vector Search, Fine-tuning, Lakehouse, Transformer, Embeddings">
 <title>Siddhartha Siripragada — ML Engineer & Data Architect</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-/* ── TOKENS ─────────────────────────────────── */
 :root{
-  --paper:#f5f3ef;
-  --white:#ffffff;
-  --ink:#18181b;
-  --ink2:#3f3f46;
-  --ink3:#71717a;
-  --ink4:#a1a1aa;
-  --ink5:#d4d4d8;
-  --navy:#1e3a5f;
-  --navy2:#2a4f7c;
-  --navy3:rgba(30,58,95,.07);
-  --navy4:rgba(30,58,95,.04);
-  --link:#1d4ed8;
-  --green:#15803d;
-  --border:rgba(24,24,27,.09);
-  --border2:rgba(24,24,27,.15);
+  --paper:#f5f3ef; --white:#ffffff; --ink:#18181b; --ink2:#3f3f46; --ink3:#71717a;
+  --ink4:#a1a1aa; --ink5:#d4d4d8; --navy:#1e3a5f; --navy2:#2a4f7c;
+  --navy3:rgba(30,58,95,.07); --navy4:rgba(30,58,95,.04);
+  --link:#1d4ed8; --green:#15803d;
+  --border:rgba(24,24,27,.09); --border2:rgba(24,24,27,.15);
   --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.04);
   --shadow2:0 2px 8px rgba(0,0,0,.06),0 12px 32px rgba(0,0,0,.06);
-  --serif:'Cormorant',Georgia,serif;
-  --sans:'Jost',sans-serif;
-  --mono:'JetBrains Mono',monospace;
+  --shadow3:0 4px 20px rgba(0,0,0,.1),0 1px 3px rgba(0,0,0,.06);
+  --serif:'Cormorant',Georgia,serif; --sans:'Jost',sans-serif; --mono:'JetBrains Mono',monospace;
   --sidebar:300px;
 }
-
-/* ── RESET ───────────────────────────────────── */
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;font-size:16px}
 body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.7;overflow-x:hidden;}
@@ -42,649 +27,345 @@ a:hover{text-decoration:underline;text-underline-offset:3px;}
 ul{list-style:none;}
 img{max-width:100%;display:block;}
 
-/* ── LAYOUT ──────────────────────────────────── */
+/* LAYOUT */
 .layout{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:100vh;align-items:start;}
 
-/* ── SIDEBAR ─────────────────────────────────── */
-.sidebar{
-  position:sticky;top:0;height:100vh;
-  overflow-y:auto;
-  border-right:1px solid var(--border);
-  background:var(--white);
-  padding:48px 32px 40px;
-  display:flex;flex-direction:column;gap:0;
-}
+/* SIDEBAR */
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--border);background:var(--white);padding:48px 32px 40px;display:flex;flex-direction:column;gap:0;}
 .sidebar::-webkit-scrollbar{width:0;}
-
-.s-avatar{
-  width:80px;height:80px;border-radius:14px;
-  background:var(--navy3);border:1px solid var(--border2);
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--serif);font-size:32px;font-weight:600;
-  color:var(--navy);margin-bottom:20px;letter-spacing:-1px;
-  flex-shrink:0;
-}
-
-.s-name{
-  font-family:var(--serif);font-size:22px;font-weight:600;
-  line-height:1.1;letter-spacing:-.3px;margin-bottom:6px;color:var(--ink);
-}
-.s-title{
-  font-size:11.5px;font-weight:400;color:var(--ink3);
-  line-height:1.6;margin-bottom:24px;
-}
-
-.s-divider{height:1px;background:var(--border);margin:20px 0;}
-
-.s-section-label{
-  font-family:var(--mono);font-size:8.5px;letter-spacing:2px;
-  text-transform:uppercase;color:var(--ink4);margin-bottom:10px;
-}
-
-/* Contact links */
-.s-links{display:flex;flex-direction:column;gap:6px;margin-bottom:0;}
-.s-link{
-  display:flex;align-items:center;gap:9px;
-  font-size:12px;color:var(--ink3);font-weight:400;
-  padding:5px 0;transition:color .15s;
-}
+.s-avatar{width:80px;height:80px;border-radius:14px;background:var(--navy3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:32px;font-weight:600;color:var(--navy);margin-bottom:20px;letter-spacing:-1px;flex-shrink:0;overflow:hidden;}
+.s-name{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.1;letter-spacing:-.3px;margin-bottom:6px;color:var(--ink);}
+.s-title{font-size:11.5px;font-weight:400;color:var(--ink3);line-height:1.6;margin-bottom:16px;}
+.s-divider{height:1px;background:var(--border);margin:18px 0;}
+.s-section-label{font-family:var(--mono);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:10px;}
+.s-links{display:flex;flex-direction:column;gap:6px;}
+.s-link{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink3);font-weight:400;padding:5px 0;transition:color .15s;}
 .s-link:hover{color:var(--navy);text-decoration:none;}
-.s-link-icon{
-  width:20px;height:20px;border-radius:5px;
-  background:var(--navy4);display:flex;align-items:center;
-  justify-content:center;font-size:10px;color:var(--navy2);
-  flex-shrink:0;border:1px solid var(--border);
-}
-
-/* Quick stats in sidebar */
+.s-link-icon{width:20px;height:20px;border-radius:5px;background:var(--navy4);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--navy2);flex-shrink:0;border:1px solid var(--border);}
 .s-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
-.s-stat{
-  padding:10px 10px;background:var(--paper);
-  border:1px solid var(--border);border-radius:8px;text-align:center;
-}
+.s-stat{padding:10px;background:var(--paper);border:1px solid var(--border);border-radius:8px;text-align:center;}
 .s-stat-v{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--navy);line-height:1;}
 .s-stat-l{font-size:9px;color:var(--ink4);font-weight:400;margin-top:2px;line-height:1.3;}
-
-/* Skills tags in sidebar */
 .s-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
-.s-tag{
-  font-family:var(--mono);font-size:8px;padding:2px 8px;
-  border-radius:100px;background:var(--navy4);
-  color:var(--navy2);border:1px solid rgba(30,58,95,.12);
-  letter-spacing:.3px;
-}
-
-/* Available badge */
-.s-available{
-  display:flex;align-items:center;gap:7px;
-  font-size:11px;font-weight:500;color:var(--green);
-  padding:8px 12px;border-radius:8px;
-  background:rgba(21,128,61,.06);
-  border:1px solid rgba(21,128,61,.15);
-  margin-top:4px;
-}
+.s-tag{font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:100px;background:var(--navy4);color:var(--navy2);border:1px solid rgba(30,58,95,.12);letter-spacing:.3px;}
+.s-available{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:500;color:var(--green);padding:8px 12px;border-radius:8px;background:rgba(21,128,61,.06);border:1px solid rgba(21,128,61,.15);margin-top:4px;}
 .s-avail-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.s-nav{display:flex;flex-direction:column;gap:1px;margin-top:4px;}
+.s-nav-link{font-size:12px;color:var(--ink4);padding:5px 8px;border-radius:5px;transition:all .15s;display:flex;align-items:center;gap:8px;}
+.s-nav-link:hover{color:var(--navy);background:var(--navy4);text-decoration:none;}
+.s-nav-num{font-family:var(--mono);font-size:9px;color:var(--ink5);width:16px;}
 
-/* ── MAIN CONTENT ────────────────────────────── */
-.main{padding:56px 64px 80px;max-width:860px;}
-
-/* Section numbering */
+/* MAIN */
+.main{padding:56px 64px 80px;max-width:900px;}
 .section{margin-bottom:64px;}
-.section-header{
-  display:flex;align-items:baseline;gap:16px;
-  margin-bottom:28px;padding-bottom:16px;
-  border-bottom:1px solid var(--border);
-}
-.section-num{
-  font-family:var(--mono);font-size:10px;color:var(--ink4);
-  letter-spacing:1px;flex-shrink:0;
-}
-.section-title{
-  font-family:var(--serif);font-size:26px;font-weight:600;
-  letter-spacing:-.5px;color:var(--ink);
-}
+.section-header{display:flex;align-items:baseline;gap:16px;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.section-num{font-family:var(--mono);font-size:10px;color:var(--ink4);letter-spacing:1px;flex-shrink:0;}
+.section-title{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-.5px;color:var(--ink);}
 .section-title em{font-style:italic;color:var(--navy);}
 
-/* ── HERO BIO ────────────────────────────────── */
+/* BIO */
 .bio-block{max-width:640px;}
-.bio-lead{
-  font-family:var(--serif);font-size:19px;font-weight:400;
-  line-height:1.65;color:var(--ink2);margin-bottom:20px;
-  letter-spacing:-.2px;
-}
+.bio-lead{font-family:var(--serif);font-size:19px;font-weight:400;line-height:1.65;color:var(--ink2);margin-bottom:20px;letter-spacing:-.2px;}
 .bio-lead strong{color:var(--ink);font-weight:600;}
-.bio-body{
-  font-size:14px;font-weight:300;color:var(--ink3);
-  line-height:1.85;margin-bottom:16px;
-}
-
-/* Research interest tags */
+.bio-body{font-size:14px;font-weight:300;color:var(--ink3);line-height:1.85;margin-bottom:16px;}
 .interest-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:20px;}
-.interest-tag{
-  font-size:11.5px;font-weight:400;color:var(--ink2);
-  padding:4px 12px;border-radius:100px;
-  border:1px solid var(--border2);background:var(--white);
-  transition:all .15s;
-}
+.interest-tag{font-size:11.5px;font-weight:400;color:var(--ink2);padding:4px 12px;border-radius:100px;border:1px solid var(--border2);background:var(--white);transition:all .15s;}
 .interest-tag:hover{border-color:var(--navy2);color:var(--navy);}
 
-/* ── EXPERTISE GRID ──────────────────────────── */
+/* EXPERTISE */
 .expertise-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.exp-card{
-  padding:20px;border:1px solid var(--border);
-  border-radius:10px;background:var(--white);
-  box-shadow:var(--shadow);transition:all .2s;
-}
+.exp-card{padding:20px;border:1px solid var(--border);border-radius:10px;background:var(--white);box-shadow:var(--shadow);transition:all .2s;}
 .exp-card:hover{border-color:var(--border2);box-shadow:var(--shadow2);transform:translateY(-1px);}
 .exp-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
-.exp-icon{
-  width:36px;height:36px;border-radius:8px;
-  background:var(--navy4);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;flex-shrink:0;
-}
+.exp-icon{width:36px;height:36px;border-radius:8px;background:var(--navy4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
 .exp-card-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px;letter-spacing:-.2px;}
 .exp-card-body{font-size:12px;font-weight:300;color:var(--ink3);line-height:1.7;}
 .exp-techs{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
-.exp-tech{
-  font-family:var(--mono);font-size:8px;padding:2px 7px;
-  border-radius:4px;background:var(--paper);
-  color:var(--ink3);border:1px solid var(--border);
-}
+.exp-tech{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:4px;background:var(--paper);color:var(--ink3);border:1px solid var(--border);}
 
-/* ── TIMELINE ────────────────────────────────── */
+/* TIMELINE */
 .timeline{display:flex;flex-direction:column;gap:0;}
-.tl-item{
-  display:grid;grid-template-columns:120px 1fr;
-  gap:0;position:relative;
-}
-.tl-item+.tl-item{margin-top:0;}
-.tl-left{
-  padding:20px 24px 20px 0;
-  border-right:1px solid var(--border);
-  text-align:right;
-}
-.tl-period{
-  font-family:var(--mono);font-size:9.5px;color:var(--ink4);
-  letter-spacing:.5px;display:block;padding-top:3px;
-}
+.tl-item{display:grid;grid-template-columns:120px 1fr;gap:0;position:relative;}
+.tl-left{padding:20px 24px 20px 0;border-right:1px solid var(--border);text-align:right;}
+.tl-period{font-family:var(--mono);font-size:9.5px;color:var(--ink4);letter-spacing:.5px;display:block;padding-top:3px;}
 .tl-right{padding:20px 0 32px 28px;position:relative;}
-.tl-right::before{
-  content:'';position:absolute;left:-5px;top:28px;
-  width:9px;height:9px;border-radius:50%;
-  background:var(--white);border:2px solid var(--navy2);
-}
+.tl-right::before{content:'';position:absolute;left:-5px;top:28px;width:9px;height:9px;border-radius:50%;background:var(--white);border:2px solid var(--navy2);}
 .tl-role{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;letter-spacing:-.2px;}
 .tl-org{font-size:12px;color:var(--navy);font-weight:500;margin-bottom:10px;}
 .tl-bullets{display:flex;flex-direction:column;gap:7px;}
-.tl-bullet{
-  font-size:12.5px;font-weight:300;color:var(--ink2);
-  line-height:1.7;display:flex;gap:10px;align-items:flex-start;
-}
+.tl-bullet{font-size:12.5px;font-weight:300;color:var(--ink2);line-height:1.7;display:flex;gap:10px;align-items:flex-start;}
 .tl-bullet::before{content:'—';color:var(--ink4);flex-shrink:0;margin-top:1px;font-size:11px;}
 .tl-bullet strong{color:var(--ink);font-weight:600;}
 .tl-stack{display:flex;flex-wrap:wrap;gap:4px;margin-top:12px;}
-.tl-tag{
-  font-family:var(--mono);font-size:8px;padding:2px 8px;
-  border-radius:4px;background:var(--navy4);
-  color:var(--navy2);border:1px solid rgba(30,58,95,.1);
-}
+.tl-tag{font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;background:var(--navy4);color:var(--navy2);border:1px solid rgba(30,58,95,.1);}
 
-/* ── SKILLS ──────────────────────────────────── */
+/* SKILLS */
 .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.skill-group{}
-.skill-group-title{
-  font-size:11px;font-weight:600;letter-spacing:1px;
-  text-transform:uppercase;color:var(--ink3);
-  margin-bottom:10px;display:flex;align-items:center;gap:8px;
-}
+.skill-group-title{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .skill-group-title::after{content:'';flex:1;height:1px;background:var(--border);}
 .skill-list{display:flex;flex-direction:column;gap:5px;}
-.skill-item{
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:12px;font-weight:400;color:var(--ink2);
-  padding:5px 0;border-bottom:1px solid var(--border);
-}
+.skill-item{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:400;color:var(--ink2);padding:5px 0;border-bottom:1px solid var(--border);}
 .skill-item:last-child{border-bottom:none;}
-.skill-level{
-  font-family:var(--mono);font-size:8px;
-  color:var(--ink4);letter-spacing:.5px;
-}
+.skill-level{font-family:var(--mono);font-size:8px;color:var(--ink4);letter-spacing:.5px;}
 .skill-level.expert{color:var(--navy);}
 
-/* ── PROJECTS ────────────────────────────────── */
+/* PROJECTS */
 .projects-list{display:flex;flex-direction:column;gap:20px;}
-
-/* Enterprise projects - compact list style */
-.proj-row{
-  display:grid;grid-template-columns:1fr auto;
-  gap:20px;align-items:start;
-  padding:20px;border:1px solid var(--border);
-  border-radius:10px;background:var(--white);
-  box-shadow:var(--shadow);transition:all .2s;
-}
+.proj-row{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;padding:20px;border:1px solid var(--border);border-radius:10px;background:var(--white);box-shadow:var(--shadow);transition:all .2s;}
 .proj-row:hover{border-color:var(--border2);box-shadow:var(--shadow2);}
 .proj-title{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:5px;letter-spacing:-.2px;}
 .proj-abstract{font-size:12px;font-weight:300;color:var(--ink3);line-height:1.75;margin-bottom:10px;}
-.proj-meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
-.proj-tag{
-  font-family:var(--mono);font-size:8px;padding:2px 8px;
-  border-radius:4px;background:var(--paper);
-  color:var(--ink3);border:1px solid var(--border);
-}
-.proj-metrics{
-  display:flex;flex-direction:column;gap:6px;
-  flex-shrink:0;min-width:110px;
-}
-.proj-metric{
-  text-align:right;
-  padding:6px 10px;background:var(--paper);
-  border-radius:6px;border:1px solid var(--border);
-}
+.proj-meta{display:flex;flex-wrap:wrap;gap:5px;}
+.proj-tag{font-family:var(--mono);font-size:8px;padding:2px 8px;border-radius:4px;background:var(--paper);color:var(--ink3);border:1px solid var(--border);}
+.proj-metrics{display:flex;flex-direction:column;gap:6px;flex-shrink:0;min-width:110px;}
+.proj-metric{text-align:right;padding:6px 10px;background:var(--paper);border-radius:6px;border:1px solid var(--border);}
 .proj-metric-v{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--navy);line-height:1;}
 .proj-metric-l{font-size:8.5px;color:var(--ink4);margin-top:1px;font-weight:400;}
 
-/* Interactive demo cards - slightly elevated */
-.demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
-.demo-card{
-  padding:20px;border:1px solid var(--border);border-radius:10px;
-  background:var(--white);box-shadow:var(--shadow);
-  display:flex;flex-direction:column;gap:10px;
-  transition:all .2s;
-}
-.demo-card:hover{border-color:var(--navy2);box-shadow:var(--shadow2);transform:translateY(-2px);}
-.demo-icon{
-  width:38px;height:38px;border-radius:9px;
-  background:var(--navy4);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:17px;
-}
-.demo-title{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.35;letter-spacing:-.2px;}
-.demo-desc{font-size:11px;font-weight:300;color:var(--ink3);line-height:1.65;flex:1;}
-.demo-tags{display:flex;flex-wrap:wrap;gap:3px;}
-.demo-tag{
-  font-family:var(--mono);font-size:7.5px;padding:2px 6px;
-  border-radius:3px;background:var(--navy4);color:var(--navy2);
-  border:1px solid rgba(30,58,95,.1);
-}
-.demo-stats{
-  display:flex;gap:8px;padding-top:8px;border-top:1px solid var(--border);
-}
-.demo-stat{font-family:var(--mono);font-size:8px;color:var(--ink4);}
-.demo-stat strong{color:var(--navy);font-weight:500;}
-.demo-btn{
-  display:block;padding:8px 14px;border-radius:6px;
-  background:var(--navy);color:var(--white);
-  font-size:11px;font-weight:500;text-align:center;
-  transition:all .2s;text-decoration:none;letter-spacing:.2px;
-  margin-top:2px;
-}
-.demo-btn:hover{background:var(--navy2);text-decoration:none;}
-
-/* Section label for demos */
-.subsection-label{
-  font-family:var(--mono);font-size:9px;letter-spacing:2px;
-  text-transform:uppercase;color:var(--ink4);
-  margin-bottom:12px;margin-top:28px;
-  display:flex;align-items:center;gap:10px;
-}
+/* ── INTERACTIVE DEMOS ── */
+.subsection-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:16px;margin-top:36px;display:flex;align-items:center;gap:10px;}
 .subsection-label::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* ── CONTACT ─────────────────────────────────── */
+.demo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+
+.demo-card{border:1px solid var(--border);border-radius:12px;background:var(--white);box-shadow:var(--shadow);display:flex;flex-direction:column;transition:all .25s;overflow:hidden;position:relative;}
+.demo-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--dc,var(--navy));opacity:0;transition:opacity .25s;}
+.demo-card:hover{border-color:var(--border2);box-shadow:var(--shadow3);transform:translateY(-3px);}
+.demo-card:hover::after{opacity:1;}
+
+/* Preview strips */
+.demo-strip{height:76px;display:flex;align-items:center;justify-content:center;padding:10px 16px;border-bottom:1px solid var(--border);overflow:hidden;gap:6px;}
+.ds-rag{background:linear-gradient(135deg,#030610,#05110d);}
+.ds-vault{background:linear-gradient(135deg,#faf8f4,#ede8e0);}
+.ds-sql{background:linear-gradient(135deg,#060a0f,#0a1520);}
+.ds-platform{background:linear-gradient(135deg,#03050d,#070b18);}
+
+/* RAG strip */
+.rn{font-size:9px;padding:3px 7px;border-radius:4px;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.25);color:#00c9a7;white-space:nowrap;animation:rb 2.5s ease-in-out infinite;}
+.rn:nth-child(3){animation-delay:.5s;} .rn:nth-child(5){animation-delay:1s;} .rn:nth-child(7){animation-delay:1.5s;} .rn:nth-child(9){animation-delay:2s;}
+@keyframes rb{0%,100%{opacity:.5}50%{opacity:1}}
+.ra{color:rgba(0,201,167,.3);font-size:9px;}
+
+/* Vault strip */
+.vhub{font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid rgba(30,58,95,.3);color:#1e3a5f;background:rgba(30,58,95,.06);}
+.vlink{font-size:9px;padding:3px 7px;border-radius:4px;border:1px solid rgba(107,63,107,.3);color:#6b3f6b;background:rgba(107,63,107,.06);}
+.vsat{font-size:9px;padding:3px 7px;border-radius:4px;border:1px solid rgba(26,122,110,.3);color:#1a7a6e;background:rgba(26,122,110,.06);}
+.vrow{display:flex;gap:5px;}
+.vcol{display:flex;flex-direction:column;gap:5px;align-items:flex-start;}
+
+/* SQL strip */
+.sc{font-family:var(--mono);font-size:9px;line-height:1.75;color:#4a6a8a;}
+.kw{color:#3b9eff;font-weight:500;} .sv{color:#f5c842;} .nv{color:#ff8c42;}
+
+/* Platform strip */
+.ppipe{display:flex;align-items:center;gap:5px;}
+.pn{display:flex;flex-direction:column;align-items:center;font-size:9px;padding:5px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.08);color:var(--pc);gap:1px;animation:pglow 3s ease-in-out infinite;}
+.pn small{font-size:7px;color:rgba(255,255,255,.28);}
+.pn:nth-child(1){animation-delay:0s;} .pn:nth-child(3){animation-delay:.5s;} .pn:nth-child(5){animation-delay:1s;} .pn:nth-child(7){animation-delay:1.5s;} .pn:nth-child(9){animation-delay:2s;}
+@keyframes pglow{0%,100%{border-color:rgba(255,255,255,.08);}50%{border-color:var(--pc);box-shadow:0 0 8px var(--pc);}}
+.pa{color:rgba(255,255,255,.15);font-size:9px;}
+
+/* Demo card body */
+.demo-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:9px;flex:1;}
+.demo-top{display:flex;align-items:flex-start;gap:9px;}
+.demo-ico{width:30px;height:30px;border-radius:7px;background:var(--navy4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.demo-title{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.3;letter-spacing:-.2px;}
+.demo-desc{font-size:11.5px;font-weight:300;color:var(--ink3);line-height:1.7;flex:1;}
+.demo-tags{display:flex;flex-wrap:wrap;gap:3px;}
+.demo-tag{font-family:var(--mono);font-size:7.5px;padding:2px 6px;border-radius:3px;background:var(--navy4);color:var(--navy2);border:1px solid rgba(30,58,95,.1);}
+.demo-footer{display:flex;align-items:center;justify-content:space-between;padding-top:9px;border-top:1px solid var(--border);gap:10px;}
+.demo-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.demo-stat{font-family:var(--mono);font-size:8px;color:var(--ink4);}
+.demo-stat strong{color:var(--navy);font-weight:500;}
+.demo-btn{padding:7px 14px;border-radius:6px;background:var(--navy);color:var(--white);font-size:11px;font-weight:500;transition:all .2s;text-decoration:none;letter-spacing:.2px;white-space:nowrap;flex-shrink:0;}
+.demo-btn:hover{background:var(--navy2);text-decoration:none;transform:translateX(2px);}
+
+/* CONTACT */
 .contact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
-.contact-item{
-  padding:16px 18px;border:1px solid var(--border);
-  border-radius:8px;background:var(--white);
-  display:flex;align-items:center;gap:12px;
-  transition:all .15s;
-}
+.contact-item{padding:16px 18px;border:1px solid var(--border);border-radius:8px;background:var(--white);display:flex;align-items:center;gap:12px;transition:all .15s;}
 .contact-item:hover{border-color:var(--navy2);}
-.contact-icon{
-  width:34px;height:34px;border-radius:8px;
-  background:var(--navy4);display:flex;align-items:center;
-  justify-content:center;font-size:13px;color:var(--navy2);
-  flex-shrink:0;border:1px solid var(--border);
-}
+.contact-icon{width:34px;height:34px;border-radius:8px;background:var(--navy4);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--navy2);flex-shrink:0;border:1px solid var(--border);}
 .contact-label{font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;}
 .contact-value{font-size:12px;font-weight:400;color:var(--ink);margin-top:1px;}
 .contact-value a{color:var(--ink);}
 .contact-value a:hover{color:var(--navy);}
 
-/* ── MOBILE ──────────────────────────────────── */
+/* RESPONSIVE */
+@media(max-width:1000px){.demo-grid{grid-template-columns:1fr;}}
 @media(max-width:900px){
   .layout{grid-template-columns:1fr;}
   .sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--border);padding:32px 28px;}
   .main{padding:36px 28px 60px;}
-  .expertise-grid,.skills-grid,.demo-grid{grid-template-columns:1fr;}
+  .expertise-grid,.skills-grid{grid-template-columns:1fr;}
+  .demo-grid{grid-template-columns:1fr;}
   .tl-item{grid-template-columns:80px 1fr;}
   .proj-row{grid-template-columns:1fr;}
   .proj-metrics{flex-direction:row;min-width:unset;}
 }
 
-/* ── ANIMATIONS ──────────────────────────────── */
+/* ANIMATIONS */
 .fade-in{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;}
 .fade-in.visible{opacity:1;transform:translateY(0);}
-
-/* ── SCROLLBAR ───────────────────────────────── */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--ink5);border-radius:2px}
 </style>
 </head>
 <body>
-
 <div class="layout">
 
-<!-- ════════════════════════════════════
-     SIDEBAR
-════════════════════════════════════ -->
+<!-- ════════ SIDEBAR ════════ -->
 <aside class="sidebar">
-
-  <div class="s-avatar" style="padding:0;overflow:hidden;background:none;border:1px solid var(--border2);">
-  <img src="profile.jpg" alt="Siddhartha Siripragada"
-       style="width:100%;height:100%;object-fit:cover;display:block;"
-       onerror="this.style.display='none';this.parentElement.innerHTML='SS';this.parentElement.style.background='var(--navy3)';this.parentElement.style.fontSize='32px';this.parentElement.style.display='flex';this.parentElement.style.alignItems='center';this.parentElement.style.justifyContent='center';">
-</div>
-
+  <div class="s-avatar">
+    <img src="profile.jpg" alt="Siddhartha Siripragada" style="width:100%;height:100%;object-fit:cover;"
+      onerror="this.style.display='none';this.parentElement.textContent='SS';">
+  </div>
   <div class="s-name">Siddhartha<br>Siripragada</div>
-  <div class="s-title">
-    Senior ML Engineer &<br>
-    Principal Data Architect<br>
-    <span style="color:var(--ink4);">Toronto, Canada</span>
-  </div>
-
-  <div class="s-available">
-    <span class="s-avail-dot"></span>
-    Open to opportunities
-  </div>
+  <div class="s-title">Senior ML Engineer &amp;<br>Principal Data Architect<br><span style="color:var(--ink4);">Toronto, Canada</span></div>
+  <div class="s-available"><span class="s-avail-dot"></span>Open to opportunities</div>
 
   <div class="s-divider"></div>
-
   <div class="s-section-label">Contact</div>
   <div class="s-links">
-    <a class="s-link" href="mailto:Siddarthasiripragada@gmail.com">
-      <span class="s-link-icon">✉</span>
-      Siddarthasiripragada@gmail.com
-    </a>
-    <a class="s-link" href="https://linkedin.com/in/siddharthasiripragada" target="_blank">
-      <span class="s-link-icon">in</span>
-      linkedin.com/in/siddharthasiripragada
-    </a>
-    <a class="s-link" href="https://github.com/siddharthasirpragada" target="_blank">
-      <span class="s-link-icon">gh</span>
-      github.com/siddharthasirpragada
-    </a>
+    <a class="s-link" href="mailto:Siddarthasiripragada@gmail.com"><span class="s-link-icon">✉</span>Siddarthasiripragada@gmail.com</a>
+    <a class="s-link" href="https://linkedin.com/in/siddharthasiripragada" target="_blank"><span class="s-link-icon">in</span>linkedin.com/in/siddharthasiripragada</a>
+    <a class="s-link" href="https://github.com/siddarthasiripragada" target="_blank"><span class="s-link-icon">gh</span>github.com/siddarthasiripragada</a>
   </div>
 
   <div class="s-divider"></div>
+  <div class="s-section-label">Navigate</div>
+  <nav class="s-nav">
+    <a class="s-nav-link" href="#about"><span class="s-nav-num">01</span>About</a>
+    <a class="s-nav-link" href="#expertise"><span class="s-nav-num">02</span>Expertise</a>
+    <a class="s-nav-link" href="#experience"><span class="s-nav-num">03</span>Experience</a>
+    <a class="s-nav-link" href="#skills"><span class="s-nav-num">04</span>Skills</a>
+    <a class="s-nav-link" href="#projects"><span class="s-nav-num">05</span>Work &amp; Demos</a>
+    <a class="s-nav-link" href="#contact"><span class="s-nav-num">06</span>Contact</a>
+  </nav>
 
+  <div class="s-divider"></div>
   <div class="s-section-label">At a Glance</div>
   <div class="s-stats">
-    <div class="s-stat">
-      <div class="s-stat-v">10+</div>
-      <div class="s-stat-l">Years in<br>ML & Data</div>
-    </div>
-    <div class="s-stat">
-      <div class="s-stat-v">12+</div>
-      <div class="s-stat-l">Production<br>Systems Built</div>
-    </div>
-    <div class="s-stat">
-      <div class="s-stat-v">3</div>
-      <div class="s-stat-l">Cloud<br>Platforms</div>
-    </div>
-    <div class="s-stat">
-      <div class="s-stat-v">50+</div>
-      <div class="s-stat-l">ML Models<br>Deployed</div>
-    </div>
+    <div class="s-stat"><div class="s-stat-v">10+</div><div class="s-stat-l">Years in<br>ML &amp; Data</div></div>
+    <div class="s-stat"><div class="s-stat-v">50+</div><div class="s-stat-l">ML Models<br>Deployed</div></div>
+    <div class="s-stat"><div class="s-stat-v">3</div><div class="s-stat-l">Cloud<br>Platforms</div></div>
+    <div class="s-stat"><div class="s-stat-v">4</div><div class="s-stat-l">Live<br>Demos</div></div>
   </div>
 
   <div class="s-divider"></div>
-
   <div class="s-section-label">Core Stack</div>
   <div class="s-tags">
-    <span class="s-tag">Python</span>
-    <span class="s-tag">PyTorch</span>
-    <span class="s-tag">Snowflake</span>
-    <span class="s-tag">AWS Bedrock</span>
-    <span class="s-tag">SageMaker</span>
-    <span class="s-tag">Databricks</span>
-    <span class="s-tag">Spark</span>
-    <span class="s-tag">Kafka</span>
-    <span class="s-tag">dbt</span>
-    <span class="s-tag">Airflow</span>
-    <span class="s-tag">MLFlow</span>
-    <span class="s-tag">Pinecone</span>
-    <span class="s-tag">FAISS</span>
-    <span class="s-tag">Kubernetes</span>
+    <span class="s-tag">Python</span><span class="s-tag">PyTorch</span><span class="s-tag">Snowflake</span>
+    <span class="s-tag">AWS Bedrock</span><span class="s-tag">SageMaker</span><span class="s-tag">Databricks</span>
+    <span class="s-tag">Spark</span><span class="s-tag">Kafka</span><span class="s-tag">dbt</span>
+    <span class="s-tag">Airflow</span><span class="s-tag">MLFlow</span><span class="s-tag">Pinecone</span>
+    <span class="s-tag">FAISS</span><span class="s-tag">Kubernetes</span>
   </div>
-
 </aside>
 
-<!-- ════════════════════════════════════
-     MAIN
-════════════════════════════════════ -->
+<!-- ════════ MAIN ════════ -->
 <main class="main">
 
-  <!-- 01 / About -->
+  <!-- 01 About -->
   <section class="section fade-in" id="about">
-    <div class="section-header">
-      <span class="section-num">01</span>
-      <h2 class="section-title">About</h2>
-    </div>
+    <div class="section-header"><span class="section-num">01</span><h2 class="section-title">About</h2></div>
     <div class="bio-block">
-      <p class="bio-lead">
-        I design and build <strong>production ML systems</strong> and <strong>enterprise data platforms</strong> — from raw ingestion to inference, from dimensional modeling to LLM-powered applications.
-      </p>
-      <p class="bio-body">
-        Over the past decade I have worked across the full stack of modern data and ML engineering: architecting multi-terabyte analytical platforms on Snowflake and Databricks, building retrieval-augmented generation systems backed by vector databases, fine-tuning transformer models for domain-specific tasks, and designing the data vault and star schema foundations that power enterprise analytics at scale.
-      </p>
-      <p class="bio-body">
-        My approach is grounded in engineering rigor — correctness and reliability first, then performance. I write systems that are observable, testable, and maintainable by teams beyond their initial author.
-      </p>
-      <p class="bio-body">
-        Previously: data engineering at financial services and retail enterprise clients across North America and APAC. Currently consulting for organizations modernizing their ML infrastructure and data architecture on AWS and Azure.
-      </p>
+      <p class="bio-lead">I design and build <strong>production ML systems</strong> and <strong>enterprise data platforms</strong> — from raw ingestion to inference, from dimensional modeling to LLM-powered applications.</p>
+      <p class="bio-body">Over the past decade I have worked across the full stack of modern data and ML engineering: architecting multi-terabyte analytical platforms on Snowflake and Databricks, building retrieval-augmented generation systems backed by vector databases, fine-tuning transformer models for domain-specific tasks, and designing the data vault and star schema foundations that power enterprise analytics at scale.</p>
+      <p class="bio-body">My approach is grounded in engineering rigor — correctness and reliability first, then performance. I write systems that are observable, testable, and maintainable by teams beyond their initial author.</p>
+      <p class="bio-body">Previously: data engineering at financial services and retail enterprise clients across North America and APAC. Currently consulting for organizations modernizing their ML infrastructure and data architecture on AWS and Azure.</p>
       <div class="interest-tags">
-        <span class="interest-tag">Large Language Models</span>
-        <span class="interest-tag">Retrieval-Augmented Generation</span>
-        <span class="interest-tag">Data Vault 2.0</span>
-        <span class="interest-tag">Dimensional Modeling</span>
-        <span class="interest-tag">Distributed Training</span>
-        <span class="interest-tag">Vector Search</span>
-        <span class="interest-tag">Lakehouse Architecture</span>
-        <span class="interest-tag">MLOps</span>
+        <span class="interest-tag">Large Language Models</span><span class="interest-tag">Retrieval-Augmented Generation</span>
+        <span class="interest-tag">Data Vault 2.0</span><span class="interest-tag">Dimensional Modeling</span>
+        <span class="interest-tag">Distributed Training</span><span class="interest-tag">Vector Search</span>
+        <span class="interest-tag">Lakehouse Architecture</span><span class="interest-tag">MLOps</span>
         <span class="interest-tag">Transformer Fine-tuning</span>
       </div>
     </div>
   </section>
 
-  <!-- 02 / Expertise -->
+  <!-- 02 Expertise -->
   <section class="section fade-in" id="expertise">
-    <div class="section-header">
-      <span class="section-num">02</span>
-      <h2 class="section-title">Areas of <em>Expertise</em></h2>
-    </div>
+    <div class="section-header"><span class="section-num">02</span><h2 class="section-title">Areas of <em>Expertise</em></h2></div>
     <div class="expertise-grid">
-
       <div class="exp-card">
-        <div class="exp-card-top">
-          <div class="exp-icon">🧠</div>
-          <div>
-            <div class="exp-card-title">Generative AI & LLMs</div>
-          </div>
-        </div>
-        <div class="exp-card-body">
-          End-to-end LLM pipelines: prompt engineering, RAG architecture, embedding selection, vector store integration, fine-tuning with LoRA/QLoRA, and inference optimization. Production deployments on AWS Bedrock, SageMaker, and Snowflake Cortex.
-        </div>
-        <div class="exp-techs">
-          <span class="exp-tech">AWS Bedrock</span>
-          <span class="exp-tech">SageMaker</span>
-          <span class="exp-tech">Pinecone</span>
-          <span class="exp-tech">FAISS</span>
-          <span class="exp-tech">LangChain</span>
-          <span class="exp-tech">Hugging Face</span>
-          <span class="exp-tech">LoRA / QLoRA</span>
-          <span class="exp-tech">spaCy</span>
-          <span class="exp-tech">GTE Embeddings</span>
-        </div>
+        <div class="exp-card-top"><div class="exp-icon">🧠</div><div><div class="exp-card-title">Generative AI &amp; LLMs</div></div></div>
+        <div class="exp-card-body">End-to-end LLM pipelines: prompt engineering, RAG architecture, embedding selection, vector store integration, fine-tuning with LoRA/QLoRA, and inference optimization. Production deployments on AWS Bedrock, SageMaker, and Snowflake Cortex.</div>
+        <div class="exp-techs"><span class="exp-tech">AWS Bedrock</span><span class="exp-tech">SageMaker</span><span class="exp-tech">Pinecone</span><span class="exp-tech">FAISS</span><span class="exp-tech">LangChain</span><span class="exp-tech">Hugging Face</span><span class="exp-tech">LoRA / QLoRA</span><span class="exp-tech">spaCy</span></div>
       </div>
-
       <div class="exp-card">
-        <div class="exp-card-top">
-          <div class="exp-icon">🏗</div>
-          <div>
-            <div class="exp-card-title">Data Architecture & Modeling</div>
-          </div>
-        </div>
-        <div class="exp-card-body">
-          Enterprise warehouse design: Data Vault 2.0, Kimball dimensional modeling, SCD2 pipelines, lakehouse patterns, and metadata-driven ELT. Deep Snowflake expertise — physical modeling, clustering, query optimization, cost governance.
-        </div>
-        <div class="exp-techs">
-          <span class="exp-tech">Snowflake</span>
-          <span class="exp-tech">Data Vault 2.0</span>
-          <span class="exp-tech">Star Schema</span>
-          <span class="exp-tech">SCD2</span>
-          <span class="exp-tech">dbt</span>
-          <span class="exp-tech">Delta Lake</span>
-          <span class="exp-tech">ERwin</span>
-          <span class="exp-tech">Airflow</span>
-        </div>
+        <div class="exp-card-top"><div class="exp-icon">🏗</div><div><div class="exp-card-title">Data Architecture &amp; Modeling</div></div></div>
+        <div class="exp-card-body">Enterprise warehouse design: Data Vault 2.0, Kimball dimensional modeling, SCD2 pipelines, lakehouse patterns, and metadata-driven ELT. Deep Snowflake expertise — physical modeling, clustering, query optimization, cost governance.</div>
+        <div class="exp-techs"><span class="exp-tech">Snowflake</span><span class="exp-tech">Data Vault 2.0</span><span class="exp-tech">Star Schema</span><span class="exp-tech">SCD2</span><span class="exp-tech">dbt</span><span class="exp-tech">Delta Lake</span><span class="exp-tech">ERwin</span><span class="exp-tech">Airflow</span></div>
       </div>
-
       <div class="exp-card">
-        <div class="exp-card-top">
-          <div class="exp-icon">☁️</div>
-          <div>
-            <div class="exp-card-title">Cloud ML Infrastructure</div>
-          </div>
-        </div>
-        <div class="exp-card-body">
-          ML platform engineering on AWS and Azure: experiment tracking, model registry, CI/CD for ML, auto-scaling inference endpoints, GPU cluster management, and distributed training orchestration with Ray and Kubernetes.
-        </div>
-        <div class="exp-techs">
-          <span class="exp-tech">AWS EMR</span>
-          <span class="exp-tech">Azure Databricks</span>
-          <span class="exp-tech">MLFlow</span>
-          <span class="exp-tech">Ray</span>
-          <span class="exp-tech">Kubernetes</span>
-          <span class="exp-tech">Docker</span>
-          <span class="exp-tech">Terraform</span>
-          <span class="exp-tech">Azure ADF</span>
-        </div>
+        <div class="exp-card-top"><div class="exp-icon">☁️</div><div><div class="exp-card-title">Cloud ML Infrastructure</div></div></div>
+        <div class="exp-card-body">ML platform engineering on AWS and Azure: experiment tracking, model registry, CI/CD for ML, auto-scaling inference endpoints, GPU cluster management, and distributed training orchestration with Ray and Kubernetes.</div>
+        <div class="exp-techs"><span class="exp-tech">AWS EMR</span><span class="exp-tech">Azure Databricks</span><span class="exp-tech">MLFlow</span><span class="exp-tech">Ray</span><span class="exp-tech">Kubernetes</span><span class="exp-tech">Docker</span><span class="exp-tech">Terraform</span><span class="exp-tech">Azure ADF</span></div>
       </div>
-
       <div class="exp-card">
-        <div class="exp-card-top">
-          <div class="exp-icon">⚡</div>
-          <div>
-            <div class="exp-card-title">Distributed Systems & Performance</div>
-          </div>
-        </div>
-        <div class="exp-card-body">
-          Large-scale batch and streaming processing: Spark tuning, Kafka topology design, broadcast join optimization, partition strategies, and memory profiling. Delivered 3–5× throughput improvements on production pipelines handling 5TB+ daily.
-        </div>
-        <div class="exp-techs">
-          <span class="exp-tech">Apache Spark</span>
-          <span class="exp-tech">PySpark</span>
-          <span class="exp-tech">Kafka</span>
-          <span class="exp-tech">Hadoop</span>
-          <span class="exp-tech">Hive</span>
-          <span class="exp-tech">Redis</span>
-          <span class="exp-tech">Parquet / ORC</span>
-          <span class="exp-tech">SQL Optimization</span>
-        </div>
+        <div class="exp-card-top"><div class="exp-icon">⚡</div><div><div class="exp-card-title">Distributed Systems &amp; Performance</div></div></div>
+        <div class="exp-card-body">Large-scale batch and streaming processing: Spark tuning, Kafka topology design, broadcast join optimization, partition strategies, and memory profiling. 3–5× throughput improvements on production pipelines handling 5TB+ daily.</div>
+        <div class="exp-techs"><span class="exp-tech">Apache Spark</span><span class="exp-tech">PySpark</span><span class="exp-tech">Kafka</span><span class="exp-tech">Hadoop</span><span class="exp-tech">Hive</span><span class="exp-tech">Redis</span><span class="exp-tech">Parquet / ORC</span><span class="exp-tech">SQL Optimization</span></div>
       </div>
-
     </div>
   </section>
 
-  <!-- 03 / Experience -->
+  <!-- 03 Experience -->
   <section class="section fade-in" id="experience">
-    <div class="section-header">
-      <span class="section-num">03</span>
-      <h2 class="section-title">Professional <em>Experience</em></h2>
-    </div>
-
+    <div class="section-header"><span class="section-num">03</span><h2 class="section-title">Professional <em>Experience</em></h2></div>
     <div class="timeline">
-
       <div class="tl-item">
-        <div class="tl-left">
-          <span class="tl-period">2021<br>— present</span>
-        </div>
+        <div class="tl-left"><span class="tl-period">2021<br>— present</span></div>
         <div class="tl-right">
-          <div class="tl-role">Senior ML Engineer & Principal Data Architect</div>
+          <div class="tl-role">Senior ML Engineer &amp; Principal Data Architect</div>
           <div class="tl-org">Independent Consulting · North America</div>
           <div class="tl-bullets">
             <div class="tl-bullet">Architected production RAG systems combining Pinecone vector search, spaCy NER pipelines, and GTE embeddings — <strong>retrieval precision improved 38%</strong> vs. keyword baseline on 500K-document corpora.</div>
-            <div class="tl-bullet">Built LLM inference platform on AWS Bedrock and SageMaker serving <strong>~800K daily requests</strong> at p95 latency under 900ms; implemented prompt caching reducing API cost by 42%.</div>
-            <div class="tl-bullet">Designed Data Vault 2.0 foundations for a retail client: 14 Hubs, 22 Satellites, 11 Links — enabling <strong>full parallel load</strong> and complete source-system audit trail across CRM, ERP, and POS.</div>
-            <div class="tl-bullet">Delivered Snowflake-first lakehouse processing <strong>4TB+ daily</strong> with dbt-managed transformations; clustering and materialized view strategies reduced average query time from 28s to 4s.</div>
-            <div class="tl-bullet">Built customer CLTV and churn models (LightGBM + rolling-window features) in production on Databricks, driving <strong>$6M+ in targeted retention campaigns</strong> for a telecom client.</div>
-            <div class="tl-bullet">Fine-tuned Llama-2-13B with QLoRA on domain-specific datasets; <strong>30% accuracy improvement</strong> on internal classification benchmarks vs. zero-shot GPT-4.</div>
+            <div class="tl-bullet">Built LLM inference platform on AWS Bedrock and SageMaker serving <strong>~800K daily requests</strong> at p95 latency under 900ms; prompt caching reduced API cost by 42%.</div>
+            <div class="tl-bullet">Designed Data Vault 2.0 foundations for a retail client: 14 Hubs, 22 Satellites, 11 Links — enabling <strong>full parallel load</strong> and complete audit trail across CRM, ERP, and POS.</div>
+            <div class="tl-bullet">Delivered Snowflake-first lakehouse processing <strong>4TB+ daily</strong>; clustering and materialized view strategies reduced average query time from 28s to 4s.</div>
+            <div class="tl-bullet">Built customer CLTV and churn models (LightGBM + rolling-window features) driving <strong>$6M+ in targeted retention campaigns</strong> for a telecom client.</div>
+            <div class="tl-bullet">Fine-tuned Llama-2-13B with QLoRA on domain-specific datasets; <strong>30% accuracy improvement</strong> on internal benchmarks vs. zero-shot GPT-4.</div>
           </div>
-          <div class="tl-stack">
-            <span class="tl-tag">AWS Bedrock</span><span class="tl-tag">SageMaker</span>
-            <span class="tl-tag">Snowflake</span><span class="tl-tag">Databricks</span>
-            <span class="tl-tag">PyTorch</span><span class="tl-tag">Pinecone</span>
-            <span class="tl-tag">dbt</span><span class="tl-tag">Airflow</span>
-            <span class="tl-tag">Data Vault 2.0</span><span class="tl-tag">MLFlow</span>
-          </div>
+          <div class="tl-stack"><span class="tl-tag">AWS Bedrock</span><span class="tl-tag">SageMaker</span><span class="tl-tag">Snowflake</span><span class="tl-tag">Databricks</span><span class="tl-tag">PyTorch</span><span class="tl-tag">Pinecone</span><span class="tl-tag">dbt</span><span class="tl-tag">Airflow</span><span class="tl-tag">Data Vault 2.0</span><span class="tl-tag">MLFlow</span></div>
         </div>
       </div>
-
       <div class="tl-item">
-        <div class="tl-left">
-          <span class="tl-period">2017<br>— 2021</span>
-        </div>
+        <div class="tl-left"><span class="tl-period">2017<br>— 2021</span></div>
         <div class="tl-right">
-          <div class="tl-role">Senior Data Engineer & Cloud Architect</div>
-          <div class="tl-org">Enterprise Clients · Financial Services & Retail</div>
+          <div class="tl-role">Senior Data Engineer &amp; Cloud Architect</div>
+          <div class="tl-org">Enterprise Clients · Financial Services &amp; Retail</div>
           <div class="tl-bullets">
-            <div class="tl-bullet">Led Snowflake migration from SQL Server for a financial institution: re-modeled 380 tables, redesigned ELT with dbt; <strong>query runtime reduced 5× on average</strong>, compute cost down 33%.</div>
-            <div class="tl-bullet">Built Lambda architecture on Azure Databricks and Kafka handling <strong>2TB+ daily ingestion</strong> from 18 source systems; streaming SLAs of under 90 seconds end-to-end.</div>
-            <div class="tl-bullet">Designed and delivered ML-ready feature store with <strong>120+ versioned features</strong> backing six production models for fraud detection and propensity scoring.</div>
-            <div class="tl-bullet">Optimized Spark job suite: resolved data skew with salting, converted nested joins to broadcast joins — <strong>average job time from 4.2 hrs to 55 min</strong> on 800GB daily partitions.</div>
+            <div class="tl-bullet">Led Snowflake migration from SQL Server: re-modeled 380 tables, redesigned ELT with dbt; <strong>query runtime reduced 5× on average</strong>, compute cost down 33%.</div>
+            <div class="tl-bullet">Built Lambda architecture on Azure Databricks and Kafka handling <strong>2TB+ daily ingestion</strong> from 18 source systems; streaming SLAs under 90 seconds end-to-end.</div>
+            <div class="tl-bullet">Delivered ML-ready feature store with <strong>120+ versioned features</strong> backing six production models for fraud detection and propensity scoring.</div>
+            <div class="tl-bullet">Optimized Spark job suite — resolved data skew with salting, broadcast joins — <strong>average job time from 4.2 hrs to 55 min</strong> on 800GB daily partitions.</div>
           </div>
-          <div class="tl-stack">
-            <span class="tl-tag">Snowflake</span><span class="tl-tag">Azure Databricks</span>
-            <span class="tl-tag">Kafka</span><span class="tl-tag">Spark</span>
-            <span class="tl-tag">Azure ADF</span><span class="tl-tag">dbt</span>
-          </div>
+          <div class="tl-stack"><span class="tl-tag">Snowflake</span><span class="tl-tag">Azure Databricks</span><span class="tl-tag">Kafka</span><span class="tl-tag">Spark</span><span class="tl-tag">Azure ADF</span><span class="tl-tag">dbt</span></div>
         </div>
       </div>
-
       <div class="tl-item">
-        <div class="tl-left">
-          <span class="tl-period">2013<br>— 2017</span>
-        </div>
+        <div class="tl-left"><span class="tl-period">2013<br>— 2017</span></div>
         <div class="tl-right">
-          <div class="tl-role">Data Engineer & Database Architect</div>
-          <div class="tl-org">Enterprise Clients · Utilities & Insurance</div>
+          <div class="tl-role">Data Engineer &amp; Database Architect</div>
+          <div class="tl-org">Enterprise Clients · Utilities &amp; Insurance</div>
           <div class="tl-bullets">
-            <div class="tl-bullet">Designed Oracle-based EDW with 3NF core and Kimball star-schema reporting layer serving <strong>200+ daily reports</strong> for a utilities company; Informatica ETL for 15 source systems.</div>
-            <div class="tl-bullet">Re-architected index strategy and rewrote 40+ long-running queries; <strong>average execution time reduced 55%</strong>, peak concurrency improved from 20 to 80 sessions.</div>
-            <div class="tl-bullet">Built Hadoop-based data lake on HDP for insurance claims processing — replaced manual file-based reconciliation, improving accuracy from 94% to <strong>99.6%</strong>.</div>
+            <div class="tl-bullet">Designed Oracle-based EDW with 3NF core and Kimball star-schema reporting layer serving <strong>200+ daily reports</strong>; Informatica ETL for 15 source systems.</div>
+            <div class="tl-bullet">Re-architected index strategy and rewrote 40+ long-running queries; <strong>execution time reduced 55%</strong>, peak concurrency improved from 20 to 80 sessions.</div>
+            <div class="tl-bullet">Built Hadoop-based data lake for insurance claims processing — improved reconciliation accuracy from 94% to <strong>99.6%</strong>.</div>
           </div>
-          <div class="tl-stack">
-            <span class="tl-tag">Oracle 12c</span><span class="tl-tag">SQL Server</span>
-            <span class="tl-tag">Informatica</span><span class="tl-tag">Hadoop</span>
-            <span class="tl-tag">PL/SQL</span><span class="tl-tag">Control-M</span>
-          </div>
+          <div class="tl-stack"><span class="tl-tag">Oracle 12c</span><span class="tl-tag">SQL Server</span><span class="tl-tag">Informatica</span><span class="tl-tag">Hadoop</span><span class="tl-tag">PL/SQL</span><span class="tl-tag">Control-M</span></div>
         </div>
       </div>
-
     </div>
   </section>
 
-  <!-- 04 / Skills -->
+  <!-- 04 Skills -->
   <section class="section fade-in" id="skills">
-    <div class="section-header">
-      <span class="section-num">04</span>
-      <h2 class="section-title">Technical <em>Skills</em></h2>
-    </div>
+    <div class="section-header"><span class="section-num">04</span><h2 class="section-title">Technical <em>Skills</em></h2></div>
     <div class="skills-grid">
-
       <div class="skill-group">
         <div class="skill-group-title">Languages</div>
         <div class="skill-list">
@@ -695,7 +376,6 @@ img{max-width:100%;display:block;}
           <div class="skill-item">Scala (Spark jobs)<span class="skill-level">Working</span></div>
         </div>
       </div>
-
       <div class="skill-group">
         <div class="skill-group-title">ML / AI</div>
         <div class="skill-list">
@@ -707,7 +387,6 @@ img{max-width:100%;display:block;}
           <div class="skill-item">MLFlow · Experiment Tracking<span class="skill-level expert">Expert</span></div>
         </div>
       </div>
-
       <div class="skill-group">
         <div class="skill-group-title">Data Platforms</div>
         <div class="skill-list">
@@ -719,9 +398,8 @@ img{max-width:100%;display:block;}
           <div class="skill-item">Oracle · PostgreSQL · MySQL<span class="skill-level">Proficient</span></div>
         </div>
       </div>
-
       <div class="skill-group">
-        <div class="skill-group-title">Cloud & Infrastructure</div>
+        <div class="skill-group-title">Cloud &amp; Infrastructure</div>
         <div class="skill-list">
           <div class="skill-item">AWS (Bedrock, SageMaker, EMR, S3)<span class="skill-level expert">Expert</span></div>
           <div class="skill-item">Azure (Databricks, Synapse, ADF)<span class="skill-level expert">Expert</span></div>
@@ -731,225 +409,194 @@ img{max-width:100%;display:block;}
           <div class="skill-item">Tableau · Power BI<span class="skill-level">Working</span></div>
         </div>
       </div>
-
     </div>
   </section>
 
-  <!-- 05 / Projects -->
+  <!-- 05 Projects & Demos -->
   <section class="section fade-in" id="projects">
-    <div class="section-header">
-      <span class="section-num">05</span>
-      <h2 class="section-title">Selected <em>Work</em></h2>
-    </div>
-
-    <!-- Enterprise Systems -->
+    <div class="section-header"><span class="section-num">05</span><h2 class="section-title">Selected <em>Work</em></h2></div>
     <div class="projects-list">
-
       <div class="proj-row">
         <div>
           <div class="proj-title">RAG-Powered Document Intelligence Platform</div>
-          <div class="proj-abstract">
-            Built a production retrieval-augmented generation system for a 500K-document legal corpus. Architecture: GTE embeddings → Pinecone vector store → reranking with cross-encoder → GPT-4 synthesis with citation grounding. Integrated spaCy NER pipeline for entity-aware chunking.
-          </div>
-          <div class="proj-meta">
-            <span class="proj-tag">RAG</span><span class="proj-tag">Pinecone</span>
-            <span class="proj-tag">AWS Bedrock</span><span class="proj-tag">GTE Embeddings</span>
-            <span class="proj-tag">spaCy NER</span><span class="proj-tag">Cross-encoder Reranking</span>
-          </div>
+          <div class="proj-abstract">Production retrieval-augmented generation system for a 500K-document legal corpus. GTE embeddings → Pinecone vector store → reranking with cross-encoder → GPT-4 synthesis with citation grounding. Integrated spaCy NER for entity-aware chunking.</div>
+          <div class="proj-meta"><span class="proj-tag">RAG</span><span class="proj-tag">Pinecone</span><span class="proj-tag">AWS Bedrock</span><span class="proj-tag">GTE Embeddings</span><span class="proj-tag">spaCy NER</span><span class="proj-tag">Cross-encoder Reranking</span></div>
         </div>
         <div class="proj-metrics">
           <div class="proj-metric"><div class="proj-metric-v">38%</div><div class="proj-metric-l">Precision gain vs. BM25</div></div>
           <div class="proj-metric"><div class="proj-metric-v">&lt;900ms</div><div class="proj-metric-l">p95 latency</div></div>
         </div>
       </div>
-
       <div class="proj-row">
         <div>
           <div class="proj-title">Enterprise Data Vault on Snowflake</div>
-          <div class="proj-abstract">
-            Designed and delivered a Data Vault 2.0 warehouse for a North American retailer ingesting from CRM, ERP, and POS. Metadata-driven ELT in dbt with automated hash key generation, HASH_DIFF change detection, and full bit-temporal satellite history. Information Mart layer serves star schema to Tableau and Power BI.
-          </div>
-          <div class="proj-meta">
-            <span class="proj-tag">Data Vault 2.0</span><span class="proj-tag">Snowflake</span>
-            <span class="proj-tag">dbt</span><span class="proj-tag">Airflow</span>
-            <span class="proj-tag">Star Schema</span><span class="proj-tag">SCD2</span>
-          </div>
+          <div class="proj-abstract">Data Vault 2.0 warehouse for a North American retailer ingesting CRM, ERP, and POS. Metadata-driven ELT in dbt with automated hash key generation, HASH_DIFF change detection, and full bit-temporal satellite history. Information Mart layer serves star schema to Tableau and Power BI.</div>
+          <div class="proj-meta"><span class="proj-tag">Data Vault 2.0</span><span class="proj-tag">Snowflake</span><span class="proj-tag">dbt</span><span class="proj-tag">Airflow</span><span class="proj-tag">Star Schema</span><span class="proj-tag">SCD2</span></div>
         </div>
         <div class="proj-metrics">
           <div class="proj-metric"><div class="proj-metric-v">4TB+</div><div class="proj-metric-l">Daily ingestion</div></div>
           <div class="proj-metric"><div class="proj-metric-v">5×</div><div class="proj-metric-l">Query speedup</div></div>
         </div>
       </div>
-
       <div class="proj-row">
         <div>
           <div class="proj-title">Llama-2 Domain Fine-tuning Pipeline</div>
-          <div class="proj-abstract">
-            QLoRA fine-tuning of Llama-2-13B on proprietary support ticket datasets using Databricks ML Runtime and Ray distributed training. Implemented 4-bit NF4 quantization, gradient checkpointing, and merged-adapter GGUF export for CPU inference. MLFlow for experiment tracking and model registry.
-          </div>
-          <div class="proj-meta">
-            <span class="proj-tag">Llama-2</span><span class="proj-tag">QLoRA</span>
-            <span class="proj-tag">Ray Train</span><span class="proj-tag">Databricks</span>
-            <span class="proj-tag">MLFlow</span><span class="proj-tag">4-bit Quantization</span>
-          </div>
+          <div class="proj-abstract">QLoRA fine-tuning of Llama-2-13B on proprietary support ticket datasets using Databricks ML Runtime and Ray distributed training. 4-bit NF4 quantization, gradient checkpointing, merged-adapter GGUF export. MLFlow for experiment tracking and model registry.</div>
+          <div class="proj-meta"><span class="proj-tag">Llama-2</span><span class="proj-tag">QLoRA</span><span class="proj-tag">Ray Train</span><span class="proj-tag">Databricks</span><span class="proj-tag">MLFlow</span><span class="proj-tag">4-bit Quantization</span></div>
         </div>
         <div class="proj-metrics">
           <div class="proj-metric"><div class="proj-metric-v">30%</div><div class="proj-metric-l">Accuracy vs. GPT-4 zero-shot</div></div>
           <div class="proj-metric"><div class="proj-metric-v">3×</div><div class="proj-metric-l">Inference cost reduction</div></div>
         </div>
       </div>
-
       <div class="proj-row">
         <div>
-          <div class="proj-title">Customer Lifetime Value & Churn Platform</div>
-          <div class="proj-abstract">
-            Feature engineering and LightGBM model training pipeline for telecom client: 120+ rolling-window features from billing, usage, and CRM. Weekly batch inference via Databricks Jobs, predictions written back to Snowflake for Tableau-driven campaign targeting.
-          </div>
-          <div class="proj-meta">
-            <span class="proj-tag">LightGBM</span><span class="proj-tag">PySpark Feature Engineering</span>
-            <span class="proj-tag">Databricks</span><span class="proj-tag">Snowflake</span>
-            <span class="proj-tag">MLFlow</span><span class="proj-tag">Tableau</span>
-          </div>
+          <div class="proj-title">Customer Lifetime Value &amp; Churn Platform</div>
+          <div class="proj-abstract">Feature engineering and LightGBM model training for telecom client: 120+ rolling-window features from billing, usage, and CRM. Weekly batch inference via Databricks Jobs, predictions written back to Snowflake for Tableau-driven campaign targeting.</div>
+          <div class="proj-meta"><span class="proj-tag">LightGBM</span><span class="proj-tag">PySpark Feature Engineering</span><span class="proj-tag">Databricks</span><span class="proj-tag">Snowflake</span><span class="proj-tag">MLFlow</span><span class="proj-tag">Tableau</span></div>
         </div>
         <div class="proj-metrics">
           <div class="proj-metric"><div class="proj-metric-v">$6M+</div><div class="proj-metric-l">Retention campaign value</div></div>
           <div class="proj-metric"><div class="proj-metric-v">83%</div><div class="proj-metric-l">Churn recall @ 0.3 threshold</div></div>
         </div>
       </div>
-
       <div class="proj-row">
         <div>
           <div class="proj-title">Real-time Streaming Lakehouse on Azure</div>
-          <div class="proj-abstract">
-            Lambda architecture on Azure: Kafka ingestion → Spark Structured Streaming micro-batch → Delta Lake silver/gold layers → Synapse Analytics for BI. 18 source connectors, Avro schema registry, dead-letter queue handling, and alerting via Azure Monitor.
-          </div>
-          <div class="proj-meta">
-            <span class="proj-tag">Kafka</span><span class="proj-tag">Spark Structured Streaming</span>
-            <span class="proj-tag">Delta Lake</span><span class="proj-tag">Azure Databricks</span>
-            <span class="proj-tag">Synapse Analytics</span><span class="proj-tag">Azure ADF</span>
-          </div>
+          <div class="proj-abstract">Lambda architecture on Azure: Kafka ingestion → Spark Structured Streaming micro-batch → Delta Lake silver/gold layers → Synapse Analytics for BI. 18 source connectors, Avro schema registry, dead-letter queue handling, alerting via Azure Monitor.</div>
+          <div class="proj-meta"><span class="proj-tag">Kafka</span><span class="proj-tag">Spark Structured Streaming</span><span class="proj-tag">Delta Lake</span><span class="proj-tag">Azure Databricks</span><span class="proj-tag">Synapse Analytics</span><span class="proj-tag">Azure ADF</span></div>
         </div>
         <div class="proj-metrics">
           <div class="proj-metric"><div class="proj-metric-v">2TB+</div><div class="proj-metric-l">Daily volume</div></div>
           <div class="proj-metric"><div class="proj-metric-v">&lt;90s</div><div class="proj-metric-l">End-to-end SLA</div></div>
         </div>
       </div>
-
     </div>
 
-    <!-- Interactive Demos -->
+    <!-- INTERACTIVE DEMOS -->
     <div class="subsection-label">Interactive Technical Demos</div>
     <div class="demo-grid">
 
-      <div class="demo-card">
-        <div class="demo-icon">📋</div>
-        <div class="demo-title">SQL Explainer — Interactive Visual Learning</div>
-        <div class="demo-desc">Annotated SQL execution engine covering all major clauses. Live query runner, execution pipeline visualization, index usage hints, and performance analysis.</div>
-        <div class="demo-tags">
-          <span class="demo-tag">SQL</span>
-          <span class="demo-tag">Query Optimization</span>
-          <span class="demo-tag">Window Functions</span>
-          <span class="demo-tag">JavaScript</span>
+      <!-- RAG Demo -->
+      <div class="demo-card" style="--dc:#00c9a7;">
+        <div class="demo-strip ds-rag">
+          <div class="rn">📄 Docs</div><span class="ra">→</span>
+          <div class="rn">🔢 Embed</div><span class="ra">→</span>
+          <div class="rn">🔍 Search</div><span class="ra">→</span>
+          <div class="rn">💬 Context</div><span class="ra">→</span>
+          <div class="rn">✅ Answer</div>
         </div>
-        <div class="demo-stats">
-          <span class="demo-stat"><strong>12</strong> clauses</span>
-          <span class="demo-stat"><strong>10+</strong> presets</span>
-          <span class="demo-stat"><strong>Live</strong> execution</span>
+        <div class="demo-body">
+          <div class="demo-top">
+            <div class="demo-ico">🔍</div>
+            <div class="demo-title">RAG Explainer — Live Interactive Demo</div>
+          </div>
+          <div class="demo-desc">Animated end-to-end RAG pipeline. Document chunking, TF-IDF embeddings, cosine similarity search, context injection, and LLM synthesis with similarity heatmaps. Paste text and ask questions live.</div>
+          <div class="demo-tags"><span class="demo-tag">RAG</span><span class="demo-tag">Vector Search</span><span class="demo-tag">TF-IDF</span><span class="demo-tag">Embeddings</span><span class="demo-tag">Claude API</span></div>
+          <div class="demo-footer">
+            <div class="demo-stats"><span class="demo-stat"><strong>7</strong> stages</span><span class="demo-stat"><strong>Live</strong> Q&amp;A</span><span class="demo-stat"><strong>API</strong> synthesis</span></div>
+            <a href="rag-explainer-v2.html" target="_blank" class="demo-btn">Launch →</a>
+          </div>
         </div>
-        <a href="https://siddarthasiripragada.github.io/sql-explainer.html" target="_blank" class="demo-btn">Launch →</a>
       </div>
 
-      <div class="demo-card">
-        <div class="demo-icon">🔍</div>
-        <div class="demo-title">RAG Explainer — Interactive Visual Demo</div>
-        <div class="demo-desc">End-to-end RAG pipeline visualizer: document chunking, TF-IDF embedding, cosine similarity search, and LLM synthesis with animated particle flow and similarity heatmaps.</div>
-        <div class="demo-tags">
-          <span class="demo-tag">RAG</span>
-          <span class="demo-tag">Vector Search</span>
-          <span class="demo-tag">TF-IDF</span>
-          <span class="demo-tag">Claude API</span>
+      <!-- Data Vault Demo -->
+      <div class="demo-card" style="--dc:#c4622d;">
+        <div class="demo-strip ds-vault">
+          <div class="vcol">
+            <div class="vhub">🔵 HUB — CUSTOMER_HUB (business key)</div>
+            <div class="vrow"><div class="vlink">🔷 LINK — Order–Customer</div><div class="vlink">🔷 LINK — Order–Product</div></div>
+            <div class="vrow"><div class="vsat">🟢 SAT — Profile</div><div class="vsat">🟢 SAT — Status</div><div class="vsat">🟢 SAT — History</div></div>
+          </div>
         </div>
-        <div class="demo-stats">
-          <span class="demo-stat"><strong>7</strong> stages</span>
-          <span class="demo-stat"><strong>Live</strong> flow</span>
-          <span class="demo-stat"><strong>API</strong> synthesis</span>
+        <div class="demo-body">
+          <div class="demo-top">
+            <div class="demo-ico">🗄</div>
+            <div class="demo-title">Data Vault 2.0 — Visual Architecture Guide</div>
+          </div>
+          <div class="demo-desc">SVG-driven architecture explorer: Hub/Link/Satellite entity diagrams, layered DV architecture, DV-to-Kimball bridge patterns, PIT tables, and all 12 core Data Vault 2.0 rules.</div>
+          <div class="demo-tags"><span class="demo-tag">Data Vault 2.0</span><span class="demo-tag">Dimensional Modeling</span><span class="demo-tag">Hash Keys</span><span class="demo-tag">Architecture</span></div>
+          <div class="demo-footer">
+            <div class="demo-stats"><span class="demo-stat"><strong>3</strong> constructs</span><span class="demo-stat"><strong>5</strong> layers</span><span class="demo-stat"><strong>12</strong> rules</span></div>
+            <a href="datavault-v2.html" target="_blank" class="demo-btn">Launch →</a>
+          </div>
         </div>
-        <a href="https://siddarthasiripragada.github.io/rag-explainer-v2.html" target="_blank" class="demo-btn">Launch →</a>
       </div>
 
-      <div class="demo-card">
-        <div class="demo-icon">🗄</div>
-        <div class="demo-title">Data Vault 2.0 — Visual Architecture Guide</div>
-        <div class="demo-desc">SVG-driven architecture explorer: Hub/Link/Satellite entity diagrams, layered architecture flow, DV-to-Kimball bridge patterns, PIT tables, and 12 core DV 2.0 rules.</div>
-        <div class="demo-tags">
-          <span class="demo-tag">Data Vault 2.0</span>
-          <span class="demo-tag">Dimensional Modeling</span>
-          <span class="demo-tag">Architecture</span>
+      <!-- SQL Demo -->
+      <div class="demo-card" style="--dc:#3b9eff;">
+        <div class="demo-strip ds-sql">
+          <div class="sc">
+            <span class="kw">SELECT</span> name, SUM(revenue) <span class="kw">AS</span> total<br>
+            <span class="kw">FROM</span> sales &nbsp;<span class="kw">WHERE</span> region = <span class="sv">'APAC'</span><br>
+            <span class="kw">GROUP BY</span> name &nbsp;<span class="kw">HAVING</span> total &gt; <span class="nv">100000</span><br>
+            <span class="kw">ORDER BY</span> total <span class="kw">DESC</span> &nbsp;<span class="kw">LIMIT</span> <span class="nv">10</span>
+          </div>
         </div>
-        <div class="demo-stats">
-          <span class="demo-stat"><strong>3</strong> constructs</span>
-          <span class="demo-stat"><strong>5</strong> layers</span>
-          <span class="demo-stat"><strong>12</strong> rules</span>
+        <div class="demo-body">
+          <div class="demo-top">
+            <div class="demo-ico">📋</div>
+            <div class="demo-title">SQL Explainer — Complete Interactive Reference</div>
+          </div>
+          <div class="demo-desc">Annotated SQL execution engine covering all major clauses. Live query runner, step-by-step execution pipeline visualization, index usage hints, real-time performance analysis, and an 8-question quiz.</div>
+          <div class="demo-tags"><span class="demo-tag">SQL</span><span class="demo-tag">Query Optimization</span><span class="demo-tag">Window Functions</span><span class="demo-tag">Performance</span></div>
+          <div class="demo-footer">
+            <div class="demo-stats"><span class="demo-stat"><strong>12</strong> clauses</span><span class="demo-stat"><strong>10+</strong> presets</span><span class="demo-stat"><strong>Live</strong> execution</span></div>
+            <a href="sql-explainer.html" target="_blank" class="demo-btn">Launch →</a>
+          </div>
         </div>
-        <a href="https://siddarthasiripragada.github.io/datavault-v2.html" target="_blank" class="demo-btn">Launch →</a>
       </div>
 
-    </div>
+      <!-- Data Platform Demo -->
+      <div class="demo-card" style="--dc:#1e3a5f;">
+        <div class="demo-strip ds-platform">
+          <div class="ppipe">
+            <div class="pn" style="--pc:#ff6b35;">⚡<small>Ingest</small></div><span class="pa">→</span>
+            <div class="pn" style="--pc:#c4a35a;">🏔️<small>Lake</small></div><span class="pa">→</span>
+            <div class="pn" style="--pc:#b96cff;">🔷<small>Vault</small></div><span class="pa">→</span>
+            <div class="pn" style="--pc:#00e5ff;">❄️<small>DW</small></div><span class="pa">→</span>
+            <div class="pn" style="--pc:#ffe600;">📊<small>BI</small></div>
+          </div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-top">
+            <div class="demo-ico">🏗</div>
+            <div class="demo-title">Modern Data Platform — Interactive Architecture</div>
+          </div>
+          <div class="demo-desc">End-to-end showcase of a petabyte-scale data platform across 11 clickable stages — Kafka ingestion, medallion lake, Delta Lake, Data Vault, Snowflake star schema, semantic layer, ML pipelines, orchestration, and governance.</div>
+          <div class="demo-tags"><span class="demo-tag">Kafka · Delta Lake</span><span class="demo-tag">Snowflake</span><span class="demo-tag">Data Vault 2.0</span><span class="demo-tag">MLFlow</span><span class="demo-tag">ADF · Airflow</span></div>
+          <div class="demo-footer">
+            <div class="demo-stats"><span class="demo-stat"><strong>11</strong> stages</span><span class="demo-stat"><strong>10TB+</strong> daily</span><span class="demo-stat"><strong>5×</strong> query perf</span></div>
+            <a href="data-platform.html" target="_blank" class="demo-btn">Launch →</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /demo-grid -->
   </section>
 
-  <!-- 06 / Contact -->
+  <!-- 06 Contact -->
   <section class="section fade-in" id="contact">
-    <div class="section-header">
-      <span class="section-num">06</span>
-      <h2 class="section-title">Get in <em>Touch</em></h2>
-    </div>
-    <p style="font-size:14px;font-weight:300;color:var(--ink3);margin-bottom:24px;max-width:480px;line-height:1.8;">
-      Available for consulting engagements in ML engineering, data architecture, and cloud platform design. Based in Toronto; working with clients across North America.
-    </p>
+    <div class="section-header"><span class="section-num">06</span><h2 class="section-title">Get in <em>Touch</em></h2></div>
+    <p style="font-size:14px;font-weight:300;color:var(--ink3);margin-bottom:24px;max-width:480px;line-height:1.8;">Available for consulting engagements in ML engineering, data architecture, and cloud platform design. Based in Toronto; working with clients across North America.</p>
     <div class="contact-grid">
-      <div class="contact-item">
-        <div class="contact-icon">✉</div>
-        <div>
-          <div class="contact-label">Email</div>
-          <div class="contact-value"><a href="mailto:Siddarthasiripragada@gmail.com">Siddarthasiripragada@gmail.com</a></div>
-        </div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-icon">in</div>
-        <div>
-          <div class="contact-label">LinkedIn</div>
-          <div class="contact-value"><a href="https://linkedin.com/in/siddharthasiripragada" target="_blank">siddharthasiripragada</a></div>
-        </div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-icon">gh</div>
-        <div>
-          <div class="contact-label">GitHub</div>
-          <div class="contact-value"><a href="https://github.com/siddharthasirpragada" target="_blank">siddharthasirpragada</a></div>
-        </div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-icon">📍</div>
-        <div>
-          <div class="contact-label">Location</div>
-          <div class="contact-value">Toronto, Ontario, Canada</div>
-        </div>
-      </div>
+      <div class="contact-item"><div class="contact-icon">✉</div><div><div class="contact-label">Email</div><div class="contact-value"><a href="mailto:Siddarthasiripragada@gmail.com">Siddarthasiripragada@gmail.com</a></div></div></div>
+      <div class="contact-item"><div class="contact-icon">in</div><div><div class="contact-label">LinkedIn</div><div class="contact-value"><a href="https://linkedin.com/in/siddharthasiripragada" target="_blank">siddharthasiripragada</a></div></div></div>
+      <div class="contact-item"><div class="contact-icon">gh</div><div><div class="contact-label">GitHub</div><div class="contact-value"><a href="https://github.com/siddarthasiripragada" target="_blank">siddarthasiripragada</a></div></div></div>
+      <div class="contact-item"><div class="contact-icon">📍</div><div><div class="contact-label">Location</div><div class="contact-value">Toronto, Ontario, Canada</div></div></div>
     </div>
   </section>
 
   <div style="padding-top:16px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--ink4);">
-    © 2025 Siddhartha Siripragada · ML Engineer & Principal Data Architect
+    © 2025 Siddhartha Siripragada · ML Engineer &amp; Principal Data Architect
   </div>
-
 </main>
 </div>
 
 <script>
-// Scroll reveal
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.08 });
+}, { threshold: 0.06 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 </script>
 </body>

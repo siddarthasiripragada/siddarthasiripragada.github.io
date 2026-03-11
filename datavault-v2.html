@@ -38,7 +38,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--display);background:var(--bg);color:var(--ink);overflow-x:hidden;line-height:1.6;}
+body{padding-top:44px;font-family:var(--display);background:var(--bg);color:var(--ink);overflow-x:hidden;line-height:1.6;}
 
 /* TEXTURE */
 body::before{
@@ -355,6 +355,15 @@ footer{border-top:1px solid var(--border);padding:24px 60px;display:flex;justify
 </style>
 </head>
 <body>
+<div style="position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:10px 28px;background:rgba(250,248,244,0.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(196,98,45,0.2);font-family:'JetBrains Mono',monospace;box-sizing:border-box;">
+  <span style="font-size:11px;letter-spacing:2px;color:#c4622d;">DATA VAULT 2.0 — ARCHITECTURE</span>
+  <div style="display:flex;gap:14px;align-items:center;">
+    <a href="rag-explainer-v2.html" style="font-size:10px;color:rgba(26,28,36,0.45);text-decoration:none;letter-spacing:1px;">RAG</a>
+    <a href="sql-explainer.html" style="font-size:10px;color:rgba(26,28,36,0.45);text-decoration:none;letter-spacing:1px;">SQL</a>
+    <a href="data-platform.html" style="font-size:10px;color:rgba(26,28,36,0.45);text-decoration:none;letter-spacing:1px;">PLATFORM</a>
+    <a href="index.html" style="font-size:10px;letter-spacing:2px;color:#c4622d;text-decoration:none;border:1px solid rgba(196,98,45,0.2);padding:5px 14px;border-radius:5px;">← PORTFOLIO</a>
+  </div>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -366,6 +375,7 @@ footer{border-top:1px solid var(--border);padding:24px 60px;display:flex;justify
     <li><a href="#compare">Compare</a></li>
     <li><a href="#bridge">→ Dim Model</a></li>
     <li><a href="#quiz">Quiz</a></li>
+    <li><a href="https://siddarthasiripragada.github.io" style="color:var(--rust);border-left:1px solid rgba(196,98,45,.2);">← Portfolio</a></li>
   </ul>
   <div class="nav-author">Siddhartha Siripragada</div>
 </nav>
@@ -676,15 +686,15 @@ footer{border-top:1px solid var(--border);padding:24px 60px;display:flex;justify
           <text x="630" y="70" text-anchor="middle" font-family="Cabinet Grotesk" font-size="11" fill="#9a9daa">SAT_CUSTOMER_CRM rows over time</text>
           <!-- Timeline rows -->
           <rect x="496" y="80" width="268" height="28" rx="4" fill="rgba(26,122,110,.08)" stroke="rgba(26,122,110,.2)" stroke-width="1"/>
-          <text x="504" y="97" font-family="Fira Code" font-size="8" fill="#1a7a6e">2024-01-01 | John Smith | john@a.com | Gold</text>
+          <text x="504" y="97" font-family="Fira Code" font-size="8" fill="#1a7a6e">2024-01-01 | John Smith | <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8a2a7a0a688a9e6aba7a5">[email&#160;protected]</a> | Gold</text>
           <rect x="496" y="116" width="268" height="28" rx="4" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
-          <text x="504" y="133" font-family="Fira Code" font-size="8" fill="#4a4d5a">2024-03-15 | John Smith | john@b.com | Gold</text>
+          <text x="504" y="133" font-family="Fira Code" font-size="8" fill="#4a4d5a">2024-03-15 | John Smith | <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="214b4e494f61430f424e4c">[email&#160;protected]</a> | Gold</text>
           <text x="730" y="133" font-family="Fira Code" font-size="7" fill="#b8860b">email changed</text>
           <rect x="496" y="152" width="268" height="28" rx="4" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
-          <text x="504" y="169" font-family="Fira Code" font-size="8" fill="#4a4d5a">2024-07-20 | John Smith | john@b.com | Plat</text>
+          <text x="504" y="169" font-family="Fira Code" font-size="8" fill="#4a4d5a">2024-07-20 | John Smith | <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="adc7c2c5c3edcf83cec2c0">[email&#160;protected]</a> | Plat</text>
           <text x="730" y="169" font-family="Fira Code" font-size="7" fill="#b8860b">tier changed</text>
           <rect x="496" y="188" width="268" height="28" rx="4" fill="rgba(26,122,110,.05)" stroke="rgba(26,122,110,.15)" stroke-width="1"/>
-          <text x="504" y="205" font-family="Fira Code" font-size="8" fill="#4a4d5a">2025-01-10 | John Smith | john@b.com | Plat</text>
+          <text x="504" y="205" font-family="Fira Code" font-size="8" fill="#4a4d5a">2025-01-10 | John Smith | <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="650f0a0d0b25074b060a08">[email&#160;protected]</a> | Plat</text>
           <text x="504" y="232" font-family="Cabinet Grotesk" font-size="10.5" fill="#9a9daa" font-style="italic">↑ Complete history. Never overwritten.</text>
           <text x="504" y="248" font-family="Cabinet Grotesk" font-size="10.5" fill="#9a9daa" font-style="italic">HASH_DIFF detects changes.</text>
           <text x="504" y="264" font-family="Cabinet Grotesk" font-size="10.5" fill="#1a7a6e" font-weight="700">→ Convert to SCD2 trivially.</text>
@@ -952,7 +962,7 @@ footer{border-top:1px solid var(--border);padding:24px 60px;display:flex;justify
   <div class="ft-note">Siddhartha Siripragada · Principal Data Architect · siddarthasiripragada.github.io</div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── TABS ──
 function showTab(id, btn) {
   document.querySelectorAll('.entity-panel').forEach(p=>p.classList.remove('show'));
@@ -969,8 +979,7 @@ const Qs = [
   {q:"A LINK table should contain:",opts:["Hub keys + metrics + load date","ONLY hub hash keys, its own hash, load date, record source","All relationship attributes","Business keys of related entities"],ans:1,exp:"Links contain NO attributes. Only their own hash key, the hub hash keys, load date and record source. Metrics go in Link Satellites."},
   {q:"Which layer is considered DISPOSABLE in Data Vault?",opts:["Raw Vault","Business Vault","Information Mart","All layers"],ans:2,exp:"Information Marts are derived from the vault and fully rebuildable. The Raw Vault is permanent and immutable — the Mart is not."},
   {q:"How does a Hub relate to a Kimball Dimension?",opts:["Hub replaces the dimension","Hub provides the surrogate key; Satellites fill the attributes","Hub becomes a fact table","There is no relationship"],ans:1,exp:"The Hub hash key becomes the dimension surrogate key. Satellite attributes join (current or point-in-time) to build the complete dimension."},
-  {q:"Why can Data Vault load ALL tables in parallel?",opts:["Cloud databases support it","Hash keys are deterministic — no FK constraints between tables","Columnar storage enables it","Parallel loading is not possible in DV"],ans:1,exp:"Deterministic hash keys remove the need for sequence-generated IDs and FK constraints, so every Hub and Link loads simultaneously."},
-  {q:"What problem does a PIT (Point-in-Time) Table solve?",opts:["Time-series metrics storage","Recording business transactions","Pre-joining multiple Satellite load dates for fast mart construction","Replacing Bridge Tables"],ans:2,exp:"PIT Tables store the active LOAD_DATE for each Satellite at snapshot intervals, enabling efficient mart joins without expensive range queries."},
+  {q:"Why can Data Vault load ALL tables in parallel?",opts:["Cloud databases support it","Hash keys are dete at snapshot intervals, enabling efficient mart joins without expensive range queries."},
 ];
 
 let qIdx=0, score=0;
