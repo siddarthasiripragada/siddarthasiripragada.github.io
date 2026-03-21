@@ -1148,7 +1148,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;padding:16px 40px;display:flex;j
   <p class="signature">— SIDDHARTHA SIRIPRAGADA · PRINCIPAL DATA ARCHITECT</p>
   <div style="margin-top:48px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
     <a href="index.html" style="font-size:11px;letter-spacing:2px;color:var(--cyan);border:1px solid rgba(0,229,255,.3);padding:12px 28px;border-radius:6px;text-decoration:none;transition:all .3s;" onmouseover="this.style.background='rgba(0,229,255,.08)'" onmouseout="this.style.background='transparent'">← BACK TO PORTFOLIO</a>
-    <a href="mailto:Siddarthasiripragada@gmail.com" style="font-size:11px;letter-spacing:2px;color:#fff;background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.4);padding:12px 28px;border-radius:6px;text-decoration:none;transition:all .3s;" onmouseover="this.style.background='rgba(0,229,255,.25)'" onmouseout="this.style.background='rgba(0,229,255,.15)'">GET IN TOUCH →</a>
+    <a href="/cdn-cgi/l/email-protection#fcaf9598989d8e88949d8f958e958c8e9d9b9d989dbc9b919d9590d29f9391" style="font-size:11px;letter-spacing:2px;color:#fff;background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.4);padding:12px 28px;border-radius:6px;text-decoration:none;transition:all .3s;" onmouseover="this.style.background='rgba(0,229,255,.25)'" onmouseout="this.style.background='rgba(0,229,255,.15)'">GET IN TOUCH →</a>
   </div>
 </section>
 
@@ -1157,7 +1157,7 @@ nav{position:fixed;top:0;width:100%;z-index:100;padding:16px 40px;display:flex;j
   <p style="font-size:10px;letter-spacing:2px;color:var(--muted);">© 2025 SIDDHARTHA SIRIPRAGADA · SENIOR ML ENGINEER & PRINCIPAL DATA ARCHITECT · TORONTO, CANADA</p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── ANIMATED BACKGROUND CANVAS ──
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
@@ -1306,13 +1306,7 @@ const stageData = {
     num:'11', color:'#ff4081', title:'Governance & Quality',
     desc:'Apache Atlas tracks lineage. Great Expectations enforces 200+ quality rules. Snowflake RBAC with row-level security protects PII. Automated monitoring catches anomalies before users notice.',
     why:'GDPR and SOC2 compliance requires proving exactly where every data point came from and who accessed it. Column-level lineage in Atlas answers impact analysis questions instantly — without manual documentation.',
-    metrics:[{v:'200+',l:'DQ RULES'},{v:'Full',l:'LINEAGE'},{v:'99%+',l:'DATA ACCURACY'}],
-    chips:['Apache Atlas','Great Expectations','dbt Tests','Snowflake RBAC','PII Masking','Audit Logs']
-  }
-};
-
-function showStage(n) {
-  const panel = document.getElementById('stage-panel');
+    metrics:[{v:'200+',l:'DQ RULES'},{v:'Full',l:'LINEAGE'},{v:'99%+',l:'DATA ACCUdocument.getElementById('stage-panel');
   const d = stageData[n];
   // Highlight active node
   document.querySelectorAll('.pipe-node').forEach(el => el.classList.remove('active'));
@@ -1370,5 +1364,8 @@ document.querySelectorAll('.stage-section, .flow-card, .card, .gov-pillar, .vaul
   observer.observe(el);
 });
 </script>
+
+<!-- AI Sid Chat Widget -->
+<script src="ai-sid-widget.js" defer></script>
 </body>
 </html>
