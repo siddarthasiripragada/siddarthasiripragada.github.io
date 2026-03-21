@@ -167,14 +167,14 @@ img{max-width:100%;display:block;}
 .pa{color:rgba(255,255,255,.15);font-size:9px;}
 
 /* Demo card body */
-.demo-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:9px;flex:1;}
-.demo-top{display:flex;align-items:flex-start;gap:9px;}
+.demo-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:9px;flex:1;min-height:230px;}
+.demo-top{display:flex;align-items:flex-start;gap:9px;min-height:32px;}
 .demo-ico{width:30px;height:30px;border-radius:7px;background:var(--navy4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
 .demo-title{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.3;letter-spacing:-.2px;}
 .demo-desc{font-size:11.5px;font-weight:300;color:var(--ink3);line-height:1.7;flex:1;}
 .demo-tags{display:flex;flex-wrap:wrap;gap:3px;}
 .demo-tag{font-family:var(--mono);font-size:7.5px;padding:2px 6px;border-radius:3px;background:var(--navy4);color:var(--navy2);border:1px solid rgba(30,58,95,.1);}
-.demo-footer{display:flex;align-items:center;justify-content:space-between;padding-top:9px;border-top:1px solid var(--border);gap:10px;}
+.demo-footer{display:flex;align-items:center;justify-content:space-between;padding-top:9px;border-top:1px solid var(--border);gap:10px;margin-top:auto;}
 .demo-stats{display:flex;gap:10px;flex-wrap:wrap;}
 .demo-stat{font-family:var(--mono);font-size:8px;color:var(--ink4);}
 .demo-stat strong{color:var(--navy);font-weight:500;}
@@ -204,6 +204,12 @@ img{max-width:100%;display:block;}
   .proj-metrics{flex-direction:row;min-width:unset;}
 }
 
+
+@media(max-width:700px){
+  .demo-strip{height:auto;min-height:76px;flex-wrap:wrap;justify-content:flex-start;}
+  .ppipe{flex-wrap:wrap;justify-content:flex-start;}
+}
+
 /* ANIMATIONS */
 .fade-in{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease;}
 .fade-in.visible{opacity:1;transform:translateY(0);}
@@ -228,7 +234,7 @@ img{max-width:100%;display:block;}
   <div class="s-divider"></div>
   <div class="s-section-label">Contact</div>
   <div class="s-links">
-    <a class="s-link" href="/cdn-cgi/l/email-protection#2f7c464b4b4e5d5b474e5c465d465f5d4e484e4b4e6f48424e4643014c4042"><span class="s-link-icon">✉</span><span class="__cf_email__" data-cfemail="44172d20202536302c25372d362d34362523252025042329252d286a272b29">[email&#160;protected]</span></a>
+    <a class="s-link" href="mailto:Siddarthasiripragada@gmail.com"><span class="s-link-icon">✉</span>Siddarthasiripragada@gmail.com</a>
     <a class="s-link" href="https://linkedin.com/in/siddharthasiripragada" target="_blank"><span class="s-link-icon">in</span>linkedin.com/in/siddharthasiripragada</a>
     <a class="s-link" href="https://github.com/siddarthasiripragada" target="_blank"><span class="s-link-icon">gh</span>github.com/siddarthasiripragada</a>
   </div>
@@ -510,7 +516,10 @@ img{max-width:100%;display:block;}
           </div>
         </div>
         <div class="demo-body">
-          <div class=iv>
+          <div class="demo-top">
+            <div class="demo-ico">🧩</div>
+            <div class="demo-title">Data Vault 2.0 — Interactive Explorer</div>
+          </div>
           <div class="demo-desc">SVG-driven architecture explorer: Hub/Link/Satellite entity diagrams, layered DV architecture, DV-to-Kimball bridge patterns, PIT tables, and all 12 core Data Vault 2.0 rules.</div>
           <div class="demo-tags"><span class="demo-tag">Data Vault 2.0</span><span class="demo-tag">Dimensional Modeling</span><span class="demo-tag">Hash Keys</span><span class="demo-tag">Architecture</span></div>
           <div class="demo-footer">
