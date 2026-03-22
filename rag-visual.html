@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Pipeline — Visual Learning Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030C16;--bg2:#071828;--bg3:#0A2038;
+  --cyan:#00E5FF;--orange:#FF6B35;--purple:#A259FF;
+  --green:#00FFA3;--yellow:#FFD166;--pink:#FF4D9E;
+  --red:#FF4444;--blue:#4D9EFF;
+  --text:#D6EDF8;--muted:#4A6D85;--border:rgba(0,229,255,0.09);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Lora',serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 55% at 50% -8%,rgba(0,90,170,0.14) 0%,transparent 68%),
+  repeating-linear-gradient(rgba(0,229,255,0.018) 0,rgba(0,229,255,0.018) 1px,transparent 1px,transparent 52px),
+  repeating-linear-gradient(90deg,rgba(0,229,255,0.018) 0,rgba(0,229,255,0.018) 1px,transparent 1px,transparent 52px);
+  pointer-events:none;z-index:0}
+
+/* TOPBAR */
+#topbar{position:sticky;top:0;z-index:100;background:rgba(3,12,22,0.95);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:58px;gap:1rem}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--cyan);letter-spacing:-0.02em;white-space:nowrap;text-shadow:0 0 22px rgba(0,229,255,0.5)}
+.logo span{color:var(--text);font-weight:400}
+.hctrls{display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap}
+.togwrap{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:7px;overflow:hidden}
+.togbtn{padding:0.28rem 0.8rem;background:transparent;border:none;font-family:'Syne',sans-serif;font-size:0.74rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.18s}
+.togbtn.on{background:rgba(0,229,255,0.11);color:var(--cyan)}
+.playbtn{display:flex;align-items:center;gap:0.38rem;background:linear-gradient(135deg,#00E5FF,#008EAA);border:none;border-radius:7px;padding:0.35rem 0.95rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.8rem;color:#030C16;cursor:pointer;transition:all 0.2s;box-shadow:0 0 16px rgba(0,229,255,0.25)}
+.playbtn:hover{transform:translateY(-1px);box-shadow:0 0 26px rgba(0,229,255,0.42)}
+.playbtn.stop{background:linear-gradient(135deg,#FF6B35,#BB4418);box-shadow:0 0 16px rgba(255,107,53,0.25)}
+.rstbtn{background:transparent;border:1px solid var(--border);border-radius:7px;padding:0.35rem 0.8rem;font-family:'Syne',sans-serif;font-size:0.74rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.18s}
+.rstbtn:hover{border-color:var(--muted);color:var(--text)}
+.spd{background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:0.68rem;padding:0.28rem 0.5rem;cursor:pointer;outline:none}
+
+/* HERO */
+#hero{position:relative;z-index:1;text-align:center;padding:3rem 1.5rem 2rem}
+.hbadge{font-family:'JetBrains Mono',monospace;font-size:0.66rem;letter-spacing:0.18em;color:var(--cyan);opacity:0.7;text-transform:uppercase;margin-bottom:0.8rem}
+#hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.8rem,4.2vw,3.2rem);line-height:1.06;letter-spacing:-0.03em;margin-bottom:0.8rem}
+#hero h1 em{font-style:normal;color:var(--cyan)}
+#hero p{font-size:0.97rem;color:var(--muted);max-width:560px;margin:0 auto 1.8rem;line-height:1.75}
+.hstats{display:flex;justify-content:center;gap:2.2rem;flex-wrap:wrap;margin-bottom:2rem}
+.hstat{text-align:center}
+.hstat-n{font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;color:var(--cyan);display:block;text-shadow:0 0 16px rgba(0,229,255,0.38)}
+.hstat-l{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase}
+
+/* PIPELINE SVG */
+#pipeline-svg-wrap{position:relative;z-index:1;padding:0 1rem 1rem;overflow-x:auto}
+
+/* MINIMAP */
+#minimap{position:relative;z-index:1;padding:1rem 1.5rem 0.5rem;overflow-x:auto}
+#mtrack{display:flex;align-items:center;min-width:max-content;margin:0 auto;justify-content:center}
+.mdot{display:flex;flex-direction:column;align-items:center;gap:0.22rem;cursor:pointer}
+.mdot:hover .mcirc{transform:scale(1.22)}
+.mcirc{width:32px;height:32px;border-radius:50%;background:var(--bg2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.82rem;transition:all 0.28s}
+.mcirc.active{border-color:var(--cyan);background:rgba(0,229,255,0.1);box-shadow:0 0 14px rgba(0,229,255,0.38)}
+.mcirc.done{border-color:rgba(0,229,255,0.32)}
+.mnum{font-family:'JetBrains Mono',monospace;font-size:0.52rem;color:var(--muted)}
+.mconn{width:14px;height:2px;background:var(--border);margin-bottom:16px;flex-shrink:0;transition:background 0.28s}
+.mconn.lit{background:var(--cyan);box-shadow:0 0 5px var(--cyan)}
+
+/* MAIN */
+#main{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:1rem 1.4rem 7rem;display:flex;flex-direction:column;gap:1rem}
+
+/* PHASE CARD */
+.pcard{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;position:relative}
+.pcard.active{border-color:var(--phase-c,var(--cyan));box-shadow:0 0 32px rgba(0,0,0,0.45),0 0 16px var(--phase-glow,rgba(0,229,255,0.15))}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--phase-c,var(--cyan)),transparent);opacity:0;transition:opacity 0.32s}
+.pcard.active::before,.pcard.open::before{opacity:1}
+
+.phead{display:flex;align-items:center;gap:0.85rem;padding:0.95rem 1.35rem;cursor:pointer;user-select:none}
+.pnum{font-family:'JetBrains Mono',monospace;font-size:0.66rem;font-weight:500;padding:0.17rem 0.48rem;border-radius:5px;white-space:nowrap;flex-shrink:0}
+.pemoji{font-size:1.28rem;flex-shrink:0}
+.ptitles{flex:1}
+.ptitle{font-family:'Syne',sans-serif;font-weight:700;font-size:0.93rem;color:var(--text)}
+.psub{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.1rem}
+.parrow{font-size:0.72rem;color:var(--muted);transition:transform 0.26s;flex-shrink:0}
+.pcard.open .parrow{transform:rotate(180deg)}
+
+.pbody{display:none;border-top:1px solid var(--border)}
+.pcard.open .pbody{display:block}
+
+/* VISUAL PANEL */
+.vpanel{padding:1.2rem 1.35rem;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.2)}
+.vpanel-title{font-family:'JetBrains Mono',monospace;font-size:0.62rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:0.9rem;opacity:0.8}
+
+/* TABS */
+.ptabs{display:flex;border-bottom:1px solid var(--border);padding:0 1.35rem}
+.ptab{padding:0.6rem 0.85rem;cursor:pointer;font-family:'Syne',sans-serif;font-size:0.73rem;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.16s}
+.ptab.on{color:var(--phase-c,var(--cyan));border-bottom-color:var(--phase-c,var(--cyan))}
+.pcon{display:none;padding:1.35rem}
+.pcon.on{display:block}
+
+/* TEXT CONTENT */
+.sbox{background:rgba(0,229,255,0.04);border:1px solid rgba(0,229,255,0.09);border-radius:9px;padding:1rem 1.2rem;margin-bottom:1.1rem}
+.slabel{font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.12em;color:var(--cyan);opacity:0.7;text-transform:uppercase;margin-bottom:0.4rem}
+.stext{font-size:0.95rem;line-height:1.78;color:var(--text)}
+.analogy{font-style:italic;color:var(--yellow);background:rgba(255,209,102,0.06);border-left:3px solid rgba(255,209,102,0.36);padding:0.52rem 0.88rem;border-radius:0 7px 7px 0;margin-top:0.65rem;font-size:0.91rem;line-height:1.65}
+.techtext{font-size:0.91rem;line-height:1.8;color:#aacad8;margin-bottom:1.1rem}
+.slabel2{font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;margin-bottom:0.65rem}
+.step{display:flex;gap:0.75rem;margin-bottom:0.9rem;align-items:flex-start}
+.sdot{width:20px;height:20px;border-radius:50%;background:rgba(0,229,255,0.08);border:1.5px solid rgba(0,229,255,0.3);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.56rem;color:var(--cyan);flex-shrink:0;margin-top:0.08rem}
+.scontent{flex:1}
+.sname{font-family:'Syne',sans-serif;font-weight:600;font-size:0.84rem;color:var(--text);margin-bottom:0.16rem}
+.sdesc{font-size:0.84rem;line-height:1.63;color:var(--muted)}
+.sdesc.t{color:#8aaabb;font-size:0.81rem}
+.subslist{margin-top:0.42rem;padding-left:0.5rem;border-left:2px solid rgba(0,229,255,0.13)}
+.subitem{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#4e7282;padding:0.16rem 0 0.16rem 0.65rem;line-height:1.58;position:relative}
+.subitem::before{content:'→';position:absolute;left:0;color:rgba(0,229,255,0.38)}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;margin-bottom:1.1rem}
+@media(max-width:560px){.dgrid{grid-template-columns:1fr}}
+.dcard{background:rgba(162,89,255,0.06);border:1px solid rgba(162,89,255,0.16);border-radius:8px;padding:0.75rem 0.9rem}
+.dq{font-family:'Syne',sans-serif;font-weight:600;font-size:0.73rem;color:var(--purple);margin-bottom:0.28rem}
+.da{font-size:0.78rem;color:#96acba;line-height:1.52}
+.pitlist{display:flex;flex-direction:column;gap:0.45rem}
+.pit{display:flex;gap:0.5rem;align-items:flex-start;background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.13);border-radius:7px;padding:0.6rem 0.8rem;font-size:0.79rem;color:#b89c8c;line-height:1.52}
+.shdr{font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:0.45rem;margin:1.1rem 0 0.65rem}
+.shdr::after{content:'';flex:1;height:1px;background:var(--border)}
+.codeblock{background:#010C18;border:1px solid rgba(0,229,255,0.09);border-radius:8px;overflow:hidden;margin-bottom:1rem}
+.codehdr{display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.95rem;background:rgba(0,229,255,0.04);border-bottom:1px solid rgba(0,229,255,0.07)}
+.codelang{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--cyan);letter-spacing:0.08em}
+.codebody{padding:0.9rem 1.1rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:0.74rem;line-height:1.72;color:#9ec0cc}
+.codebody pre{white-space:pre;margin:0}
+.kw{color:#A259FF}.fn{color:#00E5FF}.str{color:#00FFA3}.cm{color:#2e5262;font-style:italic}.num{color:#FF6B35}.cls{color:#FFD166}
+
+/* CANVAS CHARTS */
+canvas.chart{display:block;width:100%;max-width:100%}
+
+/* PROGRESS */
+#progbar{position:fixed;bottom:0;left:0;right:0;z-index:99;background:rgba(3,12,22,0.94);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;align-items:center;gap:0.85rem;padding:0.58rem 1.4rem}
+#proglabel{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+.ptrack{flex:1;height:3px;background:var(--bg3);border-radius:999px;overflow:hidden}
+.pfill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--cyan),var(--purple));transition:width 0.42s ease;box-shadow:0 0 6px var(--cyan)}
+#progpct{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--cyan);width:3rem;text-align:right;flex-shrink:0}
+
+/* INTERACTIVE ELEMENTS */
+.slider-wrap{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.8rem}
+.slider-row{display:flex;align-items:center;gap:0.8rem}
+.slider-label{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--muted);width:120px;flex-shrink:0}
+input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--bg3);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 6px rgba(0,229,255,0.5)}
+.slider-val{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--cyan);min-width:45px;text-align:right}
+
+/* CHUNK DEMO */
+#chunk-text-demo{font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.7;padding:0.8rem;background:#010C18;border:1px solid rgba(0,229,255,0.1);border-radius:8px;word-break:break-word;max-height:160px;overflow-y:auto}
+.chunk-block{display:inline;border-radius:3px;padding:1px 0}
+
+/* FEATURE MATRIX */
+.fmatrix{width:100%;border-collapse:collapse;font-size:0.75rem;margin-bottom:0.5rem}
+.fmatrix th{font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:0.45rem 0.6rem;text-align:left;border-bottom:1px solid var(--border)}
+.fmatrix td{padding:0.42rem 0.6rem;border-bottom:1px solid rgba(0,229,255,0.05);color:var(--text);font-family:'JetBrains Mono',monospace}
+.fmatrix tr:hover td{background:rgba(0,229,255,0.03)}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.62rem;padding:0.12rem 0.45rem;border-radius:4px;font-weight:500}
+.tag.yes{background:rgba(0,255,163,0.1);color:var(--green);border:1px solid rgba(0,255,163,0.2)}
+.tag.no{background:rgba(255,68,68,0.08);color:var(--red);border:1px solid rgba(255,68,68,0.15)}
+.tag.partial{background:rgba(255,209,102,0.1);color:var(--yellow);border:1px solid rgba(255,209,102,0.2)}
+
+/* SCORE BARS (inline) */
+.score-bar-row{display:flex;align-items:center;gap:0.7rem;margin-bottom:0.45rem}
+.score-bar-label{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text);width:160px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.score-bar-track{flex:1;height:10px;background:var(--bg3);border-radius:999px;overflow:hidden;position:relative}
+.score-bar-fill{height:100%;border-radius:999px;transition:width 0.8s ease}
+.score-bar-val{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--muted);width:38px;text-align:right;flex-shrink:0}
+
+/* GAUGE */
+.gauges-row{display:flex;justify-content:space-around;flex-wrap:wrap;gap:1rem;padding:0.5rem 0}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:0.4rem}
+.gauge-label{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted);text-align:center;max-width:90px}
+
+/* PARTICLE */
+@keyframes floatup{0%{transform:translateY(0) scale(1);opacity:.9}100%{transform:translateY(-52px) scale(.2);opacity:0}}
+.particle{position:fixed;pointer-events:none;z-index:200;width:4px;height:4px;border-radius:50%;animation:floatup 0.72s ease-out forwards}
+@keyframes openani{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.oa .pbody{animation:openani 0.28s ease}
+
+/* SCROLL */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:999px}
+
+/* COMPARISON BOX */
+.compare-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.5rem}
+@media(max-width:560px){.compare-wrap{grid-template-columns:1fr}}
+.compare-box{background:#010C18;border:1px solid var(--border);border-radius:8px;padding:0.8rem}
+.compare-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.72rem;margin-bottom:0.5rem}
+
+/* FLOW NODES */
+.flow-wrap{display:flex;align-items:center;gap:0;overflow-x:auto;padding:0.3rem 0}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:0.25rem;flex-shrink:0}
+.flow-box{padding:0.4rem 0.65rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:0.66rem;text-align:center;border:1px solid;white-space:nowrap}
+.flow-node-label{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);text-align:center;max-width:80px}
+/* BACK BUTTON */
+#topbar .backbtn{
+  display:flex;align-items:center;
+  font-family:'Syne',sans-serif;font-size:0.74rem;font-weight:600;
+  color:var(--muted);text-decoration:none;
+  padding:0.28rem 0.75rem;border:1px solid var(--border);border-radius:7px;
+  background:transparent;transition:all 0.18s;white-space:nowrap;flex-shrink:0;
+}
+#topbar .backbtn:hover{color:var(--cyan);border-color:rgba(0,229,255,0.4);background:rgba(0,229,255,0.06);text-decoration:none;}
+#topbar .backbtn{display:flex;align-items:center;font-family:'Syne',sans-serif;font-size:0.74rem;font-weight:600;color:var(--muted);text-decoration:none;padding:0.28rem 0.75rem;border:1px solid var(--border);border-radius:7px;background:transparent;transition:all 0.18s;white-space:nowrap;flex-shrink:0;}
+#topbar .backbtn:hover{color:var(--cyan);border-color:rgba(0,229,255,0.4);background:rgba(0,229,255,0.06);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" class="backbtn" title="Back to Portfolio">← Portfolio</a>
+  <div class="logo">RAG<span> Pipeline</span> — Visual Guide</div>
+  <div class="hctrls">
+    <div class="togwrap">
+      <button class="togbtn on" id="btn-simple" onclick="setMode('simple')">🧒 Simple</button>
+      <button class="togbtn" id="btn-deep" onclick="setMode('deep')">🔬 Deep</button>
+    </div>
+    <select class="spd" id="spd"><option value="3200">Normal</option><option value="1600">Fast</option><option value="6000">Slow</option></select>
+    <button class="playbtn" id="playbtn" onclick="togglePlay()">▶ Play All</button>
+    <button class="rstbtn" onclick="resetAll()">↺ Reset</button>
+  </div>
+</div>
+
+<div id="hero">
+  <div class="hbadge">// 16 phases · 120+ steps · fully visual</div>
+  <h1>Retrieval-<em>Augmented</em><br>Generation — Every Step</h1>
+  <p>Every phase has a chart, diagram, or interactive demo. From raw documents to a cited AI answer — nothing left out.</p>
+  <div class="hstats">
+    <div class="hstat"><span class="hstat-n">16</span><span class="hstat-l">Phases</span></div>
+    <div class="hstat"><span class="hstat-n">120+</span><span class="hstat-l">Steps</span></div>
+    <div class="hstat"><span class="hstat-n">16</span><span class="hstat-l">Visuals</span></div>
+    <div class="hstat"><span class="hstat-n">∞</span><span class="hstat-l">Depth</span></div>
+  </div>
+</div>
+
+<!-- PIPELINE OVERVIEW SVG -->
+<div id="pipeline-svg-wrap">
+  <svg id="pipeline-svg" viewBox="0 0 1100 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px;display:block;margin:0 auto"></svg>
+</div>
+
+<div id="minimap"><div id="mtrack"></div></div>
+<div id="main"></div>
+
+<div id="progbar">
+  <div id="proglabel">Click ▶ Play All or any phase to start</div>
+  <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+  <div id="progpct">0%</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// UTILITY
+// ════════════════════════════════════════════════
+function h2r(hex, a) {
+  var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+(a||1)+')';
+}
+function lerp(a,b,t){return a+(b-a)*t}
+function el(id){return document.getElementById(id)}
+
+// ════════════════════════════════════════════════
+// PHASE DATA
+// ════════════════════════════════════════════════
+var PHASES = [
+{
+  id:1,emoji:"📂",color:"#00E5FF",
+  title:"Document Collection & Source Planning",
+  sub:"knowledge.source → pipeline.input",
+  simple:"Before building anything, decide which documents your AI will learn from — PDFs, web pages, spreadsheets, emails. Like deciding which books go in a library before building the shelves.",
+  analogy:"🏫 Imagine you're opening a school library. First, make a list of EVERY book that should be in it, where to get each book, and what topics they cover. You make the plan before touching a single book.",
+  tech:"Document collection defines the knowledge boundary of your RAG system. Quality, coverage, and diversity of your corpus directly bounds maximum achievable answer quality. Define a knowledge domain, enumerate all authoritative sources, assess quality, plan access methods, and establish data governance before any ingestion begins.",
+  steps:[
+    {name:"Define Knowledge Domain",simple:"Decide WHAT your AI should know about.",tech:"Write a formal domain boundary spec: topics, temporal range, languages, audience level. This scopes the corpus and prevents index bloat.",subs:["IN scope vs OUT of scope — write it down","Identify primary (authoritative) vs secondary sources","Estimate corpus size: document count, total token budget"]},
+    {name:"Enumerate All Document Sources",simple:"Make a complete map of where all your information lives.",tech:"Create a source registry mapping each source to its access method, format, update cadence, and expected token volume.",subs:["Internal: local disk, NFS, network shares","Cloud: S3, GCS, Azure Blob, SharePoint, Google Drive","Databases: SQL, MongoDB, Notion, Confluence","Web: crawl with robots.txt compliance","APIs: REST, GraphQL, RSS feeds"]},
+    {name:"Assess Quality & Compliance",simple:"Not every document is useful. Check: is this accurate? Up to date? Legal to use?",tech:"Score each source: authority, freshness, signal-to-noise ratio. Check licensing, PII, and legal restrictions.",subs:["Check publication/modified dates","Evaluate source authority","Estimate boilerplate percentage","Check copyright and licensing","PII and confidentiality review"]}
+  ],
+  decisions:[{q:"Broad vs narrow corpus?",a:"Narrow and high-quality beats broad and noisy. Start with authoritative sources, expand carefully."},{q:"Static or live-updating?",a:"Static is simpler. Add incremental updates once core system works."}],
+  pitfalls:["Low-quality documents degrade retrieval — quality over quantity","Not tracking source metadata means losing traceability forever","Ignoring licensing can create legal liability in production"]
+},
+{
+  id:2,emoji:"🔓",color:"#00FFA3",
+  title:"Document Loading & Raw Text Extraction",
+  sub:"binary.files → raw.text + metadata",
+  simple:"Now you actually READ each document. A computer opens a PDF and pulls out the real text. The tricky part: some PDFs are just photographs of pages — the computer sees pixels, not letters!",
+  analogy:"📖 You have books in 10 different formats. Some are readable, some are just pictures of pages. You need a different 'reader' for each type — one who can read Excel, one who can read photographs (OCR!).",
+  tech:"Document loading is the boundary between raw binary files and structured text objects. Each format requires a dedicated parser. The output must be a normalized text string plus a structured metadata dict. Poor extraction quality cannot be recovered at later stages.",
+  steps:[
+    {name:"Select Document Loader",simple:"Pick the right tool for each file type.",tech:"LangChain, LlamaIndex, or Unstructured.io are primary options. Unstructured.io offers the most format coverage with auto-detection.",subs:["LangChain: PyPDFLoader, Docx2txtLoader, CSVLoader, WebBaseLoader","LlamaIndex: SimpleDirectoryReader, PDFReader","Unstructured.io: universal loader, best for mixed pipelines"]},
+    {name:"OCR for Scanned PDFs",simple:"Some PDFs are just photos — OCR reads the pixels and figures out the letters.",tech:"Detect if PDF has a text layer vs is image-only. For image PDFs, render at 300 DPI, apply OCR. Silent empty output is the key failure mode.",subs:["Tesseract OCR: open source, 100+ languages","AWS Textract: managed, excellent for forms","Google Document AI: best accuracy","PaddleOCR: fast, good multilingual support","Preprocessing: deskew, denoise, binarize before OCR"]},
+    {name:"Extract Metadata",simple:"While reading, save extra info ABOUT each document — who wrote it, when, what page.",tech:"Each Document object must carry a rich metadata dict. This is stored alongside vectors and enables filtered retrieval.",subs:["source path, filename, title, author","created_date / modified_date","page_number, section_heading","document_type: pdf | docx | html | csv","language (detected ISO code)"]}
+  ],
+  decisions:[{q:"Which PDF library?",a:"PyMuPDF for speed+quality. pdfplumber for complex tables. Unstructured.io for zero-code mixed pipelines."},{q:"When to use OCR?",a:"Check for a text layer first. OCR only for image-based PDFs — it's 10x slower."}],
+  pitfalls:["Running text extractor on a scanned PDF — silent empty output","Not preserving page numbers — can't cite sources later","Encoding issues (UTF-8 vs Latin-1) corrupt special characters silently"]
+},
+{
+  id:3,emoji:"🧹",color:"#FFD166",
+  title:"Text Preprocessing & Cleaning",
+  sub:"raw.text → clean.normalized.text",
+  simple:"Raw text from documents is MESSY — page numbers in the middle of sentences, repeated headers on every page, weird symbols. Cleaning removes all that junk.",
+  analogy:"🧽 You copied text from a book by hand but accidentally included page numbers, headers, and coffee-stain symbols. Cleaning is going back and erasing all that extra stuff so only the real content remains.",
+  tech:"Preprocessing transforms noisy, format-artifact-laden raw strings into clean, normalized text that will embed consistently. Incomplete cleaning propagates artifacts into chunks → embeddings → retrieval — and it's very hard to debug downstream.",
+  steps:[
+    {name:"Strip HTML Tags & Boilerplate",simple:"Remove invisible code tags and repeated text that appears on every page.",tech:"Use BeautifulSoup for HTML. Detect boilerplate with n-gram frequency analysis — strings on >50% of pages are headers/footers.",subs:["BeautifulSoup(text, 'html.parser').get_text()","Preserve img alt attributes as [IMAGE: alt]","Frequency analysis to detect repeated page headers","Remove legal disclaimers identical across all documents"]},
+    {name:"Unicode Normalization",simple:"Some characters look the same but are different inside the computer. Make them all the same.",tech:"Apply NFKC normalization to canonicalize equivalent characters, expand ligatures (ﬁ→fi), resolve compatibility characters.",subs:["unicodedata.normalize('NFKC', text)","Fix smart quotes: \u201c \u201d to straight quotes","Remove Zero Width Non-Joiner (ZWNJ), BOM markers","ftfy library: fixes most UTF-8 mojibake automatically"]},
+    {name:"PII Detection & Redaction",simple:"Remove or replace personal information — names, phone numbers, email addresses — before storing.",tech:"Use spaCy NER + regex for structured PII patterns. Replace with typed placeholders to preserve semantic structure.",subs:["Regex: SSN, credit card, phone, email, IP address","spaCy NER: PERSON, ORG, GPE entities","Microsoft Presidio: production-grade PII detection","Replace: [PERSON_1], [PHONE_1], [EMAIL_1]"]}
+  ],
+  decisions:[{q:"Remove stopwords?",a:"No — for RAG, stopwords carry meaning. Only remove for sparse keyword indexes."},{q:"Lowercase everything?",a:"Optional. Most modern embedding models handle case internally. Keep case for better named entity retrieval."}],
+  pitfalls:["Over-aggressive cleaning removes meaningful content — numbers, names, and abbreviations","Removing table data as 'noise' — tables contain the most precise factual information","Forgetting encoding issues corrupts special characters silently"]
+},
+{
+  id:4,emoji:"✂️",color:"#FF6B35",
+  title:"Chunking Strategy & Text Splitting",
+  sub:"long.document → semantic.chunks[]",
+  simple:"Cut long documents into small pieces. The trick: cut at the RIGHT places so each piece still makes complete sense on its own.",
+  analogy:"🍕 Imagine a giant pizza. If you put the whole thing on someone's plate, it's too much. If you cut badly (right through a topping), pieces don't make sense. Good chunking cuts along natural lines so every slice is a complete, meaningful piece.",
+  tech:"Chunking is the most impactful hyperparameter in a RAG pipeline. Too small = chunks lose context. Too large = retrieval precision drops (LLM attention diluted). Chunk size, strategy, and overlap must be co-optimized with the embedding model's token limit and query specificity.",
+  steps:[
+    {name:"Token-Based Splitting",simple:"Count tokens (not letters!) to decide where to cut. One token ≈ 3/4 of a word.",tech:"Use the SAME tokenizer as your embedding model. If model limit = 512, chunk at 450 to leave buffer. Never use len(text) — always use the tokenizer.",subs:["tiktoken: OpenAI's library, cl100k_base for GPT-4/ada-002","HuggingFace AutoTokenizer for open-source models","1 token ≈ 4 chars ≈ 0.75 words","MUST use model's tokenizer, not character count"]},
+    {name:"Recursive Character Splitter",simple:"Try to split at paragraph breaks first, then sentences, then words — whichever keeps things most natural.",tech:"LangChain RecursiveCharacterTextSplitter: tries separators in priority order ['\\n\\n','\\n','. ',' ',''] — the gold standard for generic text.",subs:["Separators tried in order: \\n\\n, \\n, '. ', '! ', ' ', ''","Respects chunk_size + chunk_overlap in tokens","Most robust default for prose documents"]},
+    {name:"Overlap Strategy",simple:"The end of chunk 1 is repeated at the start of chunk 2 — so a sentence at the boundary appears in both chunks. This prevents losing context at the seams.",tech:"Overlap prevents retrieval failure when a query spans a chunk boundary. Standard: 10–20% of chunk size. Track overlap in metadata.",subs:["50–100 tokens overlap for 512-token chunks","Too much: inflates index, redundant embeddings","Too little: misses boundary-spanning queries","Track prev_chunk_id, next_chunk_id in metadata"]}
+  ],
+  decisions:[{q:"Which chunk size?",a:"Start at 512 tokens. Run ablation on your golden test set at [128, 256, 512, 1024]. Measure Recall@5 for each."},{q:"Hierarchical chunking?",a:"Search in small child chunks (128 tokens) for precision, retrieve their larger parent (512 tokens) for context. Best of both worlds."}],
+  pitfalls:["Using character count instead of token count — embedding model overflows silently","Zero overlap — queries spanning chunk boundaries return no relevant results","Not attaching chunk metadata — lose source attribution permanently"],
+  code:"<span class='kw'>from</span> langchain.text_splitter <span class='kw'>import</span> RecursiveCharacterTextSplitter\n<span class='kw'>import</span> tiktoken\n\nenc = tiktoken.encoding_for_model(<span class='str'>\"text-embedding-3-small\"</span>)\n<span class='kw'>def</span> <span class='fn'>tok</span>(t): <span class='kw'>return</span> len(enc.encode(t))\n\nsplitter = RecursiveCharacterTextSplitter(\n    chunk_size=<span class='num'>512</span>, chunk_overlap=<span class='num'>64</span>,\n    length_function=tok,  <span class='cm'># MUST use tokenizer, not len()</span>\n    separators=[<span class='str'>\"\\\\n\\\\n\"</span>,<span class='str'>\"\\\\n\"</span>,<span class='str'>\". \"</span>,<span class='str'>\" \"</span>,<span class='str'>\"\"</span>]\n)"
+},
+{
+  id:5,emoji:"🧠",color:"#A259FF",
+  title:"Embedding Generation",
+  sub:"text.chunk → float[1536] vector",
+  simple:"Embedding gives every chunk a home on a huge invisible map of meaning. Similar ideas are placed near each other. When you search, your question also gets placed on this map and you find nearby chunks.",
+  analogy:"🗺️ A giant map where every paragraph is pinned to a location. 'Dogs' and 'cats' are pinned near each other. 'Rocket science' is far away. Ask 'what does my pet eat?' — your question gets pinned near 'dogs' and 'cats' instantly!",
+  tech:"Embeddings are dense vector representations in a high-dimensional space where semantic proximity corresponds to vector proximity under a distance metric. The embedding model's quality, training corpus, and dimensionality are the primary determinants of retrieval quality — the most impactful modeling decision in the pipeline.",
+  steps:[
+    {name:"Choose Your Embedding Model",simple:"Pick the AI brain that converts text to numbers. Check the MTEB leaderboard to find the best one.",tech:"Select based on MTEB Retrieval scores, max token limit, latency, cost, and privacy requirements. The chart on the right shows current top models.",subs:["OpenAI text-embedding-3-small: 1536d, 8191 tokens, best cost/quality","BAAI/bge-large-en-v1.5: top open-source, 512 token limit","intfloat/e5-large-v2: strong open-source alternative","Cohere embed-v3: strong, supports multilingual variant"]},
+    {name:"Token Limit Alignment",simple:"CRITICAL: your chunks must be smaller than the model's maximum. If too long, it silently truncates — you lose data!",tech:"Every model has max_seq_length. Chunks exceeding it are silently truncated — the tail is unembedded. Assert token_count(chunk) <= model_max - 10 for every chunk.",subs:["OpenAI ada-002: 8191 max → chunk at 8000","BGE-large: 512 max → chunk at 450","Sentence-transformers: 256–512 depending on variant","Run assertion before every embedding call"]},
+    {name:"Asymmetric Prefix Rules",simple:"Some models need you to say 'I'm embedding a question' vs 'I'm embedding a document'. Getting this wrong hurts quality.",tech:"E5 and BGE use different prompt prefixes for queries vs passages. Applying wrong prefix is a common production bug that causes significant quality degradation.",subs:["E5: prefix queries with 'query: ', docs with 'passage: '","BGE: prefix queries with 'Represent this sentence for searching relevant passages: '","OpenAI/Cohere: symmetric — same API for query and document","Critical: use SAME prefix at indexing AND query time"]}
+  ],
+  decisions:[{q:"API vs local model?",a:"API: easiest, production-quality. Local: free, private, needs GPU. Choose based on budget and data privacy requirements."},{q:"When to fine-tune?",a:"When Recall@10 < 0.75 AND you have 1000+ labeled (query, relevant_doc) pairs."}],
+  pitfalls:["Not checking token count — silent truncation loses 30% of chunk content","Using document prefix for queries (E5/BGE) — major quality hit","Not caching embeddings — re-embedding unchanged corpus wastes 100% of embedding cost"]
+},
+{
+  id:6,emoji:"🗄️",color:"#00FFA3",
+  title:"Vector Store & Index Building",
+  sub:"embeddings[] → searchable.ANN.index",
+  simple:"Store all the number-lists (embeddings) in a special database that finds similar numbers lightning fast. A normal database finds exact matches. A vector database finds SIMILAR matches.",
+  analogy:"📍 Google Maps doesn't find the exact address of every pizza place — it finds all pizza places NEAR your current location. A vector database works the same way, but with meaning-coordinates instead of GPS coordinates.",
+  tech:"A vector store is a specialized database supporting approximate nearest neighbor (ANN) search. The index structure (HNSW, IVF, Flat) determines the trade-off between query latency, recall, index build time, and memory. The choice must account for scale, latency SLAs, metadata filtering, and operational overhead.",
+  steps:[
+    {name:"Select Vector Database",simple:"Choose the right storage system for your scale and needs.",tech:"Decision matrix: corpus size, query latency SLA, managed vs self-hosted, metadata filtering complexity, hybrid search support.",subs:["FAISS: in-process, no server, fastest — prototyping","Chroma: simple Python API — development","Qdrant: Rust-based, excellent filtering — self-hosted production","Pinecone: fully managed, zero ops — cloud production","pgvector: Postgres extension — good if you use Postgres already"]},
+    {name:"Choose Index Type (HNSW vs IVF)",simple:"How the database organizes its search — like the difference between a sorted bookshelf vs a random pile.",tech:"HNSW: graph-based, O(log n) query, 95–99% recall, high memory. IVF: cluster-based, lower memory, slightly lower recall. Flat: exact but O(n) — only for <100k vectors.",subs:["HNSW parameters: M=16–64 (graph degree), ef_construction=200–400","Higher ef_search → better recall, slower query","IVF for >10M vectors where memory is constrained","HNSW is the default choice for most production systems"]},
+    {name:"Schema Design & Upsert",simple:"Alongside each vector, store facts that help you filter: date, doc type, author. Add chunks in batches with deduplication.",tech:"Define metadata schema before indexing. Use deterministic IDs (hash of source + chunk_index) for idempotent upserts. Delete-then-insert for document updates.",subs:["String: source, filename, doc_type, language, section","Numeric: page_number, chunk_index, token_count, year","Boolean: is_table, is_code","ID: SHA-256(source + str(chunk_index)) — enables dedup"]}
+  ],
+  decisions:[{q:"FAISS vs Qdrant vs Pinecone?",a:"FAISS for prototyping. Qdrant for self-hosted production. Pinecone for managed zero-ops production."},{q:"pgvector or dedicated?",a:"pgvector for <5M vectors if already on Postgres. Dedicated vector DB for larger scale."}],
+  pitfalls:["Flat index for 10M+ vectors — seconds-per-query latency","ef_search too low — poor recall looks like retrieval bugs","No deduplication — same document twice means duplicate context in generation"]
+},
+{
+  id:7,emoji:"💬",color:"#FF4D9E",
+  title:"Query Intake & Preprocessing",
+  sub:"raw.user.query → validated.contextualized.query",
+  simple:"When a user types a question, don't pass it straight through. Clean it, figure out what they're really asking (using conversation history), and classify it. 'What about its price?' means nothing without knowing the previous messages.",
+  analogy:"🎧 A customer service agent always checks your history before answering. 'It won't work' means nothing without knowing what 'it' is from previous messages!",
+  tech:"Query intake is the entry point of the online pipeline. Raw input must be sanitized, validated, contextualized with history, and classified before transformation. Poor preprocessing causes retrieval failures that appear as LLM hallucinations — misattributed root cause.",
+  steps:[
+    {name:"Validate & Sanitize",simple:"Make sure the query isn't empty, too long, or trying to inject malicious instructions.",tech:"Input validation: non-empty, within token budget (≤1000 tokens), no injection patterns, accepted language. Log with timestamp and user_id.",subs:["Assert: query.strip() != ''","Token count ≤ 1000 (prevents prompt injection via long inputs)","Sanitize HTML tags, SQL injection patterns","Rate limiting: 60 requests/minute per user"]},
+    {name:"Conversation History Context",simple:"Look at the last few messages — 'it', 'this', 'that' all refer to something said earlier.",tech:"Maintain a sliding window of (role, content) pairs. Sliding window truncation respects token budget. Compress older turns by summarization.",subs:["Store: [(role, content, timestamp)] per session","Sliding window: last 5–10 turns fitting within token budget","Session isolation: UUID per conversation","Compress: summarize turns older than 5 to save tokens"]},
+    {name:"Intent Classification",simple:"Figure out what TYPE of question this is — factual? comparison? summary? This routes to the best retrieval strategy.",tech:"Route each intent class to an optimized retrieval configuration. Use LLM zero-shot or fine-tuned classifier.",subs:["factual_lookup → small-k retrieval (top 3)","comparison → retrieve docs for each entity separately","summarization → large-k retrieval (top 10–20)","out_of_scope → skip retrieval, use fallback response"]}
+  ],
+  decisions:[{q:"How many history turns?",a:"Last 5–10 turns capped by token budget. Summarize older turns."},{q:"When to extract metadata filters?",a:"Always attempt extraction. Apply only if confidence >0.85."}],
+  pitfalls:["Treating each query as independent — pronouns become ambiguous","Lowercasing — degrades named entity matching","Not sanitizing — prompt injection can expose system prompt"]
+},
+{
+  id:8,emoji:"🔄",color:"#FFD166",
+  title:"Query Transformation & Expansion",
+  sub:"query → [augmented.queries] → better.retrieval",
+  simple:"Your question might be hard to search for. Rewrite it, expand it into multiple versions, or have AI write a 'fake answer' first. Like having a librarian rephrase your question in 3 different ways to check all the right shelves.",
+  analogy:"🔍 If you ask 'Where's stuff about the thing that broke last year?', a smart librarian asks 'Do you mean the supply chain disruptions of 2022?' then searches for THAT — much more specific and findable.",
+  tech:"Query transformation is the highest-leverage intervention in the query-time pipeline. These techniques address the lexical gap problem — where the surface form of a user query differs from the surface form of the relevant document passage.",
+  steps:[
+    {name:"Query Rewriting",simple:"Have an LLM rephrase the question, resolving pronouns and adding context from conversation history.",tech:"Feed original query + conversation history to LLM: 'Rewrite the last message as a complete standalone question resolving all pronouns.' Apply only when query contains pronouns or deixis.",subs:["Gate: apply only if query contains 'it', 'this', 'that', 'they'","Input: last 5 history turns + current query","Output: clean standalone question only"]},
+    {name:"HyDE — Hypothetical Document Embedding",simple:"Instead of searching with your question, have AI write a FAKE answer, then search for documents similar to that fake answer. Works surprisingly well!",tech:"HyDE (Gao et al., 2022): generate a hypothetical passage that would answer the query. Embed that passage (not the original query). Search for real documents similar to this hypothetical one.",subs:["Prompt: 'Write a short factual paragraph answering: {query}'","Generate 1–3 hypothetical documents","Embed using document model (NOT query prefix)","Average multiple hypothetical embeddings for stability"]},
+    {name:"Multi-Query Expansion",simple:"Write the question in 3 different ways, search for all 3, combine the results. Catches documents that match one phrasing but not another.",tech:"LLM generates N paraphrases. Run retrieval for each. Merge with deduplication. Use Reciprocal Rank Fusion (RRF) to re-score merged set.",subs:["Generate 3–5 query variants","Retrieve top-k for EACH variant independently","Deduplicate by chunk_id","RRF: score(d) = sum(1 / (rank_i + 60)) across retriever_i"]}
+  ],
+  decisions:[{q:"HyDE vs Multi-Query?",a:"HyDE best for factual Q&A. Multi-query best for broad/complex questions. Skip both for simple short queries — adds latency without benefit."},{q:"How many variants?",a:"3 is the sweet spot. Diminishing returns after 5."}],
+  pitfalls:["HyDE where LLM hallucinates the hypothesis — actively misleads retrieval","Too many variants — latency multiplies linearly","Not deduplicating — same chunk retrieved multiple times wastes context window"]
+},
+{
+  id:9,emoji:"🔎",color:"#00E5FF",
+  title:"Similarity Search & Retrieval",
+  sub:"query.vector → top_k.chunks[]",
+  simple:"The actual search! Your question becomes a vector, you go to the vector database, and find chunks whose embeddings are closest in meaning — even if they use completely different words.",
+  analogy:"🧲 Your question is a magnet. Documents about similar things are made of iron. The strongest iron pieces (most similar) fly to your magnet. The top k pieces that fly hardest are your results.",
+  tech:"Retrieval translates the semantic proximity problem into efficient computational search. Quality is measured by Recall@K — what fraction of truly relevant documents appear in the top K results. Most RAG quality problems originate here. A comprehensive strategy combines dense, sparse, and structural signals.",
+  steps:[
+    {name:"Dense (Semantic) Vector Search",simple:"Search by MEANING — find chunks that mean the most similar thing, even using different words.",tech:"Run ANN search with cosine/dot-product metric. Returns top-K (id, score) pairs. Use the SAME embedding model and prefix as used at indexing time.",subs:["k=20–50 before re-ranking","ef_search (HNSW): set to at least 2 × k","Score >0.85: very relevant | 0.7–0.85: relevant | <0.7: questionable","Fetch score alongside chunk — don't just return IDs"]},
+    {name:"Sparse (BM25) Keyword Search",simple:"Also search by exact keywords — for when your question has a specific product code or person's name that semantic search might dilute.",tech:"BM25 scores on term frequency × inverse document frequency. Catches exact-match signals that dense embeddings dilute — especially for rare terms.",subs:["rank_bm25 Python library, or Elasticsearch, OpenSearch","k1=1.5, b=0.75 (defaults work well for most corpora)","Valuable for: product codes, names, version numbers, citations"]},
+    {name:"Hybrid Fusion & Score Thresholding",simple:"Combine semantic + keyword results. Then apply a minimum score threshold — if nothing is similar enough, return 'I don't know' rather than irrelevant results.",tech:"Reciprocal Rank Fusion merges ranked lists: score(d) = sum(1/(rank_i + 60)). Apply hard threshold to catch empty-corpus queries.",subs:["RRF k=60 is a robust default","Hard threshold: discard all docs with similarity < 0.65","If 0 pass threshold: return no-context signal → LLM says 'I don't know'","Log threshold failures — they identify coverage gaps"]}
+  ],
+  decisions:[{q:"Dense only vs hybrid?",a:"Always use hybrid if BM25 is feasible. Hybrid is almost universally better — adds keyword precision to semantic recall."},{q:"k value?",a:"k=20 before re-ranking, k=3–5 after. Larger k improves recall but increases re-ranking cost."}],
+  pitfalls:["Different embedding models for indexing vs querying — completely broken retrieval with no obvious error","k too small — only 1–2 docs means you miss relevant context","No score threshold — LLM confidently answers from irrelevant context"]
+},
+{
+  id:10,emoji:"📊",color:"#A259FF",
+  title:"Re-Ranking",
+  sub:"top_k.candidates → reranked.top_n (n << k)",
+  simple:"After finding 20 similar-seeming chunks, run a smarter second check — which of these 20 actually ANSWER the question? Like preliminary auditions (retrieval) followed by the real audition (re-ranking).",
+  analogy:"🏆 20 students pass a written exam. Now give them a tough oral exam to find the top 5. The oral exam is harder and more precise — but you couldn't give oral exams to all 10,000 students first. Re-ranking is that oral exam.",
+  tech:"Re-ranking is a precision-boosting second pass over the candidate set. Bi-encoders (used in retrieval) encode query and document independently — fast but imprecise. Cross-encoders jointly encode (query, document) pairs, attending across both simultaneously — achieving 30–50% better precision at O(K) inference cost.",
+  steps:[
+    {name:"Cross-Encoder Re-Ranking",simple:"A special model that reads your question AND each candidate chunk together, then scores 'how well does this answer the question?'",tech:"Load cross-encoder. Pass [(query, doc)] pairs. Returns relevance scores. Sort descending. GPU strongly recommended: 20 pairs × 512 tokens ~200ms GPU vs ~4s CPU.",subs:["BAAI/bge-reranker-large: best open-source for English","cross-encoder/ms-marco-MiniLM-L-12-v2: fast, smaller, lower latency","BAAI/bge-reranker-v2-m3: multilingual"]},
+    {name:"Cohere Rerank API",simple:"Instead of running your own model, use Cohere's managed service. Simple API call, excellent quality.",tech:"co.rerank(query, documents, top_n=5, model='rerank-english-v3.0'). Returns relevance scores. ~300ms for 20 docs. $0.10/1000 searches.",subs:["rerank-english-v3.0, rerank-multilingual-v3.0","top_n parameter: only return the N you need","Returns: index, relevance_score, document"]},
+    {name:"Select Top-N",simple:"After re-ranking, keep only the top N (usually 3–5). These are what the LLM will actually read.",tech:"N=3 for precise Q&A, 5 for synthesis, up to 10 for summarization. Hard-threshold: discard below min_score (0.3 for cross-encoder logits).",subs:["If all re-ranked candidates score low → no-context signal","Normalize scores to [0,1] if combining multiple rankers","Keep original retrieval scores as secondary sort key for ties"]}
+  ],
+  decisions:[{q:"Re-rank or not?",a:"Always in production. 10–30% quality improvement at 100–500ms cost is almost always worth it."},{q:"K into re-ranker vs N out?",a:"K=20–50 for good recall, N=3–5 for focused context. K/N ratio of 4:1 to 10:1."}],
+  pitfalls:["Skipping re-ranking — bi-encoder top-3 is significantly worse than cross-encoder top-3","Re-ranking K=200 — too slow for real-time use","Not passing query AND document jointly to cross-encoder — both are required"]
+},
+{
+  id:11,emoji:"📝",color:"#00FFA3",
+  title:"Context Assembly & Compression",
+  sub:"reranked.chunks[] → optimized.llm.context",
+  simple:"You have 3–5 relevant chunks. Arrange them carefully: most important first AND last (LLMs forget the middle), remove duplicates, make sure everything fits within the AI's reading limit.",
+  analogy:"📋 Giving a lawyer the 5 most relevant pages from a 1000-page case file before a hearing. Most important evidence first and last, no duplicate pages, fits in their briefcase.",
+  tech:"Context assembly is critical but overlooked. The LLM's attention mechanism degrades for content in the middle of long contexts ('lost in the middle' phenomenon, Liu et al. 2023). Optimal chunk ordering, length management, and deduplication directly impact generation quality.",
+  steps:[
+    {name:"Deduplicate & Order Chunks",simple:"Remove near-duplicate chunks. Put the best chunk first, second-best last — LLMs remember beginnings and endings best.",tech:"Pairwise cosine similarity: if sim > 0.95, keep the higher-scored chunk. Interleaved ordering: rank 1 first, rank 2 last, rank 3 second, rank 4 second-to-last.",subs:["Threshold: 0.95 = near-duplicate, keep higher-scored","Interleave: best at positions 0 and N-1, worst in middle","Matters most for N >= 5 contexts"]},
+    {name:"Token Budget Management",simple:"Count tokens carefully. Leave room for system instructions AND the AI's answer.",tech:"context_budget = max_tokens - system_tokens - query_tokens - response_max. Drop least-relevant chunks first when over budget. Never truncate mid-chunk.",subs:["GPT-4: 128k max | Claude claude-sonnet-4-20250514: 200k | Llama-3-8B: 8k","Reserve ~1700 tokens: 500 system + 200 query + 1000 response","Drop whole chunks — never truncate mid-chunk"]},
+    {name:"Format & Source Tracking",simple:"Wrap each chunk with a header showing where it came from. Track source metadata for citations later.",tech:"Standardized template with source headers prevents chunk blending in LLM attention. Build a sources list for post-generation citation.",subs:["Format: '--- Source [1]: {filename}, Page {page} ---'","Clear delimiters prevent chunk blending","Build sources list: [{ref, source, page, score, chunk_id}]"]}
+  ],
+  decisions:[{q:"Chunk ordering?",a:"Interleaved 'sandwich' for N>=5. Simple descending score for N<=4."},{q:"When to compress?",a:"Only when total context exceeds 70% of window budget. LLMLingua achieves 3–5× compression with <5% quality loss."}],
+  pitfalls:["Chunks without delimiters — LLM confuses chunk boundaries","Most relevant chunk in the middle — 'lost in the middle' degrades quality","Exceeding context window — most APIs silently truncate, losing your most important content"]
+},
+{
+  id:12,emoji:"📜",color:"#FF6B35",
+  title:"Prompt Engineering & Construction",
+  sub:"system.prompt + context + query → llm.input",
+  simple:"Write the complete instructions + context + question for the AI. Like a perfect exam question — including all the textbook pages to read BEFORE answering.",
+  analogy:"✉️ Writing a letter to the world's smartest librarian: 'You are an expert. ONLY answer from the passages below.' Then paste the passages. Then ask your question. You're setting the stage perfectly.",
+  tech:"Prompt engineering determines how effectively the LLM utilizes retrieved context. RAG-specific prompts must clearly delineate system role, instructions (cite sources, admit ignorance), context block, and user query. Prompt design directly controls hallucination rate and citation quality.",
+  steps:[
+    {name:"System Prompt Design",simple:"Tell the AI who it is and what rules to follow. Especially: ONLY answer from the provided text.",tech:"Establish: role, behavioral constraints (no external knowledge), citation instructions, uncertainty handling. Keep under 500 tokens to preserve context budget.",subs:["Role: 'You are [role] for [company].'","Constraint: 'Answer ONLY based on the provided context.'","Uncertainty: 'If not found, say: I don\\'t have information about this.'","Citation: 'Use [n] notation: This policy states X [1].'"]},
+    {name:"Context Injection & Structure",simple:"Insert all retrieved chunks with clear labels. Put context BEFORE the question.",tech:"XML-style tags are most reliable for GPT-4 and Claude. Place context in USER turn for most models. Context must appear before the question.",subs:["Wrap: <context>\\n{chunks}\\n</context>","Place context BEFORE the question — attention is causal","Clear boundary: 'Based ONLY on the context above, answer:'","Test: context in system vs user turn — model-dependent"]},
+    {name:"Chain-of-Thought & Grounding Strength",simple:"For complex questions, tell the AI to 'think step by step'. For strict domains (legal/medical), enforce very strict grounding.",tech:"CoT (Wei et al. 2022) improves multi-step reasoning. Strict grounding prevents hallucination but increases 'I don't know' rate for partial-coverage queries.",subs:["Zero-shot CoT: append 'Let\\'s think step by step.'","Structured: 'Step 1: List relevant facts. Step 2: Reason. Step 3: Answer.'","Strict: 'Do NOT use any information not explicitly stated in context.'","Moderate: 'Prefer context, note when using general knowledge.'"]}
+  ],
+  decisions:[{q:"Strict vs moderate grounding?",a:"Strict for legal, compliance, medical, financial. Moderate for general knowledge assistant."},{q:"Few-shot examples?",a:"Zero-shot first. Add few-shot only if output format or citation style is inconsistent."}],
+  pitfalls:["No uncertainty instruction — LLM answers confidently when context is empty","Context AFTER the question — attention degrades for preceding context","System prompt too long — eats context budget needed for retrieved chunks"]
+},
+{
+  id:13,emoji:"⚡",color:"#FFD166",
+  title:"LLM Generation",
+  sub:"prompt → streamed.response",
+  simple:"Give everything to the Large Language Model and it reads the retrieved chunks, reasons over them, and generates an answer. This is where the magic happens — but ONLY if everything before this was done right.",
+  analogy:"👨‍🏫 A brilliant professor has just been handed the most relevant textbook pages and your question. They read the pages, think carefully, and give a precise answer citing exactly where they found the information.",
+  tech:"LLM generation is the final synthesis step. Quality is bounded above by retrieval and prompt quality — excellent generation cannot compensate for poor retrieval. Key decisions: model selection (cost vs quality), temperature, streaming, and structured output format.",
+  steps:[
+    {name:"LLM Model Selection",simple:"Pick the AI brain. The chart on the right shows cost vs quality for major models.",tech:"Select based on latency SLA, cost budget, context window, and task complexity. GPT-4o-mini is often the sweet spot for RAG.",subs:["GPT-4o: best reasoning, 128k context, ~$15/M output tokens","GPT-4o-mini: 90% quality at 5% cost — excellent for most RAG","Claude claude-sonnet-4-20250514: 200k context, strong reasoning","Claude 3 Haiku: fast, cheap, high-throughput RAG","Llama 3.1 70B: best open-source, self-hostable"]},
+    {name:"Generation Parameters",simple:"Set temperature=0 for factual RAG. Low temperature means the AI gives consistent, grounded answers.",tech:"temperature=0.0 for factual grounded RAG. max_tokens sized to response. top_p=0.9 is safe default. seed for reproducibility.",subs:["temperature=0.0: deterministic, recommended for factual RAG","NEVER use temperature >0.3 for grounded RAG — increases hallucination","max_tokens: 500 for Q&A, 1500 for synthesis","seed=42: reproducible outputs during testing"]},
+    {name:"Streaming & Error Handling",simple:"Stream the answer word by word — feels much faster! Have retry logic for when the API is busy.",tech:"Streaming via SSE: time-to-first-token ~300ms vs full response 3–15s. Exponential backoff retry for rate limits and timeouts.",subs:["stream=True in API call","Iterate over response.choices[0].delta.content","Retry: Tenacity @retry(wait=wait_exponential(min=1,max=60))","Circuit breaker: after 5 failures → disable for 60s"]}
+  ],
+  decisions:[{q:"Which model?",a:"GPT-4o-mini for cost-optimized production. GPT-4o or Claude claude-sonnet-4-20250514 for quality-critical use cases."},{q:"Temperature?",a:"0.0 for factual RAG. Never above 0.3."}],
+  pitfalls:["High temperature for factual RAG — LLM fabricates facts even when context is clear","max_tokens too low — answer truncated mid-sentence","Hardcoded API keys in source code — security vulnerability"]
+},
+{
+  id:14,emoji:"✅",color:"#00E5FF",
+  title:"Response Post-Processing",
+  sub:"raw.output → validated.cited.response",
+  simple:"Don't just send the AI's answer straight to the user. Check it: does it actually match the retrieved passages? Does it cite sources? This quality control separates production RAG from a demo.",
+  analogy:"📋 Like a newspaper editor reviewing an article before publishing — checking facts, adding citations, flagging anything that doesn't match the sources. The journalist wrote it (LLM), the editor validates it (post-processing).",
+  tech:"Post-processing closes the loop between generation and verification. It addresses the core RAG failure mode: the LLM generating a plausible-sounding answer not grounded in retrieved context. Faithfulness checking is the most important step.",
+  steps:[
+    {name:"Citation Extraction & Source Linking",simple:"Pull out the [1], [2], [3] markers from the answer and map them back to the real document source, page number, and link.",tech:"Extract all [n] citation markers with regex. Map each to the sources list built during context assembly. Generate source links.",subs:["citations = re.findall(r'\\\\[(\\\\d+)\\\\]', response)","Map: source_refs = [sources[int(n)-1] for n in citations]","Append 'Sources:\\n[1] Document: ..., Page: ...'"]},
+    {name:"Faithfulness Checking",simple:"Ask ANOTHER AI: 'Is every claim in this answer actually supported by the retrieved passages?' This is how you catch hallucinations.",tech:"RAGAS faithfulness: decomposes response into atomic claims, checks each against context. NLI or LLM-as-judge approaches. Threshold < 0.7 → flag for review.",subs:["LLM judge: 'List any claims NOT supported by this context: {context}\\nAnswer: {answer}'","RAGAS automated pipeline: decompose → verify per claim","Threshold: faithfulness < 0.7 → flag or regenerate","Run on 100% of traffic in dev/staging, 5% sample in production"]},
+    {name:"Semantic Caching & Safety",simple:"Cache answers to repeated questions. Scan responses for harmful content before sending.",tech:"Semantic cache: embed query, if cosine_sim > 0.97 with a cached query → return cached response. Content safety classifier before delivery.",subs:["Cache key: query embedding vector","Cache hit threshold: cosine_sim > 0.97","TTL: based on knowledge base update frequency","Safety: OpenAI Moderation API, LlamaGuard","PII scan: check response doesn't reveal personal data from context"]}
+  ],
+  decisions:[{q:"How often to check faithfulness?",a:"100% in dev. 5% sample in high-volume production. Always for medical/legal/financial."},{q:"Caching threshold?",a:"0.97 for strict. 0.90 for aggressive caching. Lower threshold risks returning wrong answers."}],
+  pitfalls:["Skipping faithfulness check — hallucinations compound silently over time","Aggressive caching — different users get wrong cached answers","Not scanning for PII — LLM may include personal info extracted from context"]
+},
+{
+  id:15,emoji:"📈",color:"#FF4D9E",
+  title:"Evaluation & Monitoring",
+  sub:"system.output → metrics → improvement.signals",
+  simple:"After launch, continuously measure how well your RAG system is doing. Is it giving accurate answers? Finding the right documents? Is it getting expensive? You need a dashboard.",
+  analogy:"🩺 Regular health checkups — blood pressure, weight, tests. You do regular checkups on your RAG system too. Different tests measure different aspects of its health.",
+  tech:"RAG evaluation requires measuring retrieval and generation independently, plus end-to-end quality. RAGAS provides an automated evaluation framework. Without systematic measurement you cannot know whether changes improve or degrade performance.",
+  steps:[
+    {name:"Golden Evaluation Dataset",simple:"Create 50–200 questions where you KNOW the correct answer AND which document it comes from. This is your health-check test set.",tech:"Golden dataset: (query, ground_truth_answer, relevant_doc_ids) triples. Sources: human-curated, LLM-generated from docs, or sampled production logs.",subs:["50 minimum, 200+ for statistically reliable change detection","Coverage: all knowledge domains and query types","Version control separately from system changes","Include edge cases: out-of-scope, multi-hop, ambiguous"]},
+    {name:"RAGAS Framework — 5 Key Metrics",simple:"RAGAS automatically scores 5 dimensions of your RAG system quality.",tech:"RAGAS = RAG Assessment. LLM-as-judge metrics on 5 dimensions. Run after every significant pipeline change.",subs:["Faithfulness: claims entailed by context [0-1]","Answer Relevancy: answer addresses the question [0-1]","Context Precision: retrieved context actually relevant [0-1]","Context Recall: relevant facts found in retrieved context [0-1]","Answer Correctness: match against ground truth [0-1]"]},
+    {name:"Latency & Cost Monitoring",simple:"Track speed and cost. Make sure your system stays fast and within budget.",tech:"Instrument every stage with timing. Track per-query cost. Alert on regressions. Visualize P50/P95/P99 latencies.",subs:["Stage timings: embedding, retrieval, reranking, llm_ttfb, llm_total","Cost per query: sum of (tokens × price) for each API call","P99 latency: reveals tail latency problems","Dashboards: Grafana + Prometheus, Datadog, or LangSmith"]}
+  ],
+  decisions:[{q:"How often to run full eval?",a:"Every PR changing retrieval or generation logic. Scheduled weekly for production drift detection."},{q:"Golden set size?",a:"50 minimum. 200+ for reliable change detection."}],
+  pitfalls:["Optimizing RAGAS on golden set without held-out validation — overfitting","No latency monitoring — silent latency regression goes unnoticed","Not logging retrieval intermediates — can't distinguish retrieval vs generation failures"]
+},
+{
+  id:16,emoji:"🔁",color:"#A259FF",
+  title:"Feedback Loop & Continuous Improvement",
+  sub:"user.signals + metrics → system.updates",
+  simple:"The system is never 'done'. Collect real user feedback, find what it gets wrong, and keep improving — updating documents, tweaking chunking, upgrading embedding models, refining prompts. An ongoing cycle.",
+  analogy:"🌱 A garden isn't planted once and forgotten. You water it, pull weeds, add new seeds based on what grows. Your RAG system needs the same ongoing care.",
+  tech:"RAG systems degrade over time as knowledge bases change, query distributions shift, and embedding model versions become stale. Continuous improvement requires instrumented feedback loops, scheduled re-indexing triggers, and experiment infrastructure.",
+  steps:[
+    {name:"User Feedback Collection",simple:"Add thumbs up/down buttons. When a user says an answer was wrong — that's a valuable signal.",tech:"Explicit (thumbs, ratings) + implicit (click-through on citations, follow-up correction patterns). Tag each feedback with trace_id.",subs:["Thumbs up/down, 1–5 stars, free text correction","Implicit: 'actually...' or 'that\\'s wrong' in follow-ups","Click-through on citations = positive retrieval signal","Tag: trace_id + query + response + feedback_type + timestamp"]},
+    {name:"Failure Mode Analysis",simple:"Look at all bad answers and figure out WHY they failed. This tells you what to fix.",tech:"Classify failures by root cause using trace logs: retrieval failure, hallucination, coverage gap, query transformation failure.",subs:["Retrieval failure: correct doc not in top-K → fix retrieval","Generation failure: correct context but wrong answer → fix prompt","Coverage gap: no relevant doc in index → add document","Build dashboard: failure mode % breakdown over time"]},
+    {name:"Incremental Updates & Blue/Green Re-index",simple:"Add new documents without rebuilding everything. When changing the embedding model, build the new index in parallel and switch safely.",tech:"Incremental: delete-then-insert for changed documents. Full re-index on embedding model changes using blue/green deployment for zero downtime.",subs:["Change detection: SHA-256 hash of document content","Event-driven: webhook from document system triggers re-index","Blue/green: build new index while old serves traffic","Validate new index before switching alias","Keep old index 24h for rollback window"]}
+  ],
+  decisions:[{q:"How often to full re-index?",a:"On every embedding model change. Otherwise quarterly or on major corpus changes."},{q:"When to fine-tune?",a:"When Recall@10 < 0.75 AND you have 1000+ labeled query-document pairs."}],
+  pitfalls:["Re-indexing without A/B testing first — new model might be worse on your domain","Not re-embedding after fine-tuning — old embeddings incompatible with new model","Ignoring implicit signals — 'correction' follow-up queries are your best quality signal"]
+}
+];
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+var mode = 'simple', playing = false, current = -1, timer = null;
+var rendered = {};
+
+// ════════════════════════════════════════════════
+// PIPELINE OVERVIEW SVG
+// ════════════════════════════════════════════════
+function buildPipelineSVG() {
+  var svg = el('pipeline-svg');
+  var W = 1100, H = 110;
+  var phases = [
+    {label:'Collect',color:'#00E5FF'},{label:'Load',color:'#00FFA3'},
+    {label:'Clean',color:'#FFD166'},{label:'Chunk',color:'#FF6B35'},
+    {label:'Embed',color:'#A259FF'},{label:'Index',color:'#00FFA3'},
+    {label:'Query',color:'#FF4D9E'},{label:'Transform',color:'#FFD166'},
+    {label:'Search',color:'#00E5FF'},{label:'Re-rank',color:'#A259FF'},
+    {label:'Assemble',color:'#00FFA3'},{label:'Prompt',color:'#FF6B35'},
+    {label:'Generate',color:'#FFD166'},{label:'Validate',color:'#00E5FF'},
+    {label:'Evaluate',color:'#FF4D9E'},{label:'Improve',color:'#A259FF'}
+  ];
+  var n = phases.length;
+  var nodeW = 52, nodeH = 32, gap = (W - 40 - n * nodeW) / (n - 1);
+  var y = H / 2;
+  var html = '';
+
+  // defs for gradients and glow
+  html += '<defs>';
+  html += '<filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+  html += '</defs>';
+
+  // background track
+  var x0 = 20 + nodeW / 2, x1 = 20 + (n-1) * (nodeW + gap) + nodeW / 2;
+  html += '<line x1="' + x0 + '" y1="' + y + '" x2="' + x1 + '" y2="' + y + '" stroke="rgba(0,229,255,0.12)" stroke-width="2"/>';
+
+  // animated progress line (CSS animation)
+  html += '<line x1="' + x0 + '" y1="' + y + '" x2="' + x0 + '" y2="' + y + '" stroke="url(#progline)" stroke-width="2" id="svg-progline"/>';
+  html += '<defs><linearGradient id="progline" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00E5FF"/><stop offset="100%" stop-color="#A259FF"/></linearGradient></defs>';
+
+  for (var i = 0; i < n; i++) {
+    var x = 20 + i * (nodeW + gap);
+    var p = phases[i];
+    var rx = 8;
+    // node box
+    html += '<rect x="' + x + '" y="' + (y - nodeH/2) + '" width="' + nodeW + '" height="' + nodeH + '" rx="' + rx + '"';
+    html += ' fill="rgba(7,24,40,0.9)" stroke="' + p.color + '" stroke-opacity="0.4" stroke-width="1.5" id="svgnode' + i + '"';
+    html += ' style="cursor:pointer" onclick="jumpTo(' + i + ')"/>';
+    // label
+    html += '<text x="' + (x + nodeW/2) + '" y="' + (y + 5) + '" text-anchor="middle"';
+    html += ' font-family="Syne,sans-serif" font-size="8.5" font-weight="700" fill="' + p.color + '" fill-opacity="0.85">' + p.label + '</text>';
+    // step number
+    html += '<text x="' + (x + nodeW - 4) + '" y="' + (y - nodeH/2 + 9) + '" text-anchor="end"';
+    html += ' font-family="JetBrains Mono,monospace" font-size="6.5" fill="rgba(255,255,255,0.25)">' + (i+1) + '</text>';
+  }
+
+  // Safe cross-browser SVG content injection
+  try {
+    svg.innerHTML = html;
+  } catch(e) {
+    try {
+      var parser = new DOMParser();
+      var doc = parser.parseFromString('<svg xmlns="http://www.w3.org/2000/svg">' + html + '</svg>', 'image/svg+xml');
+      var nodes = doc.documentElement.childNodes;
+      while (nodes.length > 0) { svg.appendChild(document.adoptNode(nodes[0])); }
+    } catch(e2) { /* SVG unavailable, non-critical */ }
+  }
+}
+
+function updatePipelineSVG(idx) {
+  var phases = 16;
+  var nodeW = 52, gap = (1100 - 40 - phases * nodeW) / (phases - 1);
+  var x0 = 20 + nodeW / 2;
+  var x1 = 20 + idx * (nodeW + gap) + nodeW / 2;
+  var line = el('svg-progline');
+  if (line) {
+    line.setAttribute('x2', x1);
+  }
+  // highlight active node
+  for (var i = 0; i < phases; i++) {
+    var node = el('svgnode' + i);
+    if (!node) continue;
+    var p = PHASES[i];
+    if (i === idx) {
+      node.setAttribute('fill', h2r(p.color, 0.15));
+      node.setAttribute('stroke-opacity', '1');
+      node.setAttribute('filter', 'url(#glow)');
+    } else if (i < idx) {
+      node.setAttribute('fill', h2r(p.color, 0.07));
+      node.setAttribute('stroke-opacity', '0.5');
+      node.removeAttribute('filter');
+    } else {
+      node.setAttribute('fill', 'rgba(7,24,40,0.9)');
+      node.setAttribute('stroke-opacity', '0.25');
+      node.removeAttribute('filter');
+    }
+  }
+}
+
+// ════════════════════════════════════════════════
+// MINI MAP
+// ════════════════════════════════════════════════
+function buildMap() {
+  var t = el('mtrack');
+  t.innerHTML = '';
+  for (var i = 0; i < PHASES.length; i++) {
+    (function(idx) {
+      var p = PHASES[idx];
+      var d = document.createElement('div');
+      d.className = 'mdot';
+      d.innerHTML = '<div class="mcirc" id="mc' + idx + '">' + p.emoji + '</div><div class="mnum">' + p.id + '</div>';
+      d.onclick = function() { jumpTo(idx); };
+      t.appendChild(d);
+      if (idx < PHASES.length - 1) {
+        var c = document.createElement('div');
+        c.className = 'mconn';
+        c.id = 'mconn' + idx;
+        t.appendChild(c);
+      }
+    })(i);
+  }
+}
+
+// ════════════════════════════════════════════════
+// BUILD CARDS
+// ════════════════════════════════════════════════
+function buildCards() {
+  var c = el('main');
+  c.innerHTML = '';
+  for (var i = 0; i < PHASES.length; i++) {
+    c.appendChild(makeCard(i));
+  }
+}
+
+function makeCard(i) {
+  var p = PHASES[i];
+  var card = document.createElement('div');
+  card.className = 'pcard';
+  card.id = 'card' + i;
+  card.style.setProperty('--phase-c', p.color);
+  card.style.setProperty('--phase-glow', h2r(p.color, 0.15));
+
+  // head
+  var head = document.createElement('div');
+  head.className = 'phead';
+  head.innerHTML =
+    '<div class="pnum" style="color:' + p.color + ';background:' + h2r(p.color,0.09) + ';border:1px solid ' + h2r(p.color,0.25) + '">Phase ' + p.id + '</div>' +
+    '<div class="pemoji">' + p.emoji + '</div>' +
+    '<div class="ptitles"><div class="ptitle">' + p.title + '</div><div class="psub">' + p.sub + '</div></div>' +
+    '<div class="parrow">▼</div>';
+  head.onclick = function() { toggleCard(i); };
+  card.appendChild(head);
+
+  // body
+  var body = document.createElement('div');
+  body.className = 'pbody';
+  body.id = 'body' + i;
+
+  // visual panel placeholder
+  var vp = document.createElement('div');
+  vp.className = 'vpanel';
+  vp.id = 'vp' + i;
+  body.appendChild(vp);
+
+  // tabs
+  var tabs = document.createElement('div');
+  tabs.className = 'ptabs';
+  tabs.innerHTML =
+    '<div class="ptab on" id="ts' + i + '" onclick="switchTab(' + i + ',\'s\')">🧒 Simple</div>' +
+    '<div class="ptab" id="td' + i + '" onclick="switchTab(' + i + ',\'d\')">🔬 Deep Dive</div>';
+  body.appendChild(tabs);
+
+  // panes
+  var sp = document.createElement('div');
+  sp.className = 'pcon on';
+  sp.id = 'sp' + i;
+  sp.innerHTML = makeSimple(p, i);
+  body.appendChild(sp);
+
+  var dp = document.createElement('div');
+  dp.className = 'pcon';
+  dp.id = 'dp' + i;
+  dp.innerHTML = makeDeep(p, i);
+  body.appendChild(dp);
+
+  card.appendChild(body);
+  return card;
+}
+
+function makeSimple(p, i) {
+  var html = '<div class="sbox"><div class="slabel">// simple explanation</div>';
+  html += '<div class="stext">' + p.simple + '</div>';
+  html += '<div class="analogy">' + p.analogy + '</div></div>';
+  html += '<div class="slabel2">Steps in this phase</div>';
+  for (var s = 0; s < p.steps.length; s++) {
+    var st = p.steps[s];
+    html += '<div class="step"><div class="sdot">' + (s+1) + '</div><div class="scontent">';
+    html += '<div class="sname">' + st.name + '</div>';
+    html += '<div class="sdesc">' + st.simple + '</div>';
+    if (st.subs) {
+      html += '<div class="subslist">';
+      var lim = Math.min(3, st.subs.length);
+      for (var k = 0; k < lim; k++) html += '<div class="subitem">' + st.subs[k] + '</div>';
+      html += '</div>';
+    }
+    html += '</div></div>';
+  }
+  return html;
+}
+
+function makeDeep(p, i) {
+  var html = '<div class="sbox" style="border-color:' + h2r(p.color,0.18) + ';background:' + h2r(p.color,0.04) + '">';
+  html += '<div class="slabel">// technical overview</div>';
+  html += '<div class="techtext">' + p.tech + '</div></div>';
+  html += '<div class="slabel2">Detailed Technical Steps</div>';
+  for (var s = 0; s < p.steps.length; s++) {
+    var st = p.steps[s];
+    html += '<div class="step"><div class="sdot" style="color:' + p.color + ';background:' + h2r(p.color,0.09) + ';border-color:' + h2r(p.color,0.28) + '">' + (s+1) + '</div>';
+    html += '<div class="scontent"><div class="sname">' + st.name + '</div>';
+    html += '<div class="sdesc t">' + st.tech + '</div>';
+    if (st.subs) {
+      html += '<div class="subslist" style="border-color:' + h2r(p.color,0.16) + '">';
+      for (var k = 0; k < st.subs.length; k++) {
+        html += '<div class="subitem"><span style="color:' + h2r(p.color,0.55) + ';margin-right:4px">→</span>' + st.subs[k] + '</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div></div>';
+  }
+  if (p.decisions && p.decisions.length) {
+    html += '<div class="shdr">Key Decisions</div><div class="dgrid">';
+    for (var d = 0; d < p.decisions.length; d++) {
+      html += '<div class="dcard"><div class="dq">⚡ ' + p.decisions[d].q + '</div><div class="da">' + p.decisions[d].a + '</div></div>';
+    }
+    html += '</div>';
+  }
+  if (p.pitfalls && p.pitfalls.length) {
+    html += '<div class="shdr">Common Pitfalls</div><div class="pitlist">';
+    for (var pf = 0; pf < p.pitfalls.length; pf++) {
+      html += '<div class="pit"><span style="flex-shrink:0">⚠️</span>' + p.pitfalls[pf] + '</div>';
+    }
+    html += '</div>';
+  }
+  if (p.code) {
+    html += '<div class="shdr">Code Example</div>';
+    html += '<div class="codeblock"><div class="codehdr"><span class="codelang">PYTHON</span></div>';
+    html += '<div class="codebody"><pre>' + p.code + '</pre></div></div>';
+  }
+  return html;
+}
+
+// ════════════════════════════════════════════════
+// VISUAL PANELS — one per phase
+// ════════════════════════════════════════════════
+function renderVisual(i) {
+  if (rendered[i]) return;
+  rendered[i] = true;
+  var vp = el('vp' + i);
+  var p = PHASES[i];
+  vp.innerHTML = '<div class="vpanel-title">📊 Visual Overview</div>';
+  var fns = [v0,v1,v2,v3,v4,v5,v6,v7,v8,v9,v10,v11,v12,v13,v14,v15];
+  if (fns[i]) fns[i](vp, p);
+}
+
+// ── Phase 0: Document Source Grid ──
+function v0(vp, p) {
+  var sources = [
+    {icon:'📄',label:'PDFs',pct:38,color:'#00E5FF'},
+    {icon:'🌐',label:'Web Pages',pct:22,color:'#00FFA3'},
+    {icon:'📊',label:'Spreadsheets',pct:15,color:'#FFD166'},
+    {icon:'📧',label:'Emails',pct:12,color:'#A259FF'},
+    {icon:'📝',label:'Word Docs',pct:8,color:'#FF6B35'},
+    {icon:'🗄️',label:'Databases',pct:5,color:'#FF4D9E'}
+  ];
+  var html = '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:0.8rem">';
+  sources.forEach(function(s) {
+    html += '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + h2r(s.color,0.18) + ';border-radius:9px;padding:0.7rem;text-align:center">';
+    html += '<div style="font-size:1.5rem;margin-bottom:0.3rem">' + s.icon + '</div>';
+    html += '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.78rem;color:' + s.color + ';margin-bottom:0.25rem">' + s.label + '</div>';
+    html += '<div style="background:rgba(0,0,0,0.3);border-radius:999px;height:5px;overflow:hidden">';
+    html += '<div style="width:' + s.pct + '%;height:100%;background:' + s.color + ';border-radius:999px"></div></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#5a7a90;margin-top:0.2rem">' + s.pct + '% of typical corpus</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<div style="background:rgba(0,229,255,0.05);border:1px solid rgba(0,229,255,0.12);border-radius:8px;padding:0.65rem 0.9rem">';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.68rem;color:#5a7a90">💡 <strong style="color:#00E5FF">Key insight:</strong> Quality over quantity. 100 authoritative PDFs beat 10,000 low-quality web pages.</div>';
+  html += '</div>';
+  vp.innerHTML += html;
+}
+
+// ── Phase 1: Loader pipeline flow ──
+function v1(vp, p) {
+  var formats = [
+    {fmt:'PDF (text)',loader:'PyMuPDF',out:'Clean Text',c:'#00FFA3'},
+    {fmt:'PDF (scanned)',loader:'OCR Engine',out:'Text + Conf.',c:'#FFD166'},
+    {fmt:'.docx/.doc',loader:'python-docx',out:'Clean Text',c:'#00E5FF'},
+    {fmt:'.xlsx/.csv',loader:'pandas',out:'Table→Text',c:'#A259FF'},
+    {fmt:'HTML/Web',loader:'BeautifulSoup',out:'Article Text',c:'#FF6B35'},
+    {fmt:'Email .eml',loader:'email lib',out:'Body + Meta',c:'#FF4D9E'}
+  ];
+  var html = '<div style="overflow-x:auto">';
+  html += '<table class="fmatrix"><thead><tr><th>Document Format</th><th>Parser / Loader</th><th>Output</th><th>OCR Needed?</th></tr></thead><tbody>';
+  formats.forEach(function(r) {
+    var ocr = r.fmt.indexOf('scanned') >= 0;
+    html += '<tr><td style="color:' + r.c + '">' + r.fmt + '</td><td>' + r.loader + '</td><td style="color:#6a9aac">' + r.out + '</td>';
+    html += '<td>' + (ocr ? '<span class="tag yes">YES</span>' : '<span class="tag no">NO</span>') + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+
+  html += '<div style="margin-top:0.7rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;padding:0.3rem 0.65rem;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:6px;color:#ff6666">🚨 Scanned PDFs return empty string if you skip OCR detection</div>';
+  html += '</div>';
+  vp.innerHTML += html;
+}
+
+// ── Phase 2: Before / After Cleaning ──
+function v2(vp, p) {
+  var before = 'ANNUAL REPORT 2023  |  CONFIDENTIAL  |  PAGE 12 OF 89\n\nRevenue for Q3 increased by 18% year-over-year.\nThis growth was primarily driven by\xe2\x80\xa6  â€™ strong\nperformance in APAC markets.\n\nANNUAL REPORT 2023  |  CONFIDENTIAL  |  PAGE 12 OF 89';
+  var after = 'Revenue for Q3 increased by 18% year-over-year. This growth was primarily driven by strong performance in APAC markets.';
+
+  var html = '<div class="compare-wrap">';
+  html += '<div class="compare-box">';
+  html += '<div class="compare-title" style="color:#FF6B35">❌ BEFORE Cleaning</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.68rem;line-height:1.65;color:#7a5a4a;background:#0A0810;border-radius:6px;padding:0.65rem;white-space:pre-wrap">' + before + '</div>';
+  html += '</div>';
+  html += '<div class="compare-box">';
+  html += '<div class="compare-title" style="color:#00FFA3">✅ AFTER Cleaning</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.68rem;line-height:1.65;color:#8ac0a0;background:#0A0810;border-radius:6px;padding:0.65rem">' + after + '</div>';
+  html += '</div></div>';
+
+  html += '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;margin-top:0.5rem">';
+  var tags = ['Strip headers/footers','Fix mojibake encoding','Remove page numbers','Collapse whitespace','Keep semantic content'];
+  tags.forEach(function(t) {
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;padding:0.22rem 0.5rem;background:rgba(0,255,163,0.07);border:1px solid rgba(0,255,163,0.18);border-radius:5px;color:#00FFA3">' + t + '</div>';
+  });
+  html += '</div>';
+  vp.innerHTML += html;
+}
+
+// ── Phase 3: Interactive Chunk Demo ──
+function v3(vp, p) {
+  var sampleText = "Retrieval-Augmented Generation (RAG) is a technique that combines information retrieval with language model generation. Instead of relying solely on training data, RAG systems retrieve relevant documents at query time. This allows the model to access up-to-date information and provide more accurate answers. The retrieval component searches a vector database for relevant passages. These passages are then provided as context to the language model. The model generates an answer grounded in the retrieved information.";
+
+  var words = sampleText.split(' ');
+
+  var html = '<div class="slider-wrap">';
+  html += '<div class="slider-row"><span class="slider-label">Chunk size (words)</span>';
+  html += '<input type="range" id="chunk-slider-' + 0 + '" min="8" max="40" value="18" oninput="updateChunkDemo(' + 0 + ')">';
+  html += '<span class="slider-val" id="chunk-val-' + 0 + '">18</span></div>';
+  html += '<div class="slider-row"><span class="slider-label">Overlap (words)</span>';
+  html += '<input type="range" id="overlap-slider-' + 0 + '" min="0" max="12" value="4" oninput="updateChunkDemo(' + 0 + ')">';
+  html += '<span class="slider-val" id="overlap-val-' + 0 + '">4</span></div>';
+  html += '</div>';
+  html += '<div id="chunk-text-demo"></div>';
+  html += '<div id="chunk-stats" style="margin-top:0.5rem;font-family:JetBrains Mono,monospace;font-size:0.68rem;color:#4a6d85"></div>';
+  vp.innerHTML += html;
+
+  // store words for later
+  vp._words = words;
+  vp._idx = 0;
+  setTimeout(function() { updateChunkDemo(0); }, 100);
+}
+
+var CHUNK_COLORS = ['rgba(0,229,255,0.15)','rgba(162,89,255,0.15)','rgba(0,255,163,0.15)','rgba(255,209,102,0.15)','rgba(255,107,53,0.15)','rgba(255,77,158,0.15)'];
+var CHUNK_BORDERS = ['#00E5FF','#A259FF','#00FFA3','#FFD166','#FF6B35','#FF4D9E'];
+
+function updateChunkDemo(idx) {
+  var slider = el('chunk-slider-0'), oslider = el('overlap-slider-0');
+  if (!slider) return;
+  var csize = parseInt(slider.value), overlap = parseInt(oslider.value);
+  el('chunk-val-0').textContent = csize;
+  el('overlap-val-0').textContent = overlap;
+
+  var vp = el('vp3');
+  var words = vp._words;
+  var step = Math.max(1, csize - overlap);
+  var chunks = [];
+  for (var start = 0; start < words.length; start += step) {
+    chunks.push({start:start, end:Math.min(start+csize, words.length)});
+    if (start + csize >= words.length) break;
+  }
+
+  var demo = el('chunk-text-demo');
+  if (!demo) return;
+  var html = '';
+  var wordChunkMap = {};
+  for (var ci = 0; ci < chunks.length; ci++) {
+    for (var wi = chunks[ci].start; wi < chunks[ci].end; wi++) {
+      if (!wordChunkMap[wi]) wordChunkMap[wi] = [];
+      wordChunkMap[wi].push(ci);
+    }
+  }
+
+  for (var wi = 0; wi < words.length; wi++) {
+    var cis = wordChunkMap[wi] || [];
+    var ci2 = cis[0];
+    var isOverlap = cis.length > 1;
+    var color = ci2 !== undefined ? CHUNK_COLORS[ci2 % CHUNK_COLORS.length] : 'transparent';
+    var borderBottom = ci2 !== undefined ? '2px solid ' + CHUNK_BORDERS[ci2 % CHUNK_BORDERS.length] : 'none';
+    if (isOverlap) {
+      color = 'rgba(255,255,255,0.12)';
+      borderBottom = '2px dashed rgba(255,255,255,0.3)';
+    }
+    html += '<span style="background:' + color + ';border-bottom:' + borderBottom + ';padding:2px 0;margin-right:3px">' + words[wi] + '</span> ';
+  }
+
+  demo.innerHTML = html;
+  var stats = el('chunk-stats');
+  if (stats) {
+    stats.innerHTML = '📦 <strong style="color:#00E5FF">' + chunks.length + ' chunks</strong> created · <strong style="color:#FFD166">' + csize + '</strong> words per chunk · <strong style="color:#A259FF">' + overlap + '</strong> word overlap · dashed = overlap region';
+  }
+}
+
+// ── Phase 4: Embedding Model Comparison Bar Chart ──
+function v4(vp, p) {
+  var models = [
+    {name:'text-embedding-3-large',score:64.6,dim:3072,color:'#00E5FF',type:'API'},
+    {name:'text-embedding-3-small',score:62.3,dim:1536,color:'#4D9EFF',type:'API'},
+    {name:'BAAI/bge-large-en-v1.5',score:63.6,dim:1024,color:'#00FFA3',type:'Local'},
+    {name:'intfloat/e5-large-v2',score:62.2,dim:1024,color:'#A259FF',type:'Local'},
+    {name:'Cohere embed-english-v3',score:64.5,dim:1024,color:'#FF6B35',type:'API'},
+    {name:'all-MiniLM-L6-v2',score:56.3,dim:384,color:'#FF4D9E',type:'Local'},
+  ];
+
+  var html = '<div style="margin-bottom:0.5rem"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem"><span style="font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;color:#5a7a90">MTEB Retrieval Score (%)</span><div style="display:flex;gap:0.6rem"><span style="font-family:JetBrains Mono,monospace;font-size:0.6rem;padding:0.18rem 0.45rem;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.2);border-radius:4px;color:#00E5FF">API</span><span style="font-family:JetBrains Mono,monospace;font-size:0.6rem;padding:0.18rem 0.45rem;background:rgba(0,255,163,0.08);border:1px solid rgba(0,255,163,0.2);border-radius:4px;color:#00FFA3">Local</span></div></div>';
+  var maxScore = 66;
+  models.forEach(function(m) {
+    var pct = (m.score / maxScore * 100).toFixed(0);
+    html += '<div class="score-bar-row">';
+    html += '<div class="score-bar-label">' + m.name + '</div>';
+    html += '<div class="score-bar-track"><div class="score-bar-fill" style="width:' + pct + '%;background:' + m.color + ';box-shadow:0 0 6px ' + h2r(m.color,0.4) + '"></div></div>';
+    html += '<div class="score-bar-val">' + m.score.toFixed(1) + '</div>';
+    html += '<span class="tag ' + (m.type === 'API' ? 'partial' : 'yes') + '" style="margin-left:0.4rem;font-size:0.58rem">' + m.type + '</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;color:#3a5a6a;margin-top:0.4rem">Source: MTEB Leaderboard (huggingface.co/spaces/mteb/leaderboard) · Retrieval track average</div>';
+  vp.innerHTML += html;
+
+  // 2D semantic space mini-viz
+  html = '<div style="margin-top:0.8rem"><div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">2D Semantic Space (conceptual)</div>';
+  html += '<div style="position:relative;background:rgba(0,0,0,0.3);border:1px solid rgba(0,229,255,0.08);border-radius:9px;height:130px;overflow:hidden">';
+
+  var clusters = [
+    {label:'Dogs / Pets',x:20,y:25,color:'#00FFA3',dots:[[18,22],[24,28],[16,35],[28,20]]},
+    {label:'Cats / Animals',x:35,y:40,color:'#00FFA3',dots:[[32,38],[40,42],[36,50],[38,35]]},
+    {label:'Rocket Science',x:75,y:20,color:'#FF6B35',dots:[[72,18],[80,22],[76,30],[70,25]]},
+    {label:'Medicine',x:72,y:65,color:'#FF4D9E',dots:[[68,62],[76,68],[72,72],[78,60]]},
+    {label:'Your Query\n"pet food"',x:28,y:32,color:'#FFD166',star:true,dots:[]},
+  ];
+
+  // draw cluster backgrounds
+  clusters.forEach(function(cl) {
+    if (!cl.star) {
+      html += '<div style="position:absolute;width:50px;height:40px;border-radius:50%;background:' + h2r(cl.color,0.06) + ';border:1px solid ' + h2r(cl.color,0.15) + ';left:' + (cl.x-8) + '%;top:' + (cl.y-8) + '%;transform:translate(-50%,-50%)"></div>';
+    }
+  });
+
+  // draw retrieval lines from query
+  clusters.forEach(function(cl) {
+    if (!cl.star && (cl.color === '#00FFA3')) {
+      html += '<div style="position:absolute;pointer-events:none" id="rag-line-' + cl.label + '"></div>';
+    }
+  });
+
+  // draw dots
+  clusters.forEach(function(cl) {
+    if (cl.star) {
+      html += '<div style="position:absolute;left:' + cl.x + '%;top:' + cl.y + '%;transform:translate(-50%,-50%);font-size:1.1rem;z-index:5" title="Your query">❓</div>';
+      html += '<div style="position:absolute;left:' + cl.x + '%;top:' + (cl.y+12) + '%;transform:translate(-50%,-50%);font-family:JetBrains Mono,monospace;font-size:0.58rem;color:' + cl.color + ';white-space:nowrap;z-index:5">' + cl.label + '</div>';
+    } else {
+      cl.dots.forEach(function(d) {
+        html += '<div style="position:absolute;left:' + d[0] + '%;top:' + d[1] + '%;width:7px;height:7px;border-radius:50%;background:' + cl.color + ';transform:translate(-50%,-50%);opacity:0.8"></div>';
+      });
+      html += '<div style="position:absolute;left:' + cl.x + '%;top:' + (cl.y + 12) + '%;font-family:JetBrains Mono,monospace;font-size:0.58rem;color:' + cl.color + ';opacity:0.7;transform:translateX(-50%);white-space:nowrap">' + cl.label + '</div>';
+    }
+  });
+
+  // draw dashed line from query to nearby clusters
+  html += '<svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">';
+  html += '<line x1="28%" y1="32%" x2="20%" y2="25%" stroke="#FFD166" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>';
+  html += '<line x1="28%" y1="32%" x2="35%" y2="40%" stroke="#FFD166" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>';
+  html += '<text x="50%" y="95%" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="rgba(90,110,120,0.8)">← Similar meaning = closer distance →</text>';
+  html += '</svg></div></div>';
+
+  vp.innerHTML += html;
+}
+
+// ── Phase 5: Vector DB Comparison ──
+function v5(vp, p) {
+  var dbs = [
+    {name:'FAISS',managed:'❌',filter:'⚠️',hybrid:'❌',scale:'~10M',latency:'<1ms',best:'Prototyping',color:'#00E5FF'},
+    {name:'Chroma',managed:'❌',filter:'✅',hybrid:'❌',scale:'~1M',latency:'1–5ms',best:'Development',color:'#00FFA3'},
+    {name:'Qdrant',managed:'Self',filter:'✅✅',hybrid:'✅',scale:'~100M',latency:'1–10ms',best:'Production',color:'#A259FF'},
+    {name:'Pinecone',managed:'✅✅',filter:'✅',hybrid:'✅',scale:'1B+',latency:'20–80ms',best:'Cloud / SaaS',color:'#FFD166'},
+    {name:'pgvector',managed:'Self',filter:'✅✅',hybrid:'✅',scale:'~5M',latency:'5–20ms',best:'Existing Postgres',color:'#FF6B35'},
+  ];
+
+  var html = '<div style="overflow-x:auto;margin-bottom:0.8rem">';
+  html += '<table class="fmatrix"><thead><tr><th>Vector DB</th><th>Managed</th><th>Metadata Filter</th><th>Hybrid Search</th><th>Max Scale</th><th>Query Latency</th><th>Best For</th></tr></thead><tbody>';
+  dbs.forEach(function(d) {
+    html += '<tr><td style="color:' + d.color + ';font-weight:600">' + d.name + '</td><td>' + d.managed + '</td><td>' + d.filter + '</td><td>' + d.hybrid + '</td>';
+    html += '<td style="color:#6a9aac;font-size:0.68rem">' + d.scale + '</td>';
+    html += '<td style="color:#6a9aac;font-size:0.68rem">' + d.latency + '</td>';
+    html += '<td style="color:#8a9aaa;font-size:0.68rem">' + d.best + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+
+  // HNSW vs Flat latency bar chart
+  html += '<div style="margin-top:0.5rem"><div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.55rem">Query Latency: Flat (Brute Force) vs HNSW by Corpus Size</div>';
+  var data = [
+    {size:'10K vectors',flat:2,hnsw:1},
+    {size:'100K vectors',flat:12,hnsw:2},
+    {size:'1M vectors',flat:120,hnsw:5},
+    {size:'10M vectors',flat:1200,hnsw:12},
+  ];
+  data.forEach(function(d) {
+    var maxMs = 1200;
+    var flatW = Math.min(100, d.flat / maxMs * 100);
+    var hnswW = Math.min(100, d.hnsw / maxMs * 100);
+    html += '<div style="margin-bottom:0.5rem">';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;color:#5a7a90;margin-bottom:0.2rem">' + d.size + '</div>';
+    html += '<div style="display:flex;gap:0.4rem;align-items:center;margin-bottom:0.12rem">';
+    html += '<div style="width:55px;font-family:JetBrains Mono,monospace;font-size:0.6rem;color:#FF6B35">Flat</div>';
+    html += '<div style="flex:1;background:rgba(0,0,0,0.3);border-radius:999px;height:8px;overflow:hidden">';
+    html += '<div style="width:' + flatW + '%;height:100%;background:#FF6B35;border-radius:999px"></div></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.6rem;color:#FF6B35;min-width:45px;text-align:right">' + d.flat + 'ms</div></div>';
+    html += '<div style="display:flex;gap:0.4rem;align-items:center">';
+    html += '<div style="width:55px;font-family:JetBrains Mono,monospace;font-size:0.6rem;color:#00FFA3">HNSW</div>';
+    html += '<div style="flex:1;background:rgba(0,0,0,0.3);border-radius:999px;height:8px;overflow:hidden">';
+    html += '<div style="width:' + hnswW + '%;height:100%;background:#00FFA3;border-radius:999px"></div></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.6rem;color:#00FFA3;min-width:45px;text-align:right">' + d.hnsw + 'ms</div></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  vp.innerHTML += html;
+}
+
+// ── Phase 6: Query flow diagram ──
+function v6(vp, p) {
+  var html = '<div style="display:flex;flex-direction:column;gap:0.6rem">';
+  var steps2 = [
+    {icon:'⌨️',label:'Raw User Input',desc:'"What about its cost last year?"',color:'#FF4D9E'},
+    {icon:'🔍',label:'Validate & Sanitize',desc:'Not empty · ≤1000 tokens · No injections',color:'#FFD166'},
+    {icon:'💬',label:'Add Conversation History',desc:'[user: "Tell me about Product X"] [assistant: "..."] [user: current query]',color:'#A259FF'},
+    {icon:'🏷️',label:'Classify Intent',desc:'factual_lookup → small-k retrieval',color:'#00E5FF'},
+    {icon:'🎯',label:'Extract Metadata Filters',desc:'{year: 2023, topic: "cost"} → pre-filter vector search',color:'#00FFA3'},
+    {icon:'→',label:'Pass to Query Transformer',desc:'Clean, classified, contextualized query ready',color:'#FF6B35'},
+  ];
+  steps2.forEach(function(s, i) {
+    html += '<div style="display:flex;align-items:center;gap:0.65rem">';
+    html += '<div style="width:28px;height:28px;border-radius:50%;background:' + h2r(s.color,0.12) + ';border:1.5px solid ' + h2r(s.color,0.35) + ';display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0">' + s.icon + '</div>';
+    html += '<div style="flex:1;background:rgba(0,0,0,0.2);border:1px solid ' + h2r(s.color,0.15) + ';border-radius:7px;padding:0.45rem 0.7rem">';
+    html += '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.75rem;color:' + s.color + ';margin-bottom:0.15rem">' + s.label + '</div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:#5a7a90">' + s.desc + '</div></div>';
+    html += '</div>';
+    if (i < steps2.length - 1) {
+      html += '<div style="margin-left:14px;width:2px;height:10px;background:rgba(90,120,140,0.3);margin-top:-2px;margin-bottom:-2px"></div>';
+    }
+  });
+  html += '</div>';
+  vp.innerHTML += html;
+}
+
+// ── Phase 7: Query Transformation Comparison ──
+function v7(vp, p) {
+  var html = '<div class="compare-wrap">';
+
+  // standard retrieval
+  html += '<div class="compare-box">';
+  html += '<div class="compare-title" style="color:#FF6B35">❌ Standard Retrieval</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.7rem;line-height:1.7;color:#7a6a5a">';
+  html += 'Query: "What about its performance?"<br><br>';
+  html += '<span style="color:#FF4444">Problem:</span> "its" is unresolved.<br>';
+  html += 'Embedding ≠ any doc about<br>the product from prior turn.<br><br>';
+  html += '<span style="color:#FF4444">Recall@5: ~0.3</span> ❌';
+  html += '</div></div>';
+
+  // hyde
+  html += '<div class="compare-box">';
+  html += '<div class="compare-title" style="color:#00FFA3">✅ With Rewriting + HyDE</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.7rem;line-height:1.7;color:#6a8a6a">';
+  html += 'Rewritten: "What is the performance<br>of Product X?"<br><br>';
+  html += 'HyDE: <em style="color:#FFD166">"Product X achieves 94ms<br>p99 latency under..."</em><br><br>';
+  html += 'Search → finds performance docs<br><br>';
+  html += '<span style="color:#00FFA3">Recall@5: ~0.82</span> ✅';
+  html += '</div></div>';
+  html += '</div>';
+
+  // RRF formula
+  html += '<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(0,229,255,0.1);border-radius:8px;padding:0.7rem 0.9rem;margin-top:0.3rem">';
+  html += '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;color:#5a7a90;margin-bottom:0.4rem">Reciprocal Rank Fusion (RRF) — for Multi-Query merging</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.78rem;color:#A259FF;text-align:center;padding:0.4rem">score(d) = Σ 1 / (rank<sub>i</sub> + 60) across all query variants</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#4a6a7a;margin-top:0.3rem">k=60 is a robust default that prevents rank-1 from dominating. Higher rank = lower score.</div>';
+  html += '</div>';
+  vp.innerHTML += html;
+}
+
+// ── Phase 8: Similarity score bars ──
+function v8(vp, p) {
+  var docs = [
+    {title:'Product X Performance Benchmark 2023',score:0.91,relevant:true},
+    {title:'Product X Architecture Overview',score:0.87,relevant:true},
+    {title:'Product Y Performance Specs',score:0.79,relevant:false},
+    {title:'Company HR Leave Policy 2023',score:0.71,relevant:false},
+    {title:'Product X User Manual v2',score:0.68,relevant:true},
+    {title:'Office Supplies Purchase Order',score:0.61,relevant:false},
+  ];
+
+  var html = '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.6rem">Dense Retrieval — Cosine Similarity Scores</div>';
+
+  docs.forEach(function(d, i) {
+    var pct = d.score * 100;
+    var color = d.score > 0.85 ? '#00FFA3' : d.score > 0.75 ? '#FFD166' : '#FF6B35';
+    html += '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.38rem">';
+    html += '<div style="font-size:0.75rem">' + (d.relevant ? '✅' : '❌') + '</div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.67rem;color:' + (d.relevant ? '#8ab8a0' : '#7a6060') + ';min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.title + '</div>';
+    html += '<div style="width:120px;height:9px;background:rgba(0,0,0,0.3);border-radius:999px;overflow:hidden;flex-shrink:0">';
+    html += '<div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:999px;box-shadow:0 0 5px ' + h2r(color,0.4) + '"></div></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.67rem;color:' + color + ';min-width:35px;text-align:right">' + d.score.toFixed(2) + '</div>';
+    html += '</div>';
+  });
+
+  html += '<div style="display:flex;align-items:center;gap:1.2rem;margin-top:0.6rem;flex-wrap:wrap">';
+  html += '<div style="display:flex;align-items:center;gap:0.35rem"><div style="width:12px;height:3px;background:#00FFA3;border-radius:2px"></div><span style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#5a7a90">>0.85 Very Relevant</span></div>';
+  html += '<div style="display:flex;align-items:center;gap:0.35rem"><div style="width:12px;height:3px;background:#FFD166;border-radius:2px"></div><span style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#5a7a90">0.75–0.85 Relevant</span></div>';
+  html += '<div style="display:flex;align-items:center;gap:0.35rem"><div style="width:12px;height:3px;background:#FF6B35;border-radius:2px"></div><span style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#5a7a90"><0.75 Check threshold</span></div>';
+  html += '</div>';
+
+  html += '<div style="margin-top:0.6rem;padding:0.5rem 0.75rem;background:rgba(255,107,53,0.07);border:1px solid rgba(255,107,53,0.18);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:0.67rem;color:#c09070">';
+  html += '⚠️ Note: Doc "Product X User Manual" (score 0.68) is relevant but scored low — this is why re-ranking exists. It may score much higher as a cross-encoder pair with the query.';
+  html += '</div>';
+
+  vp.innerHTML += html;
+}
+
+// ── Phase 9: Re-ranking before/after ──
+function v9(vp, p) {
+  var html = '<div class="compare-wrap">';
+
+  var before = [
+    {rank:1,title:'Product X Architecture Overview',score:'0.87',bi:true,cross:false},
+    {rank:2,title:'Product Y Performance Specs',score:'0.79',bi:false,cross:false},
+    {rank:3,title:'Company HR Leave Policy',score:'0.71',bi:false,cross:false},
+    {rank:4,title:'Product X User Manual v2',score:'0.68',bi:true,cross:false},
+    {rank:5,title:'Product X Performance Benchmark',score:'0.91 ↑',bi:true,cross:false},
+  ];
+
+  var after = [
+    {rank:1,title:'Product X Performance Benchmark',score:'0.97',bi:true,cross:true},
+    {rank:2,title:'Product X Architecture Overview',score:'0.88',bi:true,cross:true},
+    {rank:3,title:'Product X User Manual v2',score:'0.76',bi:true,cross:true},
+    {rank:4,title:'Product Y Performance Specs',score:'0.21',bi:false,cross:false},
+    {rank:5,title:'Company HR Leave Policy',score:'0.04',bi:false,cross:false},
+  ];
+
+  function makeList(items, title, tc) {
+    var h = '<div class="compare-box"><div class="compare-title" style="color:' + tc + '">' + title + '</div>';
+    items.forEach(function(d) {
+      h += '<div style="display:flex;align-items:center;gap:0.45rem;margin-bottom:0.35rem;padding:0.3rem 0.4rem;border-radius:5px;background:' + (d.bi && d.cross ? 'rgba(0,255,163,0.06)' : d.bi ? 'rgba(255,209,102,0.04)' : 'rgba(255,68,68,0.04)') + '">';
+      h += '<div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;color:#5a7a90;min-width:14px">#' + d.rank + '</div>';
+      h += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + (d.bi ? '#9abcaa' : '#7a7070') + '">' + d.title + '</div>';
+      h += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:' + (d.cross ? '#00FFA3' : d.bi ? '#FFD166' : '#5a5050') + '">' + d.score + '</div>';
+      h += '</div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  html += makeList(before, '🔵 Bi-Encoder (Retrieval)', '#4D9EFF');
+  html += makeList(after, '✅ Cross-Encoder (Re-ranked)', '#00FFA3');
+  html += '</div>';
+
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:#5a7a90;margin-top:0.4rem">';
+  html += '📌 The highest-scoring bi-encoder result (0.91) was ranked #5! Re-ranking moved it to #1 by jointly reading query + document together.';
+  html += '</div>';
+
+  vp.innerHTML += html;
+}
+
+// ── Phase 10: Context window token budget ──
+function v10(vp, p) {
+  var segments = [
+    {label:'System Prompt',tokens:480,color:'#A259FF',desc:'Role + instructions'},
+    {label:'Conversation History',tokens:380,color:'#FFD166',desc:'Last 4 turns'},
+    {label:'Retrieved Chunk #1',tokens:510,color:'#00E5FF',desc:'Most relevant'},
+    {label:'Retrieved Chunk #2',tokens:495,color:'#4D9EFF',desc:'2nd ranked'},
+    {label:'Retrieved Chunk #3',tokens:488,color:'#00FFA3',desc:'3rd ranked'},
+    {label:'User Query',tokens:42,color:'#FF4D9E',desc:'Current question'},
+    {label:'Reserved for Response',tokens:1000,color:'#FF6B35',desc:'max_tokens budget'},
+    {label:'🔓 Available',tokens:205,color:'rgba(255,255,255,0.15)',desc:'Remaining headroom'},
+  ];
+
+  var total = 0;
+  segments.forEach(function(s) { total += s.tokens; });
+  var modelMax = 4096;
+
+  var html = '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Context Window Budget (GPT-3.5 — 4096 token limit)</div>';
+
+  // stacked bar
+  html += '<div style="background:rgba(0,0,0,0.35);border-radius:8px;overflow:hidden;height:28px;display:flex;margin-bottom:0.65rem">';
+  segments.forEach(function(s) {
+    var w = (s.tokens / modelMax * 100).toFixed(1);
+    html += '<div style="width:' + w + '%;height:100%;background:' + s.color + ';position:relative" title="' + s.label + ': ' + s.tokens + ' tokens"></div>';
+  });
+  html += '</div>';
+
+  // legend
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.3rem">';
+  segments.forEach(function(s) {
+    var w = (s.tokens / modelMax * 100).toFixed(0);
+    html += '<div style="display:flex;align-items:center;gap:0.45rem">';
+    html += '<div style="width:10px;height:10px;border-radius:2px;background:' + s.color + ';flex-shrink:0"></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#6a8898">' + s.label + ': <strong style="color:#9ab0bc">' + s.tokens + '</strong> <span style="opacity:0.6">(' + w + '%)</span></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  html += '<div style="margin-top:0.6rem;padding:0.5rem 0.7rem;background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.15);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:0.65rem;color:#b08070">';
+  html += '⚠️ Only 205 tokens of headroom left. If you add a 4th chunk or longer history, you\'ll overflow. Drop least-relevant chunks first.';
+  html += '</div>';
+
+  vp.innerHTML += html;
+}
+
+// ── Phase 11: Prompt anatomy ──
+function v11(vp, p) {
+  var layers = [
+    {layer:'SYSTEM PROMPT',color:'#A259FF',tokens:'~400 tokens',content:'Role + grounding constraint + uncertainty handling + citation format'},
+    {layer:'CONTEXT BLOCK',color:'#00E5FF',tokens:'~1,500 tokens',content:'--- Source [1]: filename.pdf, Page 12 ---\n{chunk_1_text}\n--- Source [2]: policy.docx ---\n{chunk_2_text}'},
+    {layer:'CONVERSATION HISTORY',color:'#FFD166',tokens:'~300 tokens',content:'[user]: Previous question\n[assistant]: Previous answer [1]'},
+    {layer:'CURRENT QUERY',color:'#FF4D9E',tokens:'~50 tokens',content:'Based ONLY on the context above, answer:\n{user_question}'},
+  ];
+
+  var html = '<div style="display:flex;flex-direction:column;gap:0.5rem">';
+  layers.forEach(function(l, i) {
+    html += '<div style="border:1px solid ' + h2r(l.color,0.3) + ';border-radius:8px;overflow:hidden">';
+    html += '<div style="background:' + h2r(l.color,0.1) + ';padding:0.4rem 0.75rem;display:flex;justify-content:space-between;align-items:center">';
+    html += '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;color:' + l.color + '">' + l.layer + '</div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.6rem;color:' + h2r(l.color,0.7) + '">' + l.tokens + '</div>';
+    html += '</div>';
+    html += '<div style="padding:0.5rem 0.75rem;font-family:JetBrains Mono,monospace;font-size:0.66rem;color:#6a8898;white-space:pre-wrap">' + l.content + '</div>';
+    html += '</div>';
+    if (i < layers.length - 1) {
+      html += '<div style="text-align:center;color:#4a6a7a;font-size:0.8rem">↓</div>';
+    }
+  });
+  html += '</div>';
+  vp.innerHTML += html;
+}
+
+// ── Phase 12: LLM Cost vs Quality scatter ──
+function v12(vp, p) {
+  var models = [
+    {name:'GPT-4o',quality:96,cost:15,color:'#00E5FF',speed:'Med'},
+    {name:'GPT-4o-mini',quality:88,cost:0.6,color:'#4D9EFF',speed:'Fast'},
+    {name:'Claude claude-sonnet-4-20250514',quality:95,cost:15,color:'#A259FF',speed:'Med'},
+    {name:'Claude Haiku',quality:82,cost:0.8,color:'#FF4D9E',speed:'Fast'},
+    {name:'Llama-3 70B',quality:85,cost:0,color:'#00FFA3',speed:'Med'},
+    {name:'Llama-3 8B',quality:72,cost:0,color:'#FFD166',speed:'Fast'},
+    {name:'Mixtral 8x7B',quality:79,cost:0.2,color:'#FF6B35',speed:'Med'},
+  ];
+
+  var html = '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.65rem">LLM Selection — Quality vs Cost (Output tokens per $1M)</div>';
+
+  // horizontal bar chart grouped
+  models.forEach(function(m) {
+    var qPct = m.quality;
+    var costLabel = m.cost === 0 ? 'Free' : '$' + m.cost + '/M';
+    var costColor = m.cost === 0 ? '#00FFA3' : m.cost < 2 ? '#FFD166' : '#FF6B35';
+    html += '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.38rem">';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:' + m.color + ';width:130px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + m.name + '</div>';
+    html += '<div style="flex:1;background:rgba(0,0,0,0.3);border-radius:999px;height:9px;overflow:hidden">';
+    html += '<div style="width:' + qPct + '%;height:100%;background:' + m.color + ';border-radius:999px;opacity:0.85"></div></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;color:' + m.color + ';min-width:30px;text-align:right">' + m.quality + '</div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:' + costColor + ';min-width:55px;text-align:right">' + costLabel + '</div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.58rem;color:#4a6a7a;min-width:30px;text-align:right">' + m.speed + '</div>';
+    html += '</div>';
+  });
+
+  html += '<div style="display:flex;gap:1rem;margin-top:0.5rem;font-family:JetBrains Mono,monospace;font-size:0.62rem">';
+  html += '<span style="color:#5a7a90">Bar = Quality score</span>';
+  html += '<span style="color:#00FFA3">Free = Local/Open Source</span>';
+  html += '<span style="color:#FFD166">Yellow = Low cost API</span>';
+  html += '<span style="color:#FF6B35">Orange = Premium API</span>';
+  html += '</div>';
+
+  html += '<div style="margin-top:0.65rem;padding:0.5rem 0.7rem;background:rgba(0,229,255,0.05);border:1px solid rgba(0,229,255,0.12);border-radius:7px;font-family:JetBrains Mono,monospace;font-size:0.65rem;color:#6a9aac">';
+  html += '💡 <strong style="color:#00E5FF">Sweet spot for most RAG:</strong> GPT-4o-mini — 88% of GPT-4o quality at ~3% of the cost.';
+  html += '</div>';
+
+  vp.innerHTML += html;
+}
+
+// ── Phase 13: Faithfulness meter ──
+function v13(vp, p) {
+  var metrics = [
+    {label:'Faithfulness',val:0.82,desc:'Claims supported by context',color:'#00FFA3'},
+    {label:'Answer Relevancy',val:0.91,desc:'Addresses the question',color:'#00E5FF'},
+    {label:'Context Precision',val:0.74,desc:'Retrieved context is relevant',color:'#FFD166'},
+    {label:'Context Recall',val:0.88,desc:'All key facts retrieved',color:'#A259FF'},
+    {label:'Answer Correctness',val:0.79,desc:'Match to ground truth',color:'#FF6B35'},
+  ];
+
+  var html = '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.65rem">Post-Processing Quality Checks</div>';
+
+  // faithfulness example
+  html += '<div class="compare-wrap" style="margin-bottom:0.7rem">';
+  html += '<div class="compare-box"><div class="compare-title" style="color:#00E5FF">📄 Retrieved Context</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:#6a9aac;line-height:1.65">';
+  html += '"Product X was launched in Q2 2022. It achieved 50ms average latency."</div></div>';
+
+  html += '<div class="compare-box"><div class="compare-title" style="color:#00FFA3">✅ Faithful Answer</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:#6a9a7a;line-height:1.65">';
+  html += '"Product X launched in Q2 2022 [1] and achieves 50ms average latency [1]."</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#00FFA3;margin-top:0.3rem">All claims in context ✅</div></div>';
+  html += '</div>';
+
+  html += '<div class="compare-box" style="margin-bottom:0.7rem"><div class="compare-title" style="color:#FF4444">❌ Hallucinated Answer</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:#9a6a6a;line-height:1.65">';
+  html += '"Product X launched in Q2 2022 and achieves <span style="color:#FF6B35;text-decoration:underline">30ms</span> latency, <span style="color:#FF6B35;text-decoration:underline">winning 5 industry awards</span>."</div>';
+  html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#FF4444;margin-top:0.3rem">❌ "30ms" is wrong. "5 awards" not in context at all.</div>';
+  html += '</div>';
+
+  html += '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Faithfulness Score by Response Type</div>';
+  var types = [
+    {label:'Grounded, cited answer',score:0.95,color:'#00FFA3'},
+    {label:'Partial grounding',score:0.72,color:'#FFD166'},
+    {label:'Ungrounded / hallucinated',score:0.21,color:'#FF4444'},
+  ];
+  types.forEach(function(t) {
+    var pct = t.score * 100;
+    html += '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.35rem">';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:#8a9aaa;flex:1">' + t.label + '</div>';
+    html += '<div style="width:110px;height:8px;background:rgba(0,0,0,0.3);border-radius:999px;overflow:hidden">';
+    html += '<div style="width:' + pct + '%;height:100%;background:' + t.color + ';border-radius:999px"></div></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:' + t.color + ';min-width:30px;text-align:right">' + (t.score*100).toFixed(0) + '%</div>';
+    html += '</div>';
+  });
+  vp.innerHTML += html;
+}
+
+// ── Phase 14: RAGAS Dashboard ──
+function v14(vp, p) {
+  var metrics = [
+    {label:'Faithfulness',val:0.82,target:0.90,color:'#00FFA3'},
+    {label:'Answer Relevancy',val:0.91,target:0.85,color:'#00E5FF'},
+    {label:'Context Precision',val:0.74,target:0.80,color:'#FFD166'},
+    {label:'Context Recall',val:0.88,target:0.85,color:'#A259FF'},
+    {label:'Answer Correctness',val:0.79,target:0.80,color:'#FF6B35'},
+  ];
+
+  var html = '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.65rem">RAGAS Evaluation Dashboard</div>';
+
+  metrics.forEach(function(m) {
+    var pct = m.val * 100;
+    var tPct = m.target * 100;
+    var ok = m.val >= m.target;
+    html += '<div style="margin-bottom:0.6rem">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.22rem">';
+    html += '<div style="font-family:Syne,sans-serif;font-weight:600;font-size:0.76rem;color:' + m.color + '">' + m.label + '</div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.68rem;color:' + (ok?'#00FFA3':'#FF6B35') + '">' + m.val.toFixed(2) + ' ' + (ok?'✅':'⚠️') + ' (target: ' + m.target.toFixed(2) + ')</div>';
+    html += '</div>';
+    html += '<div style="position:relative;background:rgba(0,0,0,0.35);border-radius:999px;height:12px;overflow:visible">';
+    html += '<div style="position:absolute;top:0;left:0;height:100%;width:' + pct + '%;background:' + m.color + ';border-radius:999px;transition:width 0.9s ease;opacity:0.85"></div>';
+    // target line
+    html += '<div style="position:absolute;top:-3px;left:' + tPct + '%;width:2px;height:18px;background:rgba(255,255,255,0.3);border-radius:1px"></div>';
+    html += '</div>';
+    html += '</div>';
+  });
+
+  html += '<div style="margin-top:0.3rem;font-family:JetBrains Mono,monospace;font-size:0.62rem;color:#3a5a6a">Vertical line = target threshold · Run RAGAS after every significant pipeline change</div>';
+
+  // latency breakdown
+  html += '<div style="margin-top:0.8rem;font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Typical Query Latency Breakdown</div>';
+  var stages = [
+    {name:'Embed Query',ms:45,color:'#A259FF'},
+    {name:'ANN Search',ms:8,color:'#00E5FF'},
+    {name:'Re-ranking',ms:180,color:'#FFD166'},
+    {name:'Context Assembly',ms:5,color:'#00FFA3'},
+    {name:'LLM (time-to-first-token)',ms:320,color:'#FF6B35'},
+    {name:'LLM (stream rest)',ms:1200,color:'#FF4D9E'},
+  ];
+  var totalMs = 0;
+  stages.forEach(function(s) { totalMs += s.ms; });
+
+  html += '<div style="background:rgba(0,0,0,0.3);border-radius:7px;overflow:hidden;height:22px;display:flex;margin-bottom:0.5rem">';
+  stages.forEach(function(s) {
+    var w = (s.ms / totalMs * 100).toFixed(1);
+    html += '<div style="width:' + w + '%;height:100%;background:' + s.color + ';position:relative" title="' + s.name + ': ' + s.ms + 'ms"></div>';
+  });
+  html += '</div>';
+
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.25rem">';
+  stages.forEach(function(s) {
+    html += '<div style="display:flex;align-items:center;gap:0.35rem">';
+    html += '<div style="width:8px;height:8px;border-radius:2px;background:' + s.color + ';flex-shrink:0"></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.6rem;color:#6a8898">' + s.name + ': <strong style="color:#8aaabb">' + s.ms + 'ms</strong></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  html += '<div style="margin-top:0.4rem;font-family:JetBrains Mono,monospace;font-size:0.65rem;color:#00E5FF">Total: ~' + totalMs + 'ms (' + (totalMs/1000).toFixed(1) + 's) — LLM streaming dominates latency</div>';
+
+  vp.innerHTML += html;
+}
+
+// ── Phase 15: Flywheel ──
+function v15(vp, p) {
+  var html = '<svg viewBox="0 0 500 250" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:0 auto 0.8rem">';
+
+  // Central circle
+  html += '<circle cx="250" cy="125" r="50" fill="rgba(0,229,255,0.07)" stroke="rgba(0,229,255,0.3)" stroke-width="1.5"/>';
+  html += '<text x="250" y="119" text-anchor="middle" font-family="Syne,sans-serif" font-weight="800" font-size="13" fill="#00E5FF">RAG</text>';
+  html += '<text x="250" y="134" text-anchor="middle" font-family="Syne,sans-serif" font-weight="700" font-size="10" fill="rgba(0,229,255,0.6)">SYSTEM</text>';
+
+  // Flywheel nodes
+  var nodes = [
+    {label:'User\nFeedback',x:250,y:22,color:'#FF4D9E',angle:-90},
+    {label:'Failure\nAnalysis',x:440,y:80,color:'#FFD166',angle:0},
+    {label:'Index\nUpdate',x:420,y:195,color:'#00FFA3',angle:60},
+    {label:'Re-rank\nImprove',x:250,y:240,color:'#A259FF',angle:120},
+    {label:'Embed\nFine-tune',x:80,y:195,color:'#FF6B35',angle:180},
+    {label:'Prompt\nTuning',x:60,y:80,color:'#00E5FF',angle:240},
+  ];
+
+  // Draw curved arrows
+  var cx = 250, cy = 125, r = 95;
+  for (var ni = 0; ni < nodes.length; ni++) {
+    var next = nodes[(ni+1) % nodes.length];
+    var nx = nodes[ni]; var nn = next;
+    html += '<path d="M ' + nx.x + ' ' + nx.y + ' Q ' + cx + ' ' + cy + ' ' + nn.x + ' ' + nn.y + '"';
+    html += ' fill="none" stroke="' + h2r(nx.color,0.25) + '" stroke-width="1.5" stroke-dasharray="4,3"/>';
+  }
+
+  nodes.forEach(function(n) {
+    html += '<circle cx="' + n.x + '" cy="' + n.y + '" r="28" fill="rgba(7,24,40,0.9)" stroke="' + n.color + '" stroke-opacity="0.45" stroke-width="1.5"/>';
+    var lines = n.label.split('\n');
+    lines.forEach(function(l, li) {
+      html += '<text x="' + n.x + '" y="' + (n.y + (li===0 ? -4 : 8)) + '" text-anchor="middle"';
+      html += ' font-family="Syne,sans-serif" font-weight="700" font-size="8.5" fill="' + n.color + '">' + l + '</text>';
+    });
+  });
+
+  // Rotation arrow
+  html += '<path d="M 250 75 A 50 50 0 0 1 295 100" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="2" marker-end="url(#arr)"/>';
+  html += '<defs><marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="rgba(0,229,255,0.5)"/></marker></defs>';
+
+  html += '<text x="250" y="270" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="rgba(90,120,140,0.7)">Continuous Improvement Flywheel — each cycle makes RAG better</text>';
+  html += '</svg>';
+
+  // improvement chart
+  html += '<div style="font-family:Syne,sans-serif;font-weight:700;font-size:0.7rem;color:#5a7a90;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem">Typical Recall@5 Improvement Over Iterations</div>';
+  var iterations = [
+    {label:'v0 Baseline',val:0.58,color:'#FF6B35'},
+    {label:'v1 +Hybrid Search',val:0.67,color:'#FFD166'},
+    {label:'v2 +Re-ranking',val:0.78,color:'#00E5FF'},
+    {label:'v3 +Query Rewriting',val:0.84,color:'#A259FF'},
+    {label:'v4 +Fine-tuning',val:0.91,color:'#00FFA3'},
+  ];
+  iterations.forEach(function(it) {
+    var pct = it.val * 100;
+    html += '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.35rem">';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:#8a9aaa;width:160px;flex-shrink:0">' + it.label + '</div>';
+    html += '<div style="flex:1;background:rgba(0,0,0,0.3);border-radius:999px;height:9px;overflow:hidden">';
+    html += '<div style="width:' + pct + '%;height:100%;background:' + it.color + ';border-radius:999px;box-shadow:0 0 5px ' + h2r(it.color,0.4) + '"></div></div>';
+    html += '<div style="font-family:JetBrains Mono,monospace;font-size:0.66rem;color:' + it.color + ';min-width:35px;text-align:right">' + (it.val*100).toFixed(0) + '%</div>';
+    html += '</div>';
+  });
+
+  vp.innerHTML += html;
+}
+
+// ════════════════════════════════════════════════
+// INTERACTIONS
+// ════════════════════════════════════════════════
+function toggleCard(i) {
+  var card = el('card' + i);
+  var wasOpen = card.classList.contains('open');
+  card.classList.toggle('open', !wasOpen);
+  if (!wasOpen) {
+    card.classList.add('oa');
+    setTimeout(function() { card.classList.remove('oa'); }, 400);
+    syncTabs(i);
+    renderVisual(i);
+    scrollTo2(i);
+  }
+}
+
+function switchTab(i, t) {
+  el('sp' + i).classList.toggle('on', t === 's');
+  el('dp' + i).classList.toggle('on', t === 'd');
+  el('ts' + i).classList.toggle('on', t === 's');
+  el('td' + i).classList.toggle('on', t === 'd');
+}
+
+function syncTabs(i) {
+  switchTab(i, mode === 'deep' ? 'd' : 's');
+}
+
+function setMode(m) {
+  mode = m;
+  el('btn-simple').classList.toggle('on', m === 'simple');
+  el('btn-deep').classList.toggle('on', m === 'deep');
+  for (var i = 0; i < PHASES.length; i++) {
+    if (el('card' + i).classList.contains('open')) syncTabs(i);
+  }
+}
+
+function scrollTo2(i) {
+  setTimeout(function() {
+    el('card' + i).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 55);
+}
+
+function activate(i) {
+  if (current >= 0) {
+    var prevCard = el('card' + current);
+    var prevMc = el('mc' + current);
+    if (prevCard) prevCard.classList.remove('active');
+    if (prevMc) { prevMc.classList.remove('active'); prevMc.classList.add('done'); }
+    if (current < PHASES.length - 1) { var conn = el('mconn' + current); if (conn) conn.classList.add('lit'); }
+  }
+  current = i;
+  var card = el('card' + i);
+  var mc = el('mc' + i);
+  if (!card || !mc) return; // guard: DOM not built yet
+  card.classList.add('active');
+  mc.classList.add('active');
+  mc.classList.remove('done');
+  if (!card.classList.contains('open')) {
+    card.classList.add('open', 'oa');
+    setTimeout(function() { var c = el('card'+i); if(c) c.classList.remove('oa'); }, 400);
+    syncTabs(i);
+    try { renderVisual(i); } catch(e) { /* visual render failed silently */ }
+  }
+  scrollTo2(i);
+  updateProgress(i);
+  try { updatePipelineSVG(i); } catch(e) {}
+  spawnParticles(i);
+}
+
+function jumpTo(i) { stopPlay(); activate(i); }
+
+function updateProgress(i) {
+  var pct = Math.round(((i + 1) / PHASES.length) * 100);
+  el('pfill').style.width = pct + '%';
+  el('progpct').textContent = pct + '%';
+  el('proglabel').textContent = 'Phase ' + PHASES[i].id + ': ' + PHASES[i].title;
+}
+
+function spawnParticles(idx) {
+  var mc = el('mc' + idx);
+  if (!mc) return;
+  var rect = mc.getBoundingClientRect();
+  var color = PHASES[idx].color;
+  for (var k = 0; k < 7; k++) {
+    (function(delay) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      p.style.cssText = 'left:'+(rect.left+rect.width/2+(Math.random()-.5)*26)+'px;top:'+(rect.top+rect.height/2)+'px;background:'+color+';animation-delay:'+delay+'s';
+      document.body.appendChild(p);
+      setTimeout(function(){p.parentNode&&p.parentNode.removeChild(p);},900);
+    })(k*0.08);
+  }
+}
+
+function togglePlay() { playing ? stopPlay() : startPlay(); }
+
+function startPlay() {
+  playing = true;
+  var btn = el('playbtn');
+  btn.textContent = '⏹ Stop';
+  btn.classList.add('stop');
+  var spd = parseInt(el('spd').value);
+  var start = (current >= 0 && current < PHASES.length - 1) ? current + 1 : 0;
+  activate(start);
+  var idx = start;
+  timer = setInterval(function() {
+    idx++;
+    if (idx >= PHASES.length) { stopPlay(); return; }
+    activate(idx);
+  }, spd);
+}
+
+function stopPlay() {
+  playing = false;
+  clearInterval(timer);
+  var btn = el('playbtn');
+  btn.textContent = '▶ Play All';
+  btn.classList.remove('stop');
+}
+
+function resetAll() {
+  stopPlay();
+  for (var i = 0; i < PHASES.length; i++) {
+    var card = el('card' + i);
+    card.classList.remove('active', 'open');
+    card.style.borderColor = '';
+    el('mc' + i).classList.remove('active', 'done');
+    if (i < PHASES.length - 1) el('mconn' + i).classList.remove('lit');
+  }
+  current = -1;
+  rendered = {};
+  el('pfill').style.width = '0%';
+  el('progpct').textContent = '0%';
+  el('proglabel').textContent = 'Click ▶ Play All or any phase to start';
+  // reset visuals
+  for (var i2 = 0; i2 < PHASES.length; i2++) {
+    el('vp' + i2).innerHTML = '<div class="vpanel-title">📊 Visual Overview</div>';
+  }
+  updatePipelineSVG(-1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ════════════════════════════════════════════════
+// INIT — each step isolated so one failure can't break the rest
+// ════════════════════════════════════════════════
+try { buildPipelineSVG(); } catch(e) { console.warn('SVG build failed:', e); }
+try { buildMap(); } catch(e) { console.warn('Map build failed:', e); }
+try { buildCards(); } catch(e) { console.warn('Cards build failed:', e); }
+try { updatePipelineSVG(-1); } catch(e) {}
+
+// Ensure play button works via addEventListener as well (belt-and-suspenders)
+document.addEventListener('DOMContentLoaded', function() {
+  var pb = el('playbtn');
+  if (pb && !pb._bound) {
+    pb._bound = true;
+    pb.addEventListener('click', togglePlay);
+  }
+});
+</script>
+</body>
+</html>

@@ -141,6 +141,20 @@ img{max-width:100%;display:block;}
 .ds-sql{background:linear-gradient(135deg,#060a0f,#0a1520);}
 .ds-platform{background:linear-gradient(135deg,#03050d,#070b18);}
 
+/*new code */
+
+.ds-ragviz{background:linear-gradient(135deg,#030C16,#050e1c);}
+.rvphase{font-size:7.5px;padding:2px 5px;border-radius:3px;border:1px solid rgba(0,229,255,0.22);color:#00e5ff;background:rgba(0,229,255,0.07);white-space:nowrap;animation:rvpulse 3s ease-in-out infinite;}
+.rvphase:nth-child(2){border-color:rgba(0,255,163,0.22);color:#00ffa3;background:rgba(0,255,163,0.07);animation-delay:.3s;}
+.rvphase:nth-child(3){border-color:rgba(255,209,102,0.22);color:#ffd166;background:rgba(255,209,102,0.07);animation-delay:.6s;}
+.rvphase:nth-child(4){border-color:rgba(162,89,255,0.22);color:#a259ff;background:rgba(162,89,255,0.07);animation-delay:.9s;}
+.rvphase:nth-child(5){border-color:rgba(255,107,53,0.22);color:#ff6b35;background:rgba(255,107,53,0.07);animation-delay:1.2s;}
+.rvphase:nth-child(6){border-color:rgba(255,77,158,0.22);color:#ff4d9e;background:rgba(255,77,158,0.07);animation-delay:1.5s;}
+.rvarrow{color:rgba(0,229,255,0.2);font-size:8px;}
+@keyframes rvpulse{0%,100%{opacity:.45}50%{opacity:1}}
+
+/*new code */
+
 /* RAG strip */
 .rn{font-size:9px;padding:3px 7px;border-radius:4px;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.25);color:#00c9a7;white-space:nowrap;animation:rb 2.5s ease-in-out infinite;}
 .rn:nth-child(3){animation-delay:.5s;} .rn:nth-child(5){animation-delay:1s;} .rn:nth-child(7){animation-delay:1.5s;} .rn:nth-child(9){animation-delay:2s;}
@@ -505,6 +519,30 @@ img{max-width:100%;display:block;}
           </div>
         </div>
       </div>
+
+	  <!-- RAG DeepMap Demo -->
+<div class="demo-card" style="--dc:#00e5ff;">
+  <div class="demo-strip ds-ragviz">
+    <div class="rvphase">📂 Collect</div><span class="rvarrow">→</span>
+    <div class="rvphase">✂️ Chunk</div><span class="rvarrow">→</span>
+    <div class="rvphase">🧠 Embed</div><span class="rvarrow">→</span>
+    <div class="rvphase">🔎 Search</div><span class="rvarrow">→</span>
+    <div class="rvphase">📊 Rerank</div><span class="rvarrow">→</span>
+    <div class="rvphase">⚡ Generate</div>
+  </div>
+  <div class="demo-body">
+    <div class="demo-top">
+      <div class="demo-ico">🗺️</div>
+      <div class="demo-title">RAG DeepMap — 16-Phase Visual Pipeline</div>
+    </div>
+    <div class="demo-desc">Exhaustive visual deep-dive into every layer of a production RAG system. Interactive bar charts, similarity score visualisers, chunk-size sliders, MTEB model comparisons, RAGAS dashboards, and token-budget diagrams. Two modes: kid-friendly and ML-scientist.</div>
+    <div class="demo-tags"><span class="demo-tag">RAG</span><span class="demo-tag">Chunking</span><span class="demo-tag">Embeddings</span><span class="demo-tag">Re-ranking</span><span class="demo-tag">RAGAS</span><span class="demo-tag">Vector DB</span></div>
+    <div class="demo-footer">
+      <div class="demo-stats"><span class="demo-stat"><strong>16</strong> phases</span><span class="demo-stat"><strong>16</strong> visuals</span><span class="demo-stat"><strong>120+</strong> steps</span></div>
+      <a href="rag-visual.html" target="_blank" class="demo-btn">Launch →</a>
+    </div>
+  </div>
+</div>
 
       <!-- Data Vault Demo -->
       <div class="demo-card" style="--dc:#c4622d;">
