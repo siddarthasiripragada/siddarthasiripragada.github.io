@@ -153,6 +153,13 @@ img{max-width:100%;display:block;}
 .rvarrow{color:rgba(0,229,255,0.2);font-size:8px;}
 @keyframes rvpulse{0%,100%{opacity:.45}50%{opacity:1}}
 
+.ds-promptlab{background:linear-gradient(135deg,#0a0d0f,#12080d);}
+.plnode{font-size:7.5px;padding:2px 5px;border-radius:3px;border:1px solid rgba(245,166,35,0.22);color:#f5a623;background:rgba(245,166,35,0.07);white-space:nowrap;animation:rvpulse 3s ease-in-out infinite;}
+.plnode:nth-child(2){border-color:rgba(0,212,170,0.22);color:#00d4aa;background:rgba(0,212,170,0.07);animation-delay:.4s;}
+.plnode:nth-child(3){border-color:rgba(77,166,255,0.22);color:#4da6ff;background:rgba(77,166,255,0.07);animation-delay:.8s;}
+.plnode:nth-child(4){border-color:rgba(176,122,255,0.22);color:#b07aff;background:rgba(176,122,255,0.07);animation-delay:1.2s;}
+.plarrow{color:rgba(245,166,35,0.2);font-size:8px;}
+
 /*new code */
 
 /* RAG strip */
@@ -615,6 +622,29 @@ img{max-width:100%;display:block;}
           </div>
         </div>
       </div>
+	  
+	  
+	  <!-- Prompt Engineering Lab -->
+<div class="demo-card" style="--dc:#f5a623;">
+  <div class="demo-strip ds-promptlab">
+    <div class="plnode">🔨 Builder</div><span class="plarrow">→</span>
+    <div class="plnode">🌡️ Temp</div><span class="plarrow">→</span>
+    <div class="plnode">📚 Patterns</div><span class="plarrow">→</span>
+    <div class="plnode">⚖️ Compare</div>
+  </div>
+  <div class="demo-body">
+    <div class="demo-top">
+      <div class="demo-ico">🧪</div>
+      <div class="demo-title">Prompt Engineering Lab — Interactive Playground</div>
+    </div>
+    <div class="demo-desc">Build and visualise prompts layer by layer with a live token budget counter. Explore temperature effects, compare Zero-Shot vs RAG vs CoT strategies, browse an 8-pattern library, and reference a full cheat sheet — all in one place.</div>
+    <div class="demo-tags"><span class="demo-tag">Prompt Engineering</span><span class="demo-tag">RAG</span><span class="demo-tag">Chain-of-Thought</span><span class="demo-tag">Token Budget</span><span class="demo-tag">HyDE</span></div>
+    <div class="demo-footer">
+      <div class="demo-stats"><span class="demo-stat"><strong>8</strong> patterns</span><span class="demo-stat"><strong>3</strong> tabs</span><span class="demo-stat"><strong>Live</strong> tokenizer</span></div>
+      <a href="prompt-lab.html" target="_blank" class="demo-btn">Launch →</a>
+    </div>
+  </div>
+</div>
 
     </div><!-- /demo-grid -->
   </section>

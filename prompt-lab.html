@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering Lab — Interactive Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d0f;--bg2:#111518;--bg3:#181d22;--bg4:#1e252c;
+  --amber:#f5a623;--teal:#00d4aa;--rose:#ff5e7e;--sky:#4da6ff;
+  --lime:#a8e063;--violet:#b07aff;--white:#e8edf2;
+  --muted:#5a6a78;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Lora',serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 30% 10%,rgba(245,166,35,0.06) 0%,transparent 60%),radial-gradient(ellipse 40% 50% at 80% 80%,rgba(0,212,170,0.05) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* TOPBAR */
+#topbar{position:sticky;top:0;z-index:100;background:rgba(10,13,15,0.96);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;padding:0 1.5rem;height:56px;}
+.backbtn{display:flex;align-items:center;font-family:'Syne',sans-serif;font-size:0.73rem;font-weight:600;color:var(--muted);text-decoration:none;padding:0.26rem 0.72rem;border:1px solid var(--border);border-radius:6px;transition:all 0.18s;white-space:nowrap;flex-shrink:0;}
+.backbtn:hover{color:var(--amber);border-color:rgba(245,166,35,0.4);background:rgba(245,166,35,0.06);text-decoration:none;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;letter-spacing:-0.02em;white-space:nowrap;text-shadow:0 0 20px rgba(245,166,35,0.4);}
+.logo em{font-style:normal;color:var(--amber)}
+.logo span{color:var(--muted);font-weight:400}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:0.6rem}
+.tab-btn{padding:0.28rem 0.85rem;background:transparent;border:1px solid var(--border);border-radius:6px;font-family:'Syne',sans-serif;font-size:0.73rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.18s;}
+.tab-btn.active{background:rgba(245,166,35,0.1);border-color:rgba(245,166,35,0.35);color:var(--amber);}
+
+/* HERO */
+#hero{position:relative;z-index:1;text-align:center;padding:2.8rem 1.5rem 1.8rem}
+.hbadge{font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.18em;color:var(--amber);opacity:0.7;text-transform:uppercase;margin-bottom:0.7rem}
+#hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.7rem,3.8vw,3rem);line-height:1.06;letter-spacing:-0.03em;margin-bottom:0.7rem}
+#hero h1 em{font-style:normal;color:var(--amber)}
+#hero p{font-size:0.95rem;color:var(--muted);max-width:540px;margin:0 auto;line-height:1.75}
+
+/* MAIN LAYOUT */
+#app{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:1.5rem 1.4rem 5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media(max-width:900px){#app{grid-template-columns:1fr}}
+
+/* PANEL */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.1rem;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02)}
+.panel-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;color:var(--white)}
+.panel-badge{font-family:'JetBrains Mono',monospace;font-size:0.6rem;padding:0.18rem 0.5rem;border-radius:4px;letter-spacing:0.06em}
+.panel-body{padding:1rem 1.1rem}
+
+/* TOKEN COUNTER */
+.tok-bar{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.7rem}
+.tok-label{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted);flex-shrink:0}
+.tok-track{flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden}
+.tok-fill{height:100%;border-radius:999px;transition:width 0.3s ease}
+.tok-num{font-family:'JetBrains Mono',monospace;font-size:0.65rem;min-width:45px;text-align:right}
+
+/* TEXTAREA */
+.prompt-textarea{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:0.7rem 0.85rem;font-family:'JetBrains Mono',monospace;font-size:0.73rem;line-height:1.65;color:var(--white);resize:vertical;outline:none;transition:border-color 0.18s;min-height:80px}
+.prompt-textarea:focus{border-color:rgba(245,166,35,0.4)}
+.prompt-textarea::placeholder{color:var(--muted);opacity:0.6}
+.field-label{font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem}
+.field-label .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.field-gap{margin-bottom:0.85rem}
+
+/* LAYER STACK */
+.layer-stack{display:flex;flex-direction:column;gap:2px;margin-bottom:0.9rem}
+.layer{border-radius:7px;padding:0.5rem 0.75rem;border:1px solid transparent;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden}
+.layer::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.layer-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.72rem;margin-bottom:0.15rem}
+.layer-preview{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layer-tokens{font-family:'JetBrains Mono',monospace;font-size:0.58rem;position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);opacity:0.5}
+
+/* SLIDER */
+.slider-group{margin-bottom:0.85rem}
+.slider-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem}
+.slider-name{font-family:'Syne',sans-serif;font-weight:600;font-size:0.72rem;color:var(--white)}
+.slider-val{font-family:'JetBrains Mono',monospace;font-size:0.72rem}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;cursor:pointer;box-shadow:0 0 6px rgba(0,0,0,0.4)}
+.slider-desc{font-size:0.71rem;color:var(--muted);margin-top:0.3rem;line-height:1.5}
+
+/* PATTERN CARDS */
+.pattern-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem}
+.pat-card{background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:9px;padding:0.7rem 0.8rem;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.pat-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;border-radius:8px}
+.pat-card:hover::before{opacity:1}
+.pat-card.active{border-color:rgba(245,166,35,0.4);background:rgba(245,166,35,0.06)}
+.pat-name{font-family:'Syne',sans-serif;font-weight:700;font-size:0.72rem;margin-bottom:0.2rem}
+.pat-desc{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);line-height:1.5}
+.pat-badge{font-family:'JetBrains Mono',monospace;font-size:0.55rem;padding:0.1rem 0.4rem;border-radius:3px;margin-top:0.35rem;display:inline-block}
+
+/* OUTPUT PANEL */
+.output-box{background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:9px;padding:0.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:0.72rem;line-height:1.7;color:var(--white);min-height:110px;position:relative;overflow:hidden}
+.output-box .cursor{display:inline-block;width:2px;height:14px;background:var(--amber);vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:1px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.output-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.45rem}
+.output-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;color:var(--muted)}
+.copy-btn{font-family:'JetBrains Mono',monospace;font-size:0.6rem;padding:0.15rem 0.5rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:4px;color:var(--muted);cursor:pointer;transition:all 0.15s}
+.copy-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+
+/* COMPARE */
+.compare-row{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.7rem}
+.cmp-box{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;padding:0.65rem 0.75rem}
+.cmp-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;margin-bottom:0.35rem}
+.cmp-body{font-family:'JetBrains Mono',monospace;font-size:0.63rem;color:#7a8a95;line-height:1.6}
+.cmp-score{display:flex;align-items:center;gap:0.5rem;margin-top:0.45rem}
+.cmp-score-label{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted);flex-shrink:0;width:70px}
+.cmp-score-track{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden}
+.cmp-score-fill{height:100%;border-radius:999px}
+.cmp-score-val{font-family:'JetBrains Mono',monospace;font-size:0.6rem;min-width:28px;text-align:right}
+
+/* CHEATSHEET */
+.cheat-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem}
+.cheat-card{background:rgba(0,0,0,0.22);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.75rem}
+.cheat-title{font-family:'Syne',sans-serif;font-weight:700;font-size:0.68rem;margin-bottom:0.3rem}
+.cheat-rule{font-size:0.7rem;color:var(--muted);line-height:1.6;display:flex;gap:0.4rem;align-items:flex-start;margin-bottom:0.22rem}
+.cheat-rule::before{content:'→';color:var(--amber);opacity:0.6;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:0.65rem}
+
+/* METRICS ROW */
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.55rem;margin-bottom:0.85rem}
+.metric-box{background:rgba(0,0,0,0.25);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.7rem;text-align:center}
+.metric-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;line-height:1}
+.metric-lbl{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted);margin-top:0.2rem;letter-spacing:0.06em}
+
+/* FULL WIDTH */
+.full-width{grid-column:1/-1}
+
+/* DIVIDER */
+.shdr{font-family:'Syne',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:0.45rem;margin-bottom:0.65rem}
+.shdr::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:999px}
+
+/* TABS */
+.section-tabs{display:flex;gap:0;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1rem}
+.stab{padding:0.35rem 0.9rem;font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:transparent;transition:all 0.18s;white-space:nowrap}
+.stab.on{background:rgba(245,166,35,0.1);color:var(--amber)}
+
+.section-view{display:none}
+.section-view.on{display:contents}
+
+/* HIGHLIGHT SPANS */
+.hl-sys{color:var(--violet)} .hl-ctx{color:var(--sky)} .hl-ex{color:var(--teal)} .hl-q{color:var(--amber)} .hl-r{color:var(--rose)}
+.hl-kw{color:var(--amber);font-weight:500} .hl-str{color:var(--teal)} .hl-cm{color:var(--muted);font-style:italic}
+
+/* TEMPERATURE SPECTRUM */
+.temp-spectrum{display:flex;border-radius:8px;overflow:hidden;height:32px;margin-bottom:0.5rem}
+.ts-seg{flex:1;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.58rem;transition:flex 0.4s ease}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="index.html" class="backbtn">← Portfolio</a>
+  <div class="logo"><em>Prompt</em> Engineering <span>Lab</span></div>
+  <div class="topbar-right">
+    <button class="tab-btn active" onclick="showSection('builder')">🔨 Builder</button>
+    <button class="tab-btn" onclick="showSection('compare')">⚖️ Compare</button>
+    <button class="tab-btn" onclick="showSection('cheatsheet')">📋 Reference</button>
+  </div>
+</div>
+
+<div id="hero">
+  <div class="hbadge">// interactive prompt engineering playground</div>
+  <h1>Prompt Engineering <em>Lab</em></h1>
+  <p>Build, visualize, and compare prompts. Token budgets, temperature effects, pattern library, and a full prompt anatomy visualizer — all in one place.</p>
+</div>
+
+<div id="app">
+
+  <!-- ═══ BUILDER SECTION ═══ -->
+  <div class="section-view on" id="sec-builder">
+
+  <!-- LEFT: PROMPT BUILDER -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div class="panel-title">🔨 Prompt Builder</div>
+      <span class="panel-badge" style="background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)">Live Tokenizer</span>
+    </div>
+    <div class="panel-body">
+
+      <!-- Token Budget Bar -->
+      <div class="tok-bar">
+        <span class="tok-label">Budget</span>
+        <div class="tok-track"><div class="tok-fill" id="budget-fill" style="width:0%;background:var(--teal)"></div></div>
+        <span class="tok-num" id="budget-num" style="color:var(--teal)">0 / 4096</span>
+      </div>
+
+      <!-- System Prompt -->
+      <div class="field-gap">
+        <div class="field-label"><span class="dot" style="background:var(--violet)"></span>System Prompt</div>
+        <textarea class="prompt-textarea" id="sys-input" rows="3" placeholder="You are a helpful assistant specializing in data architecture. Answer only based on provided context. Be concise and cite sources using [n] notation.">You are a helpful assistant specializing in data architecture. Answer only based on provided context. Be concise and cite sources using [n] notation.</textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:0.28rem">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted)">Role + constraints + output format</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--violet)" id="sys-tok">~32 tokens</span>
+        </div>
+      </div>
+
+      <!-- Context Block -->
+      <div class="field-gap">
+        <div class="field-label"><span class="dot" style="background:var(--sky)"></span>Context Block</div>
+        <textarea class="prompt-textarea" id="ctx-input" rows="3" placeholder="--- Source [1]: data-architecture.pdf, Page 12 ---&#10;Data Vault 2.0 uses three core constructs: Hubs (business keys), Links (relationships), and Satellites (descriptive attributes)...">--- Source [1]: data-architecture.pdf, Page 12 ---
+Data Vault 2.0 uses three core constructs: Hubs (business keys), Links (relationships), and Satellites (descriptive attributes)...</textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:0.28rem">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted)">Retrieved chunks with source headers</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--sky)" id="ctx-tok">~38 tokens</span>
+        </div>
+      </div>
+
+      <!-- Few-shot -->
+      <div class="field-gap">
+        <div class="field-label"><span class="dot" style="background:var(--teal)"></span>Few-Shot Examples <span style="font-size:0.58rem;color:var(--muted);text-transform:none;letter-spacing:0;font-weight:400">(optional)</span></div>
+        <textarea class="prompt-textarea" id="ex-input" rows="2" placeholder="Q: What are Hubs in Data Vault?&#10;A: Hubs store unique business keys with hash keys and load dates [1]."></textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:0.28rem">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted)">1–3 examples of ideal Q/A format</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--teal)" id="ex-tok">0 tokens</span>
+        </div>
+      </div>
+
+      <!-- User Query -->
+      <div class="field-gap">
+        <div class="field-label"><span class="dot" style="background:var(--amber)"></span>User Query</div>
+        <textarea class="prompt-textarea" id="q-input" rows="2" placeholder="What are the three core constructs in Data Vault 2.0 and how do they relate to each other?">What are the three core constructs in Data Vault 2.0 and how do they relate to each other?</textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:0.28rem">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted)">The actual user question</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--amber)" id="q-tok">~18 tokens</span>
+        </div>
+      </div>
+
+      <button onclick="buildPrompt()" style="width:100%;padding:0.6rem;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.35);border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem;color:var(--amber);cursor:pointer;transition:all 0.18s;letter-spacing:0.05em" onmouseover="this.style.background='rgba(245,166,35,0.2)'" onmouseout="this.style.background='rgba(245,166,35,0.12)'">
+        ⚡ Build &amp; Preview Full Prompt
+      </button>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: ANATOMY VISUALIZER -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div class="panel-title">🧬 Prompt Anatomy</div>
+      <span class="panel-badge" style="background:rgba(0,212,170,0.1);color:var(--teal);border:1px solid rgba(0,212,170,0.2)">Real-time</span>
+    </div>
+    <div class="panel-body">
+
+      <!-- Live layer stack -->
+      <div class="shdr">Layer Stack</div>
+      <div class="layer-stack" id="layer-stack">
+        <div class="layer" id="layer-sys" style="background:rgba(176,122,255,0.08);border-color:rgba(176,122,255,0.25)" onclick="focusLayer('sys')">
+          <div class="layer-name" style="color:var(--violet)">① SYSTEM PROMPT</div>
+          <div class="layer-preview" id="lp-sys">Role definition + grounding constraints + citation format</div>
+          <div class="layer-tokens" id="lt-sys">~32 tok</div>
+        </div>
+        <div class="layer" id="layer-ctx" style="background:rgba(77,166,255,0.08);border-color:rgba(77,166,255,0.25)" onclick="focusLayer('ctx')">
+          <div class="layer-name" style="color:var(--sky)">② CONTEXT BLOCK</div>
+          <div class="layer-preview" id="lp-ctx">Retrieved chunks with source headers and page numbers</div>
+          <div class="layer-tokens" id="lt-ctx">~38 tok</div>
+        </div>
+        <div class="layer" id="layer-ex" style="background:rgba(0,212,170,0.05);border-color:rgba(0,212,170,0.15);opacity:0.5" onclick="focusLayer('ex')">
+          <div class="layer-name" style="color:var(--teal)">③ FEW-SHOT EXAMPLES</div>
+          <div class="layer-preview" id="lp-ex">No examples added yet — optional but improves format consistency</div>
+          <div class="layer-tokens" id="lt-ex">0 tok</div>
+        </div>
+        <div class="layer" id="layer-q" style="background:rgba(245,166,35,0.08);border-color:rgba(245,166,35,0.25)" onclick="focusLayer('q')">
+          <div class="layer-name" style="color:var(--amber)">④ USER QUERY</div>
+          <div class="layer-preview" id="lp-q">What are the three core constructs in Data Vault 2.0...</div>
+          <div class="layer-tokens" id="lt-q">~18 tok</div>
+        </div>
+        <div class="layer" style="background:rgba(255,94,126,0.06);border-color:rgba(255,94,126,0.2);border-style:dashed">
+          <div class="layer-name" style="color:var(--rose)">⑤ RESPONSE (reserved)</div>
+          <div class="layer-preview">max_tokens budget — not part of input</div>
+          <div class="layer-tokens" id="lt-res">1024 tok</div>
+        </div>
+      </div>
+
+      <!-- Visual token budget -->
+      <div class="shdr">Token Budget Breakdown</div>
+      <div style="background:rgba(0,0,0,0.3);border-radius:8px;overflow:hidden;height:22px;display:flex;margin-bottom:0.5rem" id="budget-bar-viz">
+        <div style="width:10%;background:var(--violet);opacity:0.8" title="System"></div>
+        <div style="width:12%;background:var(--sky);opacity:0.8" title="Context"></div>
+        <div style="width:0%;background:var(--teal);opacity:0.8" id="bv-ex" title="Examples"></div>
+        <div style="width:5%;background:var(--amber);opacity:0.8" title="Query"></div>
+        <div style="width:25%;background:var(--rose);opacity:0.5" title="Response"></div>
+        <div style="flex:1;background:rgba(255,255,255,0.04)" title="Available"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.9rem">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;display:flex;align-items:center;gap:0.3rem"><span style="width:8px;height:8px;border-radius:2px;background:var(--violet);display:inline-block"></span><span style="color:var(--muted)">System</span></span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;display:flex;align-items:center;gap:0.3rem"><span style="width:8px;height:8px;border-radius:2px;background:var(--sky);display:inline-block"></span><span style="color:var(--muted)">Context</span></span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;display:flex;align-items:center;gap:0.3rem"><span style="width:8px;height:8px;border-radius:2px;background:var(--teal);display:inline-block"></span><span style="color:var(--muted)">Examples</span></span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;display:flex;align-items:center;gap:0.3rem"><span style="width:8px;height:8px;border-radius:2px;background:var(--amber);display:inline-block"></span><span style="color:var(--muted)">Query</span></span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;display:flex;align-items:center;gap:0.3rem"><span style="width:8px;height:8px;border-radius:2px;background:var(--rose);display:inline-block"></span><span style="color:var(--muted)">Response</span></span>
+      </div>
+
+      <!-- Preview output -->
+      <div class="shdr">Assembled Prompt Preview</div>
+      <div class="output-label">
+        <span class="output-title">Full prompt as LLM receives it</span>
+        <button class="copy-btn" onclick="copyPrompt()">⎘ Copy</button>
+      </div>
+      <div class="output-box" id="prompt-preview" style="max-height:200px;overflow-y:auto;font-size:0.68rem">
+        <span class="hl-sys">[SYSTEM]</span> You are a helpful assistant specializing in data architecture. Answer only based on provided context. Be concise and cite sources using [n] notation.<br><br>
+        <span class="hl-ctx">[CONTEXT]</span><br>--- Source [1]: data-architecture.pdf, Page 12 ---<br>Data Vault 2.0 uses three core constructs...<br><br>
+        <span class="hl-q">[USER]</span> What are the three core constructs in Data Vault 2.0 and how do they relate to each other?
+        <span class="cursor"></span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TEMPERATURE PANEL -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div class="panel-title">🌡️ Temperature Explorer</div>
+      <span class="panel-badge" style="background:rgba(255,94,126,0.1);color:var(--rose);border:1px solid rgba(255,94,126,0.2)">Sampling</span>
+    </div>
+    <div class="panel-body">
+      <div class="slider-group">
+        <div class="slider-top">
+          <span class="slider-name">Temperature</span>
+          <span class="slider-val" id="temp-val" style="color:var(--teal)">0.0</span>
+        </div>
+        <input type="range" min="0" max="200" value="0" id="temp-slider" oninput="updateTemp()" style="accent-color:var(--teal)">
+        <div class="slider-desc" id="temp-desc">
+          <strong style="color:var(--teal)">Deterministic</strong> — identical output every run. Best for factual RAG, legal, compliance, medical.
+        </div>
+      </div>
+
+      <!-- Spectrum bar -->
+      <div class="shdr">Output Diversity Spectrum</div>
+      <div class="temp-spectrum" id="temp-spectrum">
+        <div class="ts-seg" style="background:rgba(0,212,170,0.7);font-size:0.55rem;color:rgba(0,0,0,0.7)">Factual</div>
+        <div class="ts-seg" style="background:rgba(77,166,255,0.6);font-size:0.55rem;color:rgba(0,0,0,0.7)">Precise</div>
+        <div class="ts-seg" style="background:rgba(176,122,255,0.5);font-size:0.55rem;color:rgba(0,0,0,0.7)">Balanced</div>
+        <div class="ts-seg" style="background:rgba(245,166,35,0.5);font-size:0.55rem;color:rgba(0,0,0,0.7)">Creative</div>
+        <div class="ts-seg" style="background:rgba(255,94,126,0.4);font-size:0.55rem;color:rgba(0,0,0,0.8)">Wild</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:0.25rem;margin-bottom:0.8rem">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--teal)">0.0</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--sky)">0.3</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--violet)">0.7</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--amber)">1.2</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--rose)">2.0</span>
+      </div>
+
+      <!-- Same prompt, different temps -->
+      <div class="shdr">Same Prompt — Different Temperatures</div>
+      <div id="temp-examples">
+        <div class="cmp-box" style="margin-bottom:0.55rem">
+          <div class="cmp-title" style="color:var(--teal)">🌡️ temp=0.0 — RAG / Factual</div>
+          <div class="cmp-body">"Data Vault 2.0 consists of three constructs: Hubs store unique business keys, Links capture relationships between hubs, and Satellites hold descriptive attributes with full history [1]."</div>
+        </div>
+        <div class="cmp-box" style="margin-bottom:0.55rem">
+          <div class="cmp-title" style="color:var(--sky)">🌡️ temp=0.3 — Instructional</div>
+          <div class="cmp-body">"Think of Data Vault like a city: Hubs are the addresses (business keys), Links are the roads connecting them, and Satellites are the buildings that store evolving details at each address [1]."</div>
+        </div>
+        <div class="cmp-box">
+          <div class="cmp-title" style="color:var(--rose)">🌡️ temp=1.2 — Creative (avoid for RAG)</div>
+          <div class="cmp-body">"Data Vault dances between three pillars — Hubs whisper business keys into the void, Links weave their gossamer connections, and Satellites breathe life into the historical tapestry... [hallucination risk ↑]"</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PATTERN LIBRARY -->
+  <div class="panel">
+    <div class="panel-hdr">
+      <div class="panel-title">📚 Pattern Library</div>
+      <span class="panel-badge" style="background:rgba(168,224,99,0.1);color:var(--lime);border:1px solid rgba(168,224,99,0.2)">8 Patterns</span>
+    </div>
+    <div class="panel-body">
+      <div class="shdr">Click a pattern to load it</div>
+      <div class="pattern-grid" id="pattern-grid"></div>
+      <div style="margin-top:0.8rem">
+        <div class="output-label">
+          <span class="output-title" id="pat-preview-title">Select a pattern above</span>
+        </div>
+        <div class="output-box" id="pat-preview" style="min-height:130px;font-size:0.67rem;color:var(--muted)">
+          Click any pattern card to see its template and inject it into the builder.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- end builder section -->
+
+  <!-- ═══ COMPARE SECTION ═══ -->
+  <div class="section-view" id="sec-compare">
+
+  <div class="panel full-width">
+    <div class="panel-hdr">
+      <div class="panel-title">⚖️ Strategy Comparison</div>
+      <span class="panel-badge" style="background:rgba(77,166,255,0.1);color:var(--sky);border:1px solid rgba(77,166,255,0.2)">Side-by-Side</span>
+    </div>
+    <div class="panel-body">
+
+      <div class="shdr">Quality vs Complexity Trade-off</div>
+      <div id="compare-bars"></div>
+
+      <div class="shdr" style="margin-top:1.1rem">Strategy Deep-Dive</div>
+      <div id="compare-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.7rem"></div>
+
+    </div>
+  </div>
+
+  <div class="panel full-width">
+    <div class="panel-hdr">
+      <div class="panel-title">🔬 Grounding Strength Spectrum</div>
+    </div>
+    <div class="panel-body">
+      <div class="shdr">How strictly the LLM sticks to retrieved context</div>
+      <div id="grounding-spectrum"></div>
+      <div class="shdr" style="margin-top:0.9rem">Real System Prompt Examples</div>
+      <div id="grounding-examples"></div>
+    </div>
+  </div>
+
+  </div><!-- end compare section -->
+
+  <!-- ═══ CHEATSHEET SECTION ═══ -->
+  <div class="section-view" id="sec-cheatsheet">
+
+  <div class="panel full-width">
+    <div class="panel-hdr">
+      <div class="panel-title">📋 Prompt Engineering Reference</div>
+    </div>
+    <div class="panel-body">
+      <div class="metrics-row">
+        <div class="metric-box"><div class="metric-val" style="color:var(--teal)">0.0</div><div class="metric-lbl">RAG Temp</div></div>
+        <div class="metric-box"><div class="metric-val" style="color:var(--sky)">500</div><div class="metric-lbl">Max Sys Tokens</div></div>
+        <div class="metric-box"><div class="metric-val" style="color:var(--amber)">3</div><div class="metric-lbl">Few-Shot Min</div></div>
+        <div class="metric-box"><div class="metric-val" style="color:var(--violet)">XML</div><div class="metric-lbl">Best Tags</div></div>
+      </div>
+      <div class="cheat-grid" id="cheat-grid"></div>
+    </div>
+  </div>
+
+  <div class="panel full-width">
+    <div class="panel-hdr">
+      <div class="panel-title">🚨 Common Mistakes & Fixes</div>
+    </div>
+    <div class="panel-body">
+      <div id="mistakes-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem"></div>
+    </div>
+  </div>
+
+  </div><!-- end cheatsheet section -->
+
+</div><!-- end #app -->
+
+<script>
+// ════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════
+
+var PATTERNS = [
+  {
+    name:"RAG Grounded",
+    desc:"Strict context-only answering with citations",
+    badge:"Production",
+    badgeColor:"#00d4aa",
+    color:"#00d4aa",
+    system:"You are a precise assistant. Answer ONLY using the provided context. Do not use external knowledge.\nIf the answer is not in the context, say: \"I don't have information about this.\"\nCite every claim using [n] notation.",
+    ctx:"--- Source [1]: {document_title}, Page {page} ---\n{retrieved_chunk_text}",
+    examples:"",
+    query:"Based ONLY on the context above, answer:\n{user_question}"
+  },
+  {
+    name:"Chain-of-Thought",
+    desc:"Step-by-step reasoning before final answer",
+    badge:"Reasoning",
+    badgeColor:"#a8e063",
+    color:"#a8e063",
+    system:"You are a careful reasoning assistant. Always think step by step before answering.",
+    ctx:"",
+    examples:"Q: Is 17 a prime number?\nThinking: 17 is only divisible by 1 and itself. No factors between 2-16 divide it evenly.\nA: Yes, 17 is prime.",
+    query:"Think step by step, then answer:\n{user_question}"
+  },
+  {
+    name:"HyDE Generator",
+    desc:"Generate a hypothetical answer to improve retrieval",
+    badge:"Retrieval",
+    badgeColor:"#4da6ff",
+    color:"#4da6ff",
+    system:"Write a short, factual paragraph that would answer the following question. Be specific and technical. This will be used for semantic search, not shown to users.",
+    ctx:"",
+    examples:"",
+    query:"Question: {user_question}\n\nWrite a hypothetical answer paragraph:"
+  },
+  {
+    name:"Structured Output",
+    desc:"Force JSON or structured response format",
+    badge:"Parsing",
+    badgeColor:"#b07aff",
+    color:"#b07aff",
+    system:"You are a data extraction assistant. Always respond with valid JSON only. No markdown, no explanation, no preamble. If you cannot extract a field, use null.",
+    ctx:"",
+    examples:"Input: \"Revenue grew 18% in Q3 2023 to $4.2B\"\nOutput: {\"metric\": \"revenue\", \"growth_pct\": 18, \"period\": \"Q3 2023\", \"value_usd_B\": 4.2}",
+    query:"Extract structured data from:\n{user_input}\n\nRespond with JSON only:"
+  },
+  {
+    name:"Query Rewriter",
+    desc:"Resolve pronouns and ambiguity from chat history",
+    badge:"Multi-turn",
+    badgeColor:"#f5a623",
+    color:"#f5a623",
+    system:"Rewrite the user's last message as a complete, self-contained question that resolves all pronouns and references to prior conversation. Output ONLY the rewritten question. Do not answer it.",
+    ctx:"Conversation history:\n{last_5_turns}",
+    examples:"History: [user: Tell me about Product X] [assistant: Product X is...]\nLast message: \"What about its pricing?\"\nRewritten: \"What is the pricing of Product X?\"",
+    query:"Last message to rewrite:\n\"{last_user_message}\""
+  },
+  {
+    name:"Multi-Query Expand",
+    desc:"Generate N query variants for broader retrieval",
+    badge:"Retrieval",
+    badgeColor:"#4da6ff",
+    color:"#4da6ff",
+    system:"Generate exactly 4 different ways to ask the same question. Cover different phrasings, perspectives, and terminology. Output as a JSON array of strings only.",
+    ctx:"",
+    examples:"Input: \"How does indexing affect SQL performance?\"\nOutput: [\"What is the impact of database indexes on query speed?\", \"When should I add an index to a SQL table?\", \"How do B-tree indexes work in relational databases?\", \"What causes slow SQL queries and how can indexes fix them?\"]",
+    query:"Generate 4 phrasings of:\n\"{user_question}\"\n\nJSON array only:"
+  },
+  {
+    name:"Faithfulness Check",
+    desc:"Verify if an answer is grounded in context",
+    badge:"Evaluation",
+    badgeColor:"#ff5e7e",
+    color:"#ff5e7e",
+    system:"You are an AI auditor. Given a context and an answer, identify every claim in the answer that is NOT explicitly supported by the context. Be precise. Output JSON: {\"faithful\": true/false, \"unsupported_claims\": [\"...\"], \"score\": 0.0-1.0}",
+    ctx:"Context:\n{retrieved_context}",
+    examples:"",
+    query:"Answer to audit:\n\"{llm_answer}\"\n\nOutput JSON faithfulness report:"
+  },
+  {
+    name:"Step-Back Prompting",
+    desc:"Generate a broader question to improve recall",
+    badge:"Retrieval",
+    badgeColor:"#4da6ff",
+    color:"#4da6ff",
+    system:"Given a specific question, generate a more general version that captures the broader topic. This helps retrieve relevant background knowledge. Output only the broader question.",
+    ctx:"",
+    examples:"Specific: \"What was Anthropic's Series C funding amount in 2023?\"\nBroader: \"What is Anthropic's funding history and valuation?\"",
+    query:"Generate a broader version of:\n\"{specific_question}\""
+  }
+];
+
+var STRATEGIES = [
+  {name:"Zero-Shot",quality:65,complexity:1,tokens:80,color:"#5a7a90",desc:"System prompt + query only. No examples, no context. Fast and cheap but lowest quality for specialized tasks."},
+  {name:"Few-Shot",quality:78,complexity:2,tokens:350,color:"#4da6ff",desc:"System prompt + 3-5 examples + query. Significantly improves format consistency and domain alignment."},
+  {name:"RAG (Dense)",quality:85,complexity:4,tokens:1200,color:"#a8e063",desc:"System + retrieved context + query. Grounds answers in real documents. Gold standard for knowledge Q&A."},
+  {name:"RAG + Rerank",quality:91,complexity:6,tokens:1200,color:"#00d4aa",desc:"RAG with cross-encoder re-ranking of retrieved chunks. Best retrieval precision, ~200ms extra latency."},
+  {name:"RAG + CoT",quality:93,complexity:7,tokens:1400,color:"#f5a623",desc:"RAG with chain-of-thought prompting. Best for multi-step reasoning questions that span multiple sources."},
+  {name:"Multi-Query RAG",quality:94,complexity:8,tokens:1600,color:"#b07aff",desc:"Generate 3-5 query variants, retrieve for each, fuse results. Best recall for ambiguous or broad queries."}
+];
+
+var GROUNDING = [
+  {level:"Strict",color:"#00d4aa",system:"Answer ONLY based on the provided context. Do not use external knowledge. If not found in context, say: I don't have information about this.",halluc:"~2%",recall:"high",use:"Legal, compliance, medical, financial"},
+  {level:"Moderate",color:"#4da6ff",system:"Prefer the provided context. For trivial well-known facts not in context, you may use general knowledge but note it explicitly.",halluc:"~8%",recall:"high",use:"General Q&A, customer support, internal tools"},
+  {level:"Loose",color:"#f5a623",system:"Use the provided context as primary source. You may supplement with your training knowledge when helpful.",halluc:"~18%",recall:"medium",use:"Research assistant, brainstorming, ideation"},
+  {level:"None",color:"#ff5e7e",system:"Answer from your knowledge. Context is for reference only.",halluc:"~35%",recall:"N/A",use:"Creative writing, general chat, no factual requirements"}
+];
+
+var CHEATCARDS = [
+  {title:"System Prompt Rules",color:"#a8e063",rules:["Keep under 500 tokens — context budget is precious","Always include uncertainty handling: what to say when context is empty","Always include citation format instruction","Define output format explicitly — bullet points, JSON, prose"]},
+  {title:"Context Placement",color:"#4da6ff",rules:["Put context BEFORE the user query — attention is causal","Use XML tags: <context>...</context> for clear boundaries","Number your sources: Source [1], Source [2]...","Best chunks first AND last — avoid the middle (lost-in-the-middle effect)"]},
+  {title:"Few-Shot Design",color:"#b07aff",rules:["Include exactly 1 example where answer is NOT in context","Include 1 example with a citation: answer text [1]","Include 1 example with multiple sources: ...fact A [1] and fact B [2]","Keep examples short — they eat context budget fast"]},
+  {title:"Token Budgeting",color:"#f5a623",rules:["Reserve 500 tok system + 200 tok query + 1000 tok response","What remains is your context budget — fill it with chunks","Drop least-relevant chunks first when over budget","Never split a chunk — drop the whole chunk or keep it all"]},
+  {title:"Temperature Settings",color:"#00d4aa",rules:["Factual RAG: 0.0 — deterministic, no creativity","Instructional: 0.2–0.3 — slight variation in phrasing","Customer support: 0.3 — friendly but accurate","NEVER above 0.3 for grounded RAG — hallucinations multiply"]},
+  {title:"Output Formatting",color:"#ff5e7e",rules:["For JSON: add 'Respond with valid JSON only, no markdown' to system","For structured: use function calling / tools API instead","For citations: define the exact format — [1], (Source 1), or footnotes","For length: give a max word count in the system prompt"]}
+];
+
+var MISTAKES = [
+  {bad:"No uncertainty instruction",fix:"LLM answers confidently even when context is empty. Add: 'If not in context, say you don't have information.'",color:"#ff5e7e"},
+  {bad:"Context after the query",fix:"Attention is causal — context placed AFTER the question gets less weight. Always put context BEFORE the user query.",color:"#ff5e7e"},
+  {bad:"System prompt too long",fix:"Every token in system prompt eats chunk budget. Keep system prompts under 500 tokens. Move instructions to user turn if possible.",color:"#f5a623"},
+  {bad:"High temperature for RAG",fix:"Temperature > 0.3 causes creative divergence from context. The LLM starts 'enhancing' retrieved facts. Use 0.0 for factual RAG.",color:"#f5a623"},
+  {bad:"No citation instruction",fix:"Without explicit instruction, LLMs rarely cite. Add 'Use [n] notation for every factual claim' to your system prompt.",color:"#a8e063"},
+  {bad:"Wrong few-shot examples",fix:"Examples that don't match your actual query type mislead the model. Include examples of every case: found, not found, multi-source.",color:"#4da6ff"},
+  {bad:"Ignoring token limits",fix:"Silently truncated context = silently wrong answers. Count tokens before every API call. Use tiktoken or HuggingFace tokenizer.",color:"#b07aff"},
+  {bad:"Prompt not versioned",fix:"Every prompt change might degrade quality. Store prompts in git. Run eval on golden test set before each change.",color:"#b07aff"}
+];
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+function init() {
+  try { buildPatternGrid(); } catch(e) {}
+  try { buildCompareBars(); } catch(e) {}
+  try { buildCompareCards(); } catch(e) {}
+  try { buildGrounding(); } catch(e) {}
+  try { buildCheatCards(); } catch(e) {}
+  try { buildMistakes(); } catch(e) {}
+  try { updateAll(); } catch(e) {}
+}
+
+// ════════════════════════════════════════════════
+// SECTION SWITCHING
+// ════════════════════════════════════════════════
+function showSection(name) {
+  var sections = ['builder','compare','cheatsheet'];
+  var labels = ['🔨 Builder','⚖️ Compare','📋 Reference'];
+  sections.forEach(function(s, i) {
+    var sec = document.getElementById('sec-' + s);
+    if (sec) sec.classList.toggle('on', s === name);
+    var btns = document.querySelectorAll('.tab-btn');
+    if (btns[i]) btns[i].classList.toggle('active', s === name);
+  });
+}
+
+// ════════════════════════════════════════════════
+// TOKEN ESTIMATOR (~4 chars per token)
+// ════════════════════════════════════════════════
+function estimateTokens(text) {
+  if (!text || !text.trim()) return 0;
+  return Math.max(1, Math.ceil(text.length / 4));
+}
+
+function tokStr(n) {
+  if (n === 0) return '0 tokens';
+  return '~' + n + ' tok';
+}
+
+// ════════════════════════════════════════════════
+// LIVE UPDATE
+// ════════════════════════════════════════════════
+function updateAll() {
+  var sys = document.getElementById('sys-input') ? document.getElementById('sys-input').value : '';
+  var ctx = document.getElementById('ctx-input') ? document.getElementById('ctx-input').value : '';
+  var ex = document.getElementById('ex-input') ? document.getElementById('ex-input').value : '';
+  var q = document.getElementById('q-input') ? document.getElementById('q-input').value : '';
+
+  var tSys = estimateTokens(sys);
+  var tCtx = estimateTokens(ctx);
+  var tEx = estimateTokens(ex);
+  var tQ = estimateTokens(q);
+  var tRes = 1024;
+  var total = tSys + tCtx + tEx + tQ + tRes;
+  var limit = 4096;
+  var pct = Math.min(100, (total / limit * 100)).toFixed(1);
+
+  // Token counts per field
+  setText('sys-tok', tokStr(tSys));
+  setText('ctx-tok', tokStr(tCtx));
+  setText('ex-tok', tEx === 0 ? '0 tokens' : tokStr(tEx));
+  setText('q-tok', tokStr(tQ));
+
+  // Budget bar
+  var fill = document.getElementById('budget-fill');
+  var numEl = document.getElementById('budget-num');
+  if (fill) fill.style.width = pct + '%';
+  if (fill) fill.style.background = total > limit * 0.9 ? 'var(--rose)' : total > limit * 0.75 ? 'var(--amber)' : 'var(--teal)';
+  if (numEl) {
+    numEl.textContent = total + ' / ' + limit;
+    numEl.style.color = total > limit * 0.9 ? 'var(--rose)' : total > limit * 0.75 ? 'var(--amber)' : 'var(--teal)';
+  }
+
+  // Visual budget bar
+  var bvEx = document.getElementById('bv-ex');
+  if (bvEx) bvEx.style.width = (tEx / limit * 100).toFixed(1) + '%';
+
+  // Layer stack previews
+  updateLayer('sys', sys, tSys, 'Role definition + grounding constraints', 'var(--violet)');
+  updateLayer('ctx', ctx, tCtx, 'Retrieved chunks with source headers', 'var(--sky)');
+  updateLayer('ex', ex, tEx, 'No examples added yet', 'var(--teal)', tEx === 0);
+  updateLayer('q', q, tQ, 'User question goes here', 'var(--amber)');
+  setText('lt-res', tRes + ' tok');
+}
+
+function updateLayer(id, text, tokens, placeholder, color, faded) {
+  var lp = document.getElementById('lp-' + id);
+  var lt = document.getElementById('lt-' + id);
+  var layer = document.getElementById('layer-' + id);
+  if (lp) lp.textContent = text.trim() ? text.replace(/\n/g, ' ').substring(0, 65) + (text.length > 65 ? '...' : '') : placeholder;
+  if (lt) lt.textContent = tokStr(tokens);
+  if (layer) layer.style.opacity = faded ? '0.45' : '1';
+}
+
+function setText(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// ════════════════════════════════════════════════
+// BUILD PROMPT PREVIEW
+// ════════════════════════════════════════════════
+function buildPrompt() {
+  var sys = document.getElementById('sys-input').value.trim();
+  var ctx = document.getElementById('ctx-input').value.trim();
+  var ex = document.getElementById('ex-input').value.trim();
+  var q = document.getElementById('q-input').value.trim();
+  var prev = document.getElementById('prompt-preview');
+  if (!prev) return;
+
+  var html = '';
+  if (sys) html += '<span class="hl-sys">[SYSTEM]</span> ' + esc(sys) + '<br><br>';
+  if (ctx) html += '<span class="hl-ctx">[CONTEXT]</span><br>' + esc(ctx) + '<br><br>';
+  if (ex) html += '<span class="hl-ex">[EXAMPLES]</span><br>' + esc(ex) + '<br><br>';
+  if (q) html += '<span class="hl-q">[USER]</span> ' + esc(q);
+  html += '<span class="cursor"></span>';
+  prev.innerHTML = html || '<span style="color:var(--muted)">Fill in the fields above and click Build.</span>';
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function copyPrompt() {
+  var sys = document.getElementById('sys-input').value.trim();
+  var ctx = document.getElementById('ctx-input').value.trim();
+  var ex = document.getElementById('ex-input').value.trim();
+  var q = document.getElementById('q-input').value.trim();
+  var parts = [];
+  if (sys) parts.push('[SYSTEM]\n' + sys);
+  if (ctx) parts.push('[CONTEXT]\n' + ctx);
+  if (ex) parts.push('[EXAMPLES]\n' + ex);
+  if (q) parts.push('[USER]\n' + q);
+  var text = parts.join('\n\n');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function() {
+      var btn = document.querySelector('.copy-btn');
+      if (btn) { btn.textContent = '✓ Copied'; setTimeout(function() { btn.textContent = '\u2398 Copy'; }, 1500); }
+    });
+  }
+}
+
+function focusLayer(id) {
+  var fieldMap = {sys:'sys-input', ctx:'ctx-input', ex:'ex-input', q:'q-input'};
+  var el = document.getElementById(fieldMap[id]);
+  if (el) { el.focus(); el.scrollIntoView({behavior:'smooth',block:'center'}); }
+}
+
+// ════════════════════════════════════════════════
+// TEMPERATURE
+// ════════════════════════════════════════════════
+var TEMP_DESCS = [
+  {max:5, val:'0.0', label:'Deterministic', color:'var(--teal)', desc:'Identical output every run. Best for factual RAG, legal, compliance, medical. Zero randomness.'},
+  {max:30, val:'0.3', label:'Slightly varied', color:'var(--sky)', desc:'Small phrasing variation each run. Good balance for instructional content and customer support.'},
+  {max:70, val:'0.7', label:'Creative', color:'var(--violet)', desc:'Noticeable variation. Good for brainstorming. Starts to drift from context for factual questions.'},
+  {max:120, val:'1.2', label:'Very creative', color:'var(--amber)', desc:'High variation. Suitable for storytelling and ideation. Do NOT use for grounded RAG answers.'},
+  {max:200, val:'2.0', label:'Chaotic', color:'var(--rose)', desc:'Near-random token selection. Incoherent output for most tasks. Only useful for very specific research.'}
+];
+
+function updateTemp() {
+  var slider = document.getElementById('temp-slider');
+  var valEl = document.getElementById('temp-val');
+  var descEl = document.getElementById('temp-desc');
+  if (!slider) return;
+  var v = parseInt(slider.value);
+  var tempFloat = (v / 100).toFixed(1);
+  var info = TEMP_DESCS[TEMP_DESCS.length - 1];
+  for (var i = 0; i < TEMP_DESCS.length; i++) {
+    if (v <= TEMP_DESCS[i].max) { info = TEMP_DESCS[i]; break; }
+  }
+  if (valEl) { valEl.textContent = tempFloat; valEl.style.color = info.color; }
+  if (descEl) descEl.innerHTML = '<strong style="color:' + info.color + '">' + info.label + '</strong> — ' + info.desc;
+  slider.style.accentColor = info.color;
+}
+
+// ════════════════════════════════════════════════
+// PATTERN GRID
+// ════════════════════════════════════════════════
+function buildPatternGrid() {
+  var grid = document.getElementById('pattern-grid');
+  if (!grid) return;
+  var html = '';
+  PATTERNS.forEach(function(p, i) {
+    html += '<div class="pat-card" id="pat-' + i + '" onclick="selectPattern(' + i + ')">';
+    html += '<div class="pat-name" style="color:' + p.color + '">' + p.name + '</div>';
+    html += '<div class="pat-desc">' + p.desc + '</div>';
+    html += '<span class="pat-badge" style="background:' + hexAlpha(p.badgeColor, 0.12) + ';color:' + p.badgeColor + ';border:1px solid ' + hexAlpha(p.badgeColor, 0.28) + '">' + p.badge + '</span>';
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+}
+
+function selectPattern(i) {
+  var p = PATTERNS[i];
+  // Highlight selected
+  for (var k = 0; k < PATTERNS.length; k++) {
+    var el = document.getElementById('pat-' + k);
+    if (el) el.classList.toggle('active', k === i);
+  }
+  // Show preview
+  var prev = document.getElementById('pat-preview');
+  var title = document.getElementById('pat-preview-title');
+  if (title) title.textContent = p.name + ' template';
+  if (prev) {
+    var html = '<span class="hl-sys">[SYSTEM]</span><br>' + esc(p.system);
+    if (p.ctx) html += '<br><br><span class="hl-ctx">[CONTEXT]</span><br>' + esc(p.ctx);
+    if (p.examples) html += '<br><br><span class="hl-ex">[EXAMPLES]</span><br>' + esc(p.examples);
+    html += '<br><br><span class="hl-q">[USER]</span><br>' + esc(p.query);
+    prev.innerHTML = html;
+  }
+  // Inject into builder
+  var sysEl = document.getElementById('sys-input');
+  var exEl = document.getElementById('ex-input');
+  var qEl = document.getElementById('q-input');
+  if (sysEl) sysEl.value = p.system;
+  if (exEl) exEl.value = p.examples;
+  if (qEl) qEl.value = p.query;
+  updateAll();
+}
+
+// ════════════════════════════════════════════════
+// COMPARE BARS
+// ════════════════════════════════════════════════
+function buildCompareBars() {
+  var el = document.getElementById('compare-bars');
+  if (!el) return;
+  var html = '';
+  STRATEGIES.forEach(function(s) {
+    var qPct = s.quality;
+    var tokPct = Math.min(100, s.tokens / 16);
+    html += '<div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.45rem">';
+    html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.67rem;color:' + s.color + ';width:130px;flex-shrink:0">' + s.name + '</div>';
+    html += '<div style="flex:1;background:rgba(255,255,255,0.05);border-radius:999px;height:10px;overflow:hidden">';
+    html += '<div style="width:' + qPct + '%;height:100%;background:' + s.color + ';border-radius:999px;box-shadow:0 0 6px ' + hexAlpha(s.color, 0.4) + '"></div></div>';
+    html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.67rem;color:' + s.color + ';width:32px;text-align:right">' + s.quality + '</div>';
+    html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.62rem;color:var(--muted);width:65px;text-align:right">~' + s.tokens + ' tok</div>';
+    html += '</div>';
+  });
+  html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.6rem;color:var(--muted);margin-top:0.3rem">Bar = answer quality score (0–100) · Token count = typical prompt size</div>';
+  el.innerHTML = html;
+}
+
+function buildCompareCards() {
+  var el = document.getElementById('compare-cards');
+  if (!el) return;
+  var html = '';
+  STRATEGIES.forEach(function(s) {
+    html += '<div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.07);border-radius:9px;padding:0.7rem 0.8rem;border-top:2px solid ' + s.color + '">';
+    html += '<div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.72rem;color:' + s.color + ';margin-bottom:0.25rem">' + s.name + '</div>';
+    html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.62rem;color:var(--muted);line-height:1.6;margin-bottom:0.4rem">' + s.desc + '</div>';
+    html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap">';
+    html += '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.58rem;padding:0.12rem 0.4rem;border-radius:3px;background:' + hexAlpha(s.color,0.1) + ';color:' + s.color + ';border:1px solid ' + hexAlpha(s.color,0.22) + '">Quality: ' + s.quality + '</span>';
+    html += '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.58rem;padding:0.12rem 0.4rem;border-radius:3px;background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid rgba(255,255,255,0.07)">Complexity: ' + s.complexity + '/8</span>';
+    html += '</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function buildGrounding() {
+  var specEl = document.getElementById('grounding-spectrum');
+  var exEl = document.getElementById('grounding-examples');
+  if (!specEl || !exEl) return;
+
+  var specHtml = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.55rem;margin-bottom:0.7rem">';
+  GROUNDING.forEach(function(g) {
+    specHtml += '<div style="background:' + hexAlpha(g.color,0.07) + ';border:1px solid ' + hexAlpha(g.color,0.25) + ';border-radius:8px;padding:0.6rem 0.7rem">';
+    specHtml += '<div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.72rem;color:' + g.color + ';margin-bottom:0.25rem">' + g.level + '</div>';
+    specHtml += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.58rem;color:var(--muted);margin-bottom:0.35rem">Halluc rate: <strong style="color:' + g.color + '">' + g.halluc + '</strong></div>';
+    specHtml += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.58rem;color:var(--muted)">Use: ' + g.use + '</div>';
+    specHtml += '</div>';
+  });
+  specHtml += '</div>';
+  specEl.innerHTML = specHtml;
+
+  var exHtml = '<div style="display:flex;flex-direction:column;gap:0.5rem">';
+  GROUNDING.forEach(function(g) {
+    exHtml += '<div style="background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.06);border-left:3px solid ' + g.color + ';border-radius:0 8px 8px 0;padding:0.6rem 0.8rem">';
+    exHtml += '<div style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.68rem;color:' + g.color + ';margin-bottom:0.2rem">' + g.level + '</div>';
+    exHtml += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.67rem;color:#8a9aaa;line-height:1.6">' + esc(g.system) + '</div>';
+    exHtml += '</div>';
+  });
+  exHtml += '</div>';
+  exEl.innerHTML = exHtml;
+}
+
+// ════════════════════════════════════════════════
+// CHEATSHEET
+// ════════════════════════════════════════════════
+function buildCheatCards() {
+  var el = document.getElementById('cheat-grid');
+  if (!el) return;
+  var html = '';
+  CHEATCARDS.forEach(function(c) {
+    html += '<div class="cheat-card" style="border-top:2px solid ' + c.color + '">';
+    html += '<div class="cheat-title" style="color:' + c.color + '">' + c.title + '</div>';
+    c.rules.forEach(function(r) {
+      html += '<div class="cheat-rule">' + r + '</div>';
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function buildMistakes() {
+  var el = document.getElementById('mistakes-grid');
+  if (!el) return;
+  var html = '';
+  MISTAKES.forEach(function(m) {
+    html += '<div style="background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.06);border-radius:9px;padding:0.7rem 0.8rem">';
+    html += '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.3rem">';
+    html += '<span style="font-size:0.78rem">❌</span>';
+    html += '<span style="font-family:\'Syne\',sans-serif;font-weight:700;font-size:0.7rem;color:' + m.color + '">' + m.bad + '</span>';
+    html += '</div>';
+    html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.63rem;color:var(--muted);line-height:1.6;padding-left:1.2rem">' + m.fix + '</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════
+function hexAlpha(hex, a) {
+  var r = parseInt(hex.slice(1,3),16);
+  var g = parseInt(hex.slice(3,5),16);
+  var b = parseInt(hex.slice(5,7),16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+// Live textarea events
+function attachListeners() {
+  var ids = ['sys-input','ctx-input','ex-input','q-input'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateAll);
+  });
+}
+
+// ════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════
+try { init(); } catch(e) { console.warn('init failed:', e); }
+try { attachListeners(); } catch(e) {}
+try { updateAll(); } catch(e) {}
+try { buildPrompt(); } catch(e) {}
+</script>
+</body>
+</html>
