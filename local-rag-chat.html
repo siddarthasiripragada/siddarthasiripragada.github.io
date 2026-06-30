@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A fully client-side Retrieval-Augmented Generation chatbot — embeddings, vector search, and a small language model running entirely in the browser via Transformers.js + WebGPU/WASM. No server, no API key.">
+<title>Local RAG — Ask About My Work · Siddhartha Siripragada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS — matched to the parent portfolio's palette
+   (paper / navy / editorial serif+sans+mono), extended with
+   a "lab instrument" accent system for the live pipeline trace.
+   ============================================================ */
+:root{
+  --paper:#f5f3ef; --white:#ffffff; --ink:#18181b; --ink2:#3f3f46; --ink3:#71717a;
+  --ink4:#a1a1aa; --ink5:#d4d4d8;
+  --navy:#1e3a5f; --navy2:#2a4f7c; --navy3:rgba(30,58,95,.07); --navy4:rgba(30,58,95,.04);
+  --link:#1d4ed8; --green:#15803d; --amber:#b45309; --red:#b91c1c;
+  --border:rgba(24,24,27,.1); --border2:rgba(24,24,27,.18);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.04);
+  --shadow2:0 2px 8px rgba(0,0,0,.06),0 16px 40px rgba(0,0,0,.07);
+  --serif:'Cormorant',Georgia,serif; --sans:'Jost',sans-serif; --mono:'JetBrains Mono',monospace;
+  --stage-idle:var(--ink5); --stage-active:var(--navy); --stage-done:var(--green);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans); background:var(--paper); color:var(--ink);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(circle at 18% -10%, rgba(30,58,95,.06), transparent 40%),
+    radial-gradient(circle at 100% 0%, rgba(30,58,95,.05), transparent 35%);
+}
+a{color:var(--link)}
+button{font-family:inherit;cursor:pointer}
+::selection{background:var(--navy); color:#fff}
+
+/* ---------- top bar ---------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 28px; border-bottom:1px solid var(--border); background:rgba(245,243,239,.85);
+  backdrop-filter:blur(6px); position:sticky; top:0; z-index:50;
+}
+.brand{display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:.5px; color:var(--ink3); text-decoration:none}
+.brand:hover{color:var(--navy); text-decoration:none}
+.brand-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--navy4)}
+.topbar-links{display:flex; gap:18px; font-family:var(--mono); font-size:10.5px}
+.topbar-links a{color:var(--ink3); text-decoration:none}
+.topbar-links a:hover{color:var(--navy)}
+
+/* ---------- hero ---------- */
+.hero{max-width:1180px; margin:0 auto; padding:54px 28px 18px}
+.hero-kicker{font-family:var(--mono); font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--navy2); margin-bottom:14px; display:flex; align-items:center; gap:8px}
+.hero-kicker::before{content:"";width:24px;height:1px;background:var(--navy2)}
+.hero h1{font-family:var(--serif); font-weight:600; font-size:clamp(32px,4.4vw,52px); letter-spacing:-1px; line-height:1.05; max-width:820px}
+.hero h1 em{font-style:italic; color:var(--navy)}
+.hero p{font-family:var(--serif); font-size:18px; color:var(--ink2); max-width:680px; margin-top:16px; line-height:1.6}
+.badge-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:22px}
+.badge{font-family:var(--mono); font-size:9.5px; letter-spacing:.3px; padding:5px 10px; border-radius:100px; background:var(--navy4); color:var(--navy2); border:1px solid rgba(30,58,95,.12); display:flex; align-items:center; gap:5px}
+.badge svg{width:10px;height:10px}
+
+/* ---------- layout ---------- */
+.app{max-width:1180px; margin:0 auto; padding:30px 28px 80px; display:grid; grid-template-columns:1fr 360px; gap:22px; align-items:start}
+@media (max-width:920px){ .app{grid-template-columns:1fr} }
+
+.card{background:var(--white); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow)}
+.card-head{padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px}
+.card-title{font-family:var(--mono); font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink3)}
+.card-body{padding:20px}
+
+/* ---------- setup panel ---------- */
+#setupCard .card-body{display:flex; flex-direction:column; gap:16px}
+.field{display:flex; flex-direction:column; gap:6px}
+.field label{font-family:var(--mono); font-size:9.5px; letter-spacing:1px; text-transform:uppercase; color:var(--ink4)}
+.select-row{display:flex; gap:10px; flex-wrap:wrap}
+select{
+  font-family:var(--mono); font-size:12px; padding:9px 11px; border-radius:8px;
+  border:1px solid var(--border2); background:var(--paper); color:var(--ink); flex:1; min-width:180px;
+}
+.btn{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.5px; padding:11px 18px; border-radius:9px;
+  border:1px solid var(--navy); background:var(--navy); color:#fff; transition:.18s ease; text-transform:uppercase;
+}
+.btn:hover{background:var(--navy2); border-color:var(--navy2)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn-ghost{background:transparent; color:var(--navy); border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--navy4); border-color:var(--navy)}
+.btn-sm{padding:7px 12px; font-size:10px}
+
+.progress-list{display:flex; flex-direction:column; gap:10px; margin-top:4px}
+.progress-item{display:flex; flex-direction:column; gap:5px}
+.progress-label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:9.5px; color:var(--ink3)}
+.progress-track{height:6px; border-radius:4px; background:var(--navy4); overflow:hidden}
+.progress-fill{height:100%; background:linear-gradient(90deg,var(--navy),var(--navy2)); width:0%; transition:width .2s ease}
+.progress-fill.done{background:var(--green)}
+
+.device-pill{font-family:var(--mono); font-size:9.5px; padding:3px 9px; border-radius:100px; border:1px solid var(--border2); color:var(--ink3)}
+.device-pill.webgpu{color:var(--green); border-color:rgba(21,128,61,.3); background:rgba(21,128,61,.06)}
+.device-pill.wasm{color:var(--amber); border-color:rgba(180,83,9,.3); background:rgba(180,83,9,.06)}
+
+/* ---------- chat panel ---------- */
+#chatCard{display:flex; flex-direction:column; min-height:560px}
+.chat-scroll{flex:1; overflow-y:auto; padding:22px 20px; display:flex; flex-direction:column; gap:16px; max-height:520px}
+.msg{max-width:88%; display:flex; flex-direction:column; gap:6px}
+.msg.user{align-self:flex-end; align-items:flex-end}
+.msg.bot{align-self:flex-start; align-items:flex-start}
+.msg-bubble{padding:13px 16px; border-radius:14px; font-size:14.5px; line-height:1.55}
+.msg.user .msg-bubble{background:var(--navy); color:#fff; border-bottom-right-radius:4px}
+.msg.bot .msg-bubble{background:var(--navy4); color:var(--ink); border:1px solid rgba(30,58,95,.1); border-bottom-left-radius:4px}
+.msg-meta{font-family:var(--mono); font-size:9px; color:var(--ink4); padding:0 4px}
+.msg-sources{display:flex; flex-wrap:wrap; gap:5px; padding:0 4px}
+.src-chip{font-family:var(--mono); font-size:8.5px; padding:2px 7px; border-radius:5px; background:var(--paper); border:1px solid var(--border); color:var(--ink3)}
+.typing-dots span{display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--navy2); margin-right:3px; animation:blink 1.1s infinite}
+.typing-dots span:nth-child(2){animation-delay:.18s} .typing-dots span:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+.chip-row{display:flex; flex-wrap:wrap; gap:8px; padding:0 20px 16px}
+.chip{font-family:var(--mono); font-size:10px; padding:6px 11px; border-radius:100px; background:var(--paper); border:1px solid var(--border2); color:var(--ink2)}
+.chip:hover{background:var(--navy4); border-color:var(--navy); color:var(--navy)}
+
+.chat-input-row{display:flex; gap:10px; padding:16px 20px; border-top:1px solid var(--border)}
+#queryInput{
+  flex:1; font-family:var(--sans); font-size:14px; padding:12px 14px; border-radius:10px;
+  border:1px solid var(--border2); background:var(--paper); color:var(--ink); resize:none;
+}
+#queryInput:focus{outline:none; border-color:var(--navy)}
+
+/* ---------- pipeline trace ---------- */
+.trace{display:flex; flex-direction:column; gap:0}
+.trace-stage{display:flex; align-items:flex-start; gap:12px; padding:10px 2px; position:relative}
+.trace-stage:not(:last-child)::after{
+  content:""; position:absolute; left:13px; top:30px; bottom:-2px; width:1.5px; background:var(--border2);
+}
+.trace-dot{
+  width:26px; height:26px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  font-size:12px; background:var(--paper); border:1.5px solid var(--stage-idle); color:var(--ink4); transition:.25s ease; z-index:1;
+}
+.trace-stage.active .trace-dot{border-color:var(--stage-active); color:var(--stage-active); background:var(--navy4); animation:pulse 1s infinite}
+.trace-stage.done .trace-dot{border-color:var(--stage-done); color:var(--stage-done); background:rgba(21,128,61,.08)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(30,58,95,.25)}50%{box-shadow:0 0 0 5px rgba(30,58,95,0)}}
+.trace-name{font-family:var(--mono); font-size:11px; color:var(--ink2); font-weight:500}
+.trace-stage.idle .trace-name{color:var(--ink4)}
+.trace-time{font-family:var(--mono); font-size:9.5px; color:var(--ink4)}
+
+/* ---------- retrieved context ---------- */
+.ctx-item{padding:11px 12px; border-radius:9px; background:var(--paper); border:1px solid var(--border); margin-bottom:8px}
+.ctx-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:5px}
+.ctx-src{font-family:var(--mono); font-size:9.5px; color:var(--navy2); font-weight:600}
+.ctx-score{font-family:var(--mono); font-size:9px; color:var(--ink4)}
+.ctx-text{font-size:12px; color:var(--ink2); line-height:1.5}
+.score-bar{height:3px; background:var(--navy4); border-radius:2px; margin-top:6px; overflow:hidden}
+.score-fill{height:100%; background:var(--navy2)}
+
+/* ---------- settings ---------- */
+.setting-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-family:var(--mono); font-size:10.5px; color:var(--ink2)}
+.setting-sub{font-size:10px; color:var(--ink4); margin-top:1px}
+.switch{position:relative; width:36px; height:20px; flex-shrink:0}
+.switch input{opacity:0; width:0; height:0}
+.slider-track{position:absolute; inset:0; background:var(--ink5); border-radius:20px; transition:.2s}
+.slider-knob{position:absolute; left:2px; top:2px; width:16px; height:16px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked + .slider-track{background:var(--navy)}
+.switch input:checked + .slider-track .slider-knob{transform:translateX(16px)}
+input[type=range]{width:100%; accent-color:var(--navy)}
+
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px}
+.stat-box{background:var(--paper); border:1px solid var(--border); border-radius:9px; padding:10px 12px}
+.stat-v{font-family:var(--serif); font-size:19px; font-weight:600; color:var(--navy)}
+.stat-l{font-family:var(--mono); font-size:8.5px; letter-spacing:.5px; text-transform:uppercase; color:var(--ink4); margin-top:2px}
+
+.kb-list{display:flex; flex-direction:column; gap:6px}
+.kb-item{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; color:var(--ink2); padding:6px 10px; background:var(--paper); border-radius:7px; border:1px solid var(--border)}
+.kb-item span:last-child{color:var(--ink4)}
+
+.upload-zone{border:1.5px dashed var(--border2); border-radius:10px; padding:14px; text-align:center; font-family:var(--mono); font-size:10.5px; color:var(--ink4); cursor:pointer; transition:.2s}
+.upload-zone:hover{border-color:var(--navy); color:var(--navy)}
+
+.error-banner{background:rgba(185,28,28,.08); border:1px solid rgba(185,28,28,.25); color:var(--red); border-radius:9px; padding:11px 14px; font-size:12.5px; margin-top:10px; display:none}
+.error-banner.show{display:block}
+
+footer{max-width:1180px; margin:0 auto; padding:30px 28px 60px; border-top:1px solid var(--border); margin-top:30px}
+.foot-grid{display:flex; flex-wrap:wrap; justify-content:space-between; gap:18px; align-items:center}
+.foot-note{font-family:var(--mono); font-size:10px; color:var(--ink4); max-width:560px; line-height:1.7}
+.foot-links{display:flex; gap:16px; font-family:var(--mono); font-size:10.5px}
+
+.section-divider{display:flex; align-items:center; gap:10px; margin:4px 0 2px}
+.section-divider span{font-family:var(--mono); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink4); white-space:nowrap}
+.section-divider::after{content:"";flex:1;height:1px;background:var(--border)}
+
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="./index.html#projects">
+    <span class="brand-dot"></span> Siddhartha Siripragada · Work &amp; Demos
+  </a>
+  <div class="topbar-links">
+    <a href="https://github.com/siddarthasiripragada" target="_blank" rel="noopener">GitHub ↗</a>
+    <a href="./index.html#contact">Contact ↗</a>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-kicker">Interactive Demo · Client-Side RAG</div>
+  <h1>A <em>retrieval-augmented</em> chatbot that runs entirely<br>inside this browser tab.</h1>
+  <p>Embedding model, vector search, and a small instruction-tuned language model all execute on-device via Transformers.js + ONNX Runtime — no backend, no API key, nothing leaves your machine. Ask it about my experience, and watch the pipeline trace on the right show exactly what it's doing.</p>
+  <div class="badge-row">
+    <span class="badge">● 100% client-side</span>
+    <span class="badge">● zero API calls</span>
+    <span class="badge">● WebGPU / WASM</span>
+    <span class="badge">● all-MiniLM-L6-v2 embeddings</span>
+    <span class="badge">● SmolLM2 instruct LLM</span>
+    <span class="badge">● hybrid dense + lexical rerank</span>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ================= LEFT COLUMN ================= -->
+  <div style="display:flex; flex-direction:column; gap:20px">
+
+    <!-- Setup -->
+    <div class="card" id="setupCard">
+      <div class="card-head">
+        <span class="card-title">01 · Initialize Pipeline</span>
+        <span class="device-pill" id="devicePill">detecting device…</span>
+      </div>
+      <div class="card-body">
+        <div class="select-row">
+          <div class="field" style="flex:1">
+            <label for="genModelSelect">Generation model</label>
+            <select id="genModelSelect">
+              <option value="HuggingFaceTB/SmolLM2-360M-Instruct" selected>SmolLM2-360M-Instruct (better quality, ~360M params)</option>
+              <option value="HuggingFaceTB/SmolLM2-135M-Instruct">SmolLM2-135M-Instruct (fastest, ~135M params)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" id="initBtn">Download models &amp; build index →</button>
+        <div class="progress-list" id="progressList"></div>
+        <div class="error-banner" id="errorBanner"></div>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="card" id="chatCard">
+      <div class="card-head">
+        <span class="card-title">02 · Ask About My Work</span>
+        <button class="btn btn-ghost btn-sm" id="resetChatBtn">Clear chat</button>
+      </div>
+      <div class="chat-scroll" id="chatScroll">
+        <div class="msg bot">
+          <div class="msg-bubble">Initialize the pipeline above, then ask me anything about Siddhartha's experience, projects, or how this demo itself was built — every answer is grounded in the retrieved documents on the right, not memorized.</div>
+        </div>
+      </div>
+      <div class="chip-row" id="chipRow">
+        <button class="chip" data-q="What is your hands-on experience with RAG systems?">RAG experience?</button>
+        <button class="chip" data-q="Tell me about the data vault project on Snowflake.">Data Vault project?</button>
+        <button class="chip" data-q="What side projects have you built outside of consulting work?">Side projects?</button>
+        <button class="chip" data-q="How does this chatbot itself work, technically?">How does this demo work?</button>
+        <button class="chip" data-q="How can I contact you?">Contact info?</button>
+      </div>
+      <div class="chat-input-row">
+        <textarea id="queryInput" rows="1" placeholder="Ask a question… (disabled until pipeline is ready)" disabled></textarea>
+        <button class="btn" id="sendBtn" disabled>Ask</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= RIGHT COLUMN ================= -->
+  <div style="display:flex; flex-direction:column; gap:20px">
+
+    <!-- Live pipeline trace -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">Live Pipeline Trace</span></div>
+      <div class="card-body">
+        <div class="trace" id="trace">
+          <div class="trace-stage idle" data-stage="embed"><div class="trace-dot">①</div><div><div class="trace-name">Embed query</div><div class="trace-time">—</div></div></div>
+          <div class="trace-stage idle" data-stage="retrieve"><div class="trace-dot">②</div><div><div class="trace-name">Dense retrieval (cosine)</div><div class="trace-time">—</div></div></div>
+          <div class="trace-stage idle" data-stage="rerank"><div class="trace-dot">③</div><div><div class="trace-name">Lexical rerank</div><div class="trace-time">—</div></div></div>
+          <div class="trace-stage idle" data-stage="inject"><div class="trace-dot">④</div><div><div class="trace-name">Context injection</div><div class="trace-time">—</div></div></div>
+          <div class="trace-stage idle" data-stage="generate"><div class="trace-dot">⑤</div><div><div class="trace-name">Generate (streamed)</div><div class="trace-time">—</div></div></div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-v" id="statLatency">—</div><div class="stat-l">Total latency</div></div>
+          <div class="stat-box"><div class="stat-v" id="statTps">—</div><div class="stat-l">Tokens / sec</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retrieved context -->
+    <div class="card">
+      <div class="card-head">
+        <span class="card-title">Retrieved Context</span>
+        <label class="switch"><input type="checkbox" id="showCtxToggle" checked><span class="slider-track"><span class="slider-knob"></span></span></label>
+      </div>
+      <div class="card-body" id="ctxBody">
+        <div style="font-family:var(--mono); font-size:11px; color:var(--ink4)">Ask a question to see which chunks were retrieved and why.</div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">Settings</span></div>
+      <div class="card-body">
+        <div class="setting-row">
+          <div><div class="setting-label">Hybrid rerank</div><div class="setting-sub">Blend cosine similarity with lexical overlap</div></div>
+          <label class="switch"><input type="checkbox" id="hybridToggle" checked><span class="slider-track"><span class="slider-knob"></span></span></label>
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">Deterministic decoding</div><div class="setting-sub">Greedy vs. sampled generation</div></div>
+          <label class="switch"><input type="checkbox" id="greedyToggle" checked><span class="slider-track"><span class="slider-knob"></span></span></label>
+        </div>
+        <div class="field" style="margin-top:10px">
+          <label for="topkRange">Top-K chunks injected: <span id="topkVal">4</span></label>
+          <input type="range" id="topkRange" min="2" max="6" value="4" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Knowledge base -->
+    <div class="card">
+      <div class="card-head"><span class="card-title">Knowledge Base</span></div>
+      <div class="card-body">
+        <div class="kb-list" id="kbList"><div style="font-family:var(--mono); font-size:10.5px; color:var(--ink4)">Not indexed yet.</div></div>
+        <div class="section-divider" style="margin-top:14px"><span>Add a document</span></div>
+        <label class="upload-zone" style="margin-top:10px; display:block">
+          + Upload a .txt or .md file to extend the corpus live
+          <input type="file" id="fileInput" accept=".txt,.md" class="hidden">
+        </label>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="foot-grid">
+    <div class="foot-note">
+      Architecture: chunking → MiniLM embeddings → cosine similarity → lexical rerank → context injection → SmolLM2 generation, all inside a dedicated Web Worker via Transformers.js / ONNX Runtime Web, so the UI thread never blocks. First load downloads roughly 100–400MB of model weights depending on the model you pick, cached by the browser afterward — fully offline from then on.
+    </div>
+    <div class="foot-links">
+      <a href="./index.html">← Back to portfolio</a>
+      <a href="https://github.com/siddarthasiripragada" target="_blank" rel="noopener">Source on GitHub ↗</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     WEB WORKER SOURCE
+     Embedded as inert text (type="text/plain" so the browser
+     never executes it inline) and instantiated at runtime as a
+     Blob-backed module Worker. This keeps the whole demo a
+     single deployable .html file while still running every
+     model + the RAG pipeline off the main thread.
+     ============================================================ -->
+<script type="text/plain" id="worker-source">
+import { pipeline, TextStreamer, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm";
+
+// Never try to resolve models from a local server; always pull from the HF hub (CDN-cached).
+env.allowLocalModels = false;
+env.useBrowserCache = true;
+
+/* ----------------------------------------------------------------
+   1) DOCUMENT CORPUS
+   Each entry is one "document". Add as many as you like — drop a
+   new { title, source, text } object in here, or use the in-app
+   file upload to add one at runtime without touching this code.
+   ---------------------------------------------------------------- */
+const SEED_DOCUMENTS = [
+  {
+    title: "About",
+    source: "Portfolio — About",
+    text: "I design and build production ML systems and enterprise data platforms, from raw ingestion to inference and from dimensional modeling to LLM-powered applications. Over the past decade I have worked across the full stack of modern data and ML engineering: architecting multi-terabyte analytical platforms on Snowflake and Databricks, building retrieval-augmented generation systems backed by vector databases, fine-tuning transformer models for domain-specific tasks, and designing the data vault and star schema foundations that power enterprise analytics at scale. My approach is grounded in engineering rigor, correctness and reliability first, then performance. I write systems that are observable, testable, and maintainable by teams beyond their initial author. Previously I worked in data engineering at financial services and retail enterprise clients across North America and APAC. I currently consult for organizations modernizing their ML infrastructure and data architecture on AWS and Azure. Core focus areas include Large Language Models, Retrieval-Augmented Generation, Data Vault 2.0, Dimensional Modeling, Distributed Training, Vector Search, Lakehouse Architecture, MLOps, and Transformer Fine-tuning."
+  },
+  {
+    title: "Experience — Senior ML Engineer & Principal Data Architect (2021–present)",
+    source: "Experience 2021–present",
+    text: "As Senior ML Engineer and Principal Data Architect in independent consulting across North America since 2021, I architected production RAG systems combining Pinecone vector search, spaCy NER pipelines, and GTE embeddings, improving retrieval precision 38 percent versus a keyword baseline on a 500,000-document corpus. I built an LLM inference platform on AWS Bedrock and SageMaker serving roughly 800,000 daily requests at p95 latency under 900 milliseconds, where prompt caching reduced API cost by 42 percent. I designed Data Vault 2.0 foundations for a retail client with 14 Hubs, 22 Satellites, and 11 Links, enabling full parallel load and a complete audit trail across CRM, ERP, and POS systems. I delivered a Snowflake-first lakehouse processing over 4TB daily, where clustering and materialized view strategies reduced average query time from 28 seconds to 4 seconds. I built customer CLTV and churn models using LightGBM with rolling-window features, driving over $6M in targeted retention campaigns for a telecom client. I also fine-tuned Llama-2-13B with QLoRA on domain-specific datasets, achieving a 30 percent accuracy improvement on internal benchmarks versus zero-shot GPT-4."
+  },
+  {
+    title: "Experience — Senior Data Engineer & Cloud Architect (2017–2021)",
+    source: "Experience 2017–2021",
+    text: "From 2017 to 2021 I worked as Senior Data Engineer and Cloud Architect for enterprise clients in financial services and retail. I led a Snowflake migration from SQL Server, re-modeling 380 tables and redesigning ELT with dbt, which reduced average query runtime five-fold and cut compute cost by 33 percent. I built a Lambda architecture on Azure Databricks and Kafka handling over 2TB of daily ingestion from 18 source systems, with streaming SLAs under 90 seconds end-to-end. I delivered an ML-ready feature store with over 120 versioned features backing six production models for fraud detection and propensity scoring. I also optimized a Spark job suite, resolving data skew with salting and broadcast joins, bringing average job time down from 4.2 hours to 55 minutes on 800GB daily partitions."
+  },
+  {
+    title: "Experience — Data Engineer & Database Architect (2013–2017)",
+    source: "Experience 2013–2017",
+    text: "Between 2013 and 2017 I worked as Data Engineer and Database Architect for enterprise clients in utilities and insurance. I designed an Oracle-based enterprise data warehouse with a 3NF core and a Kimball star-schema reporting layer serving over 200 daily reports, using Informatica ETL across 15 source systems. I re-architected the indexing strategy and rewrote more than 40 long-running queries, reducing execution time by 55 percent and improving peak concurrency from 20 to 80 sessions. I also built a Hadoop-based data lake for insurance claims processing that improved reconciliation accuracy from 94 percent to 99.6 percent."
+  },
+  {
+    title: "Selected Work — RAG-Powered Document Intelligence Platform",
+    source: "Project: RAG Document Intelligence",
+    text: "I built a production retrieval-augmented generation system for a 500,000-document legal corpus. The pipeline uses GTE embeddings into a Pinecone vector store, reranking with a cross-encoder, and GPT-4 synthesis with citation grounding, plus spaCy NER for entity-aware chunking. This system achieved a 38 percent precision gain versus a BM25 keyword baseline and served responses at p95 latency under 900 milliseconds."
+  },
+  {
+    title: "Selected Work — Enterprise Data Vault on Snowflake",
+    source: "Project: Data Vault on Snowflake",
+    text: "I designed a Data Vault 2.0 warehouse on Snowflake for a North American retailer ingesting CRM, ERP, and POS data. It uses metadata-driven ELT in dbt with automated hash key generation, HASH_DIFF change detection, and full bit-temporal satellite history, with an Information Mart layer serving a star schema to Tableau and Power BI. The platform ingests over 4TB daily and the clustering and modeling strategy delivered a 5x query speedup."
+  },
+  {
+    title: "Selected Work — Llama-2 Domain Fine-tuning Pipeline",
+    source: "Project: Llama-2 QLoRA",
+    text: "I ran QLoRA fine-tuning of Llama-2-13B on a proprietary support ticket dataset using Databricks ML Runtime and Ray distributed training, with 4-bit NF4 quantization, gradient checkpointing, and a merged-adapter GGUF export, tracked in MLFlow. The fine-tuned model achieved a 30 percent accuracy improvement versus GPT-4 zero-shot on internal benchmarks, along with a 3x reduction in inference cost."
+  },
+  {
+    title: "Selected Work — Customer Lifetime Value & Churn Platform",
+    source: "Project: CLTV & Churn",
+    text: "For a telecom client I built feature engineering and LightGBM model training using over 120 rolling-window features derived from billing, usage, and CRM data. Weekly batch inference runs via Databricks Jobs, writing predictions back to Snowflake to drive Tableau campaign targeting. The platform contributed to over $6M in retention campaign value with 83 percent churn recall at a 0.3 threshold."
+  },
+  {
+    title: "Selected Work — Real-time Streaming Lakehouse on Azure",
+    source: "Project: Streaming Lakehouse",
+    text: "I built a Lambda architecture on Azure combining Kafka ingestion, Spark Structured Streaming micro-batching, and Delta Lake silver and gold layers feeding Synapse Analytics for BI, across 18 source connectors with an Avro schema registry, dead-letter queue handling, and alerting through Azure Monitor. The platform processes over 2TB daily with an end-to-end SLA under 90 seconds."
+  },
+  {
+    title: "Technical Skills",
+    source: "Skills Summary",
+    text: "My core languages are Python, SQL and PL-SQL and T-SQL, and PySpark, all at an expert level, with proficient Shell and Bash scripting and working knowledge of Scala for Spark jobs. In ML and AI I work at an expert level with PyTorch and TensorFlow, Hugging Face Transformers, RAG and vector search, Scikit-learn and LightGBM, and MLFlow experiment tracking, plus proficient LoRA and QLoRA fine-tuning. On data platforms I have expert-level Snowflake, Databricks and Delta Lake, Apache Spark and Hadoop, Kafka and Spark Streaming, and dbt and Airflow experience. On cloud and infrastructure I have expert-level AWS Bedrock, SageMaker, EMR and S3, and Azure Databricks, Synapse and ADF, with proficient Kubernetes, Docker, Terraform, CI/CD, and Pinecone, FAISS, and Cassandra vector and database work."
+  },
+  {
+    title: "Contact & Links",
+    source: "Contact",
+    text: "Siddhartha Siripragada is based in Toronto, Ontario, Canada, and is available for consulting engagements in ML engineering, data architecture, and cloud platform design, working with clients across North America. He can be reached by email at Siddarthasiripragada@gmail.com, on LinkedIn at linkedin.com/in/siddharthasiripragada, and on GitHub at github.com/siddarthasiripragada, where his portfolio and interactive demos are hosted."
+  },
+  {
+    title: "Additional Project — PriceMatch CA",
+    source: "Side Project: PriceMatch CA",
+    text: "PriceMatch CA is a Canadian grocery price comparison single-page application I built and deployed on GitHub Pages. It includes Supabase authentication, a Vercel-hosted API proxy layer in front of a public flyer data API, real product imagery sourced from Open Food Facts, a flyer viewer with zoom and pan controls, and a cart optimizer that recommends the cheapest store split for a shopping list across multiple Canadian grocery chains."
+  },
+  {
+    title: "Additional Project — Flight Vision",
+    source: "Side Project: Flight Vision",
+    text: "Flight Vision is a Snowflake-based aviation reporting framework I am building with a star-schema design, separate fact and dimension views standardizing flight operations reporting, intended as a Phase 1 data standardization proposal to present to a business reporting team."
+  },
+  {
+    title: "How This Demo Works",
+    source: "Meta: This Demo's Architecture",
+    text: "This chatbot is a fully client-side retrieval-augmented generation system. Documents are split into overlapping word-based chunks, and each chunk is embedded with the Xenova all-MiniLM-L6-v2 sentence embedding model running through Transformers.js and ONNX Runtime Web, using WebGPU when available and falling back to WebAssembly otherwise. When a question comes in, it is embedded the same way, the top candidates are found by cosine similarity, then re-ranked with a lightweight lexical overlap score to favor chunks that share exact keywords with the query, not just semantic neighbors. The top chunks are injected into a prompt for a small instruction-tuned language model, HuggingFaceTB SmolLM2, which is told to answer only from the supplied context and to say so if the answer is not present, and its tokens are streamed back to the interface in real time. The entire pipeline, including both models, runs inside a dedicated Web Worker so the page never freezes, and after the first download everything is cached by the browser and works fully offline with zero API keys and zero servers."
+  }
+];
+
+let embedder = null;
+let generator = null;
+let chunks = [];     // [{ text, source, title, embedding: Float32Array }]
+let docMeta = [];    // [{ title, chunkCount }]
+
+/* ----------------------------------------------------------------
+   2) CHUNKING — sliding window over whitespace-tokenized words.
+   ~110 words ≈ 140-160 GPT-style tokens, with 20-word overlap so
+   an idea that straddles a chunk boundary isn't lost entirely.
+   ---------------------------------------------------------------- */
+function chunkText(text, chunkSizeWords = 110, overlapWords = 20) {
+  const words = text.trim().split(/\s+/);
+  if (words.length <= chunkSizeWords) return [text.trim()];
+  const out = [];
+  let start = 0;
+  while (start < words.length) {
+    const end = Math.min(start + chunkSizeWords, words.length);
+    out.push(words.slice(start, end).join(" "));
+    if (end === words.length) break;
+    start += chunkSizeWords - overlapWords;
+  }
+  return out;
+}
+
+/* ----------------------------------------------------------------
+   3) SIMILARITY
+   Embeddings are L2-normalized at extraction time, so cosine
+   similarity reduces to a plain dot product.
+   ---------------------------------------------------------------- */
+function dot(a, b) {
+  let s = 0;
+  for (let i = 0; i < a.length; i++) s += a[i] * b[i];
+  return s;
+}
+
+const STOPWORDS = new Set("a an and are as at be by for from has have how in is it its of on or that the this to was were what when where which who will with you your i my me do does did".split(" "));
+function tokenize(s) {
+  return (s.toLowerCase().match(/[a-z0-9]+/g) || []).filter(w => !STOPWORDS.has(w) && w.length > 1);
+}
+function lexicalOverlap(queryTokens, chunkText) {
+  const chunkTokens = new Set(tokenize(chunkText));
+  if (chunkTokens.size === 0 || queryTokens.length === 0) return 0;
+  let hits = 0;
+  for (const t of queryTokens) if (chunkTokens.has(t)) hits++;
+  return hits / queryTokens.length; // fraction of query terms present in this chunk
+}
+
+async function embed(text) {
+  const output = await embedder(text, { pooling: "mean", normalize: true });
+  return Float32Array.from(output.data);
+}
+
+/* ----------------------------------------------------------------
+   4) INDEX BUILD — embed every chunk of every document once.
+   ---------------------------------------------------------------- */
+async function indexDocument(doc) {
+  const pieces = chunkText(doc.text);
+  let count = 0;
+  for (const piece of pieces) {
+    const embedding = await embed(piece);
+    chunks.push({ text: piece, source: doc.source, title: doc.title, embedding });
+    count++;
+  }
+  docMeta.push({ title: doc.title, chunkCount: count });
+}
+
+/* ----------------------------------------------------------------
+   5) RETRIEVAL — two-stage: dense top-N, then lexical rerank to
+   top-K. Toggle-able from the UI so the difference is demonstrable
+   live (e.g. a query like "QLoRA" can get buried by pure dense
+   search but recovered by the lexical signal).
+   ---------------------------------------------------------------- */
+function denseRetrieve(qEmb, candidatePool) {
+  const scored = chunks.map(c => ({ ...c, denseScore: dot(qEmb, c.embedding) }));
+  scored.sort((a, b) => b.denseScore - a.denseScore);
+  return scored.slice(0, Math.min(candidatePool, scored.length));
+}
+
+function hybridRerank(candidates, query, topK, useHybrid) {
+  const queryTokens = tokenize(query);
+  let scored = candidates;
+  if (useHybrid) {
+    scored = scored.map(c => ({ ...c, lexScore: lexicalOverlap(queryTokens, c.text) }));
+    scored.forEach(c => { c.finalScore = 0.8 * c.denseScore + 0.2 * c.lexScore; });
+    scored.sort((a, b) => b.finalScore - a.finalScore);
+  } else {
+    scored.forEach(c => { c.lexScore = 0; c.finalScore = c.denseScore; });
+  }
+  return scored.slice(0, topK);
+}
+
+/* ----------------------------------------------------------------
+   6) GENERATION — grounded prompt + streamed decoding.
+   ---------------------------------------------------------------- */
+async function generateAnswer(query, retrieved, { greedy = true } = {}) {
+  const context = retrieved
+    .map((c, i) => `[${i + 1}] (${c.title}) ${c.text}`)
+    .join("\n\n");
+
+  const messages = [
+    {
+      role: "system",
+      content: "You are a focused assistant answering questions about Siddhartha Siripragada's professional experience, projects, and this very demo. Answer ONLY using the numbered context provided by the user message. Keep answers to 2-4 sentences. Reference context items inline like [1] or [2] where relevant. If the answer is not contained in the context, say plainly that the information isn't in the indexed documents rather than guessing."
+    },
+    {
+      role: "user",
+      content: `Context:\n${context}\n\nQuestion: ${query}`
+    }
+  ];
+
+  let tokenCount = 0;
+  const t0 = performance.now();
+
+  const genOptions = {
+    max_new_tokens: 220,
+    repetition_penalty: 1.15,
+  };
+  if (greedy) {
+    genOptions.do_sample = false;
+  } else {
+    genOptions.do_sample = true;
+    genOptions.temperature = 0.7;
+    genOptions.top_p = 0.92;
+  }
+
+  try {
+    const streamer = new TextStreamer(generator.tokenizer, {
+      skip_prompt: true,
+      skip_special_tokens: true,
+      callback_function: (text) => {
+        tokenCount++;
+        postMessage({ type: "token", text });
+      },
+    });
+    genOptions.streamer = streamer;
+    const output = await generator(messages, genOptions);
+    const ms = performance.now() - t0;
+    const finalText = output[0].generated_text.at(-1).content;
+    return { finalText, ms, tokensPerSec: tokenCount / (ms / 1000) };
+  } catch (streamErr) {
+    // Defensive fallback: some model/runtime combos may not expose
+    // .tokenizer the same way — fall back to a single non-streamed call.
+    const output = await generator(messages, { max_new_tokens: 220, do_sample: !greedy });
+    const ms = performance.now() - t0;
+    const finalText = output[0].generated_text.at(-1).content;
+    postMessage({ type: "token", text: finalText });
+    return { finalText, ms, tokensPerSec: finalText.split(/\s+/).length / (ms / 1000) };
+  }
+}
+
+/* ----------------------------------------------------------------
+   7) MESSAGE HANDLER — protocol with the main thread.
+   ---------------------------------------------------------------- */
+self.onmessage = async (e) => {
+  const msg = e.data;
+  try {
+    if (msg.type === "init") {
+      const device = msg.device; // 'webgpu' | 'wasm', decided on main thread
+
+      postMessage({ type: "status", stage: "loading-embedder" });
+      embedder = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2", {
+        device,
+        progress_callback: (p) => postMessage({ type: "progress", target: "embedder", ...p }),
+      });
+
+      postMessage({ type: "status", stage: "loading-generator" });
+      generator = await pipeline("text-generation", msg.genModel, {
+        device,
+        progress_callback: (p) => postMessage({ type: "progress", target: "generator", ...p }),
+      });
+
+      postMessage({ type: "status", stage: "indexing" });
+      const t0 = performance.now();
+      chunks = [];
+      docMeta = [];
+      for (const doc of SEED_DOCUMENTS) {
+        await indexDocument(doc);
+      }
+      const ms = performance.now() - t0;
+
+      postMessage({ type: "ready", totalChunks: chunks.length, docMeta, ms });
+    }
+
+    else if (msg.type === "addDocument") {
+      const doc = { title: msg.title, source: `Uploaded: ${msg.title}`, text: msg.text };
+      const t0 = performance.now();
+      await indexDocument(doc);
+      const ms = performance.now() - t0;
+      postMessage({ type: "documentAdded", docMeta, totalChunks: chunks.length, ms });
+    }
+
+    else if (msg.type === "query") {
+      const { text, topK, useHybrid, greedy } = msg;
+
+      postMessage({ type: "stage", stage: "embed", state: "active" });
+      const tEmbed = performance.now();
+      const qEmb = await embed(text);
+      postMessage({ type: "stage", stage: "embed", state: "done", ms: Math.round(performance.now() - tEmbed) });
+
+      postMessage({ type: "stage", stage: "retrieve", state: "active" });
+      const tRetrieve = performance.now();
+      const candidates = denseRetrieve(qEmb, 8);
+      postMessage({ type: "stage", stage: "retrieve", state: "done", ms: Math.round(performance.now() - tRetrieve) });
+
+      postMessage({ type: "stage", stage: "rerank", state: useHybrid ? "active" : "skip" });
+      const tRerank = performance.now();
+      const retrieved = hybridRerank(candidates, text, topK, useHybrid);
+      postMessage({ type: "stage", stage: "rerank", state: useHybrid ? "done" : "skip", ms: Math.round(performance.now() - tRerank) });
+
+      postMessage({ type: "stage", stage: "inject", state: "active" });
+      postMessage({
+        type: "retrieved",
+        chunks: retrieved.map(c => ({
+          text: c.text, title: c.title, source: c.source,
+          score: c.finalScore, denseScore: c.denseScore, lexScore: c.lexScore || 0,
+        })),
+      });
+      postMessage({ type: "stage", stage: "inject", state: "done", ms: 0 });
+
+      postMessage({ type: "stage", stage: "generate", state: "active" });
+      const { finalText, ms, tokensPerSec } = await generateAnswer(text, retrieved, { greedy });
+      postMessage({ type: "stage", stage: "generate", state: "done", ms: Math.round(ms) });
+
+      const totalMs = Math.round(performance.now() - tEmbed);
+      postMessage({
+        type: "answer",
+        text: finalText,
+        ms: totalMs,
+        tokensPerSec: Math.round(tokensPerSec * 10) / 10,
+        sources: [...new Set(retrieved.map(c => c.title))],
+      });
+    }
+  } catch (err) {
+    postMessage({ type: "error", message: (err && err.message) ? err.message : String(err) });
+  }
+};
+</script>
+
+<script type="module">
+/* ============================================================
+   MAIN THREAD — UI wiring only. All ML inference happens in the
+   Worker defined above; this script never touches a tensor.
+   ============================================================ */
+
+// --- DOM refs ---
+const $ = (id) => document.getElementById(id);
+const initBtn = $("initBtn"), genModelSelect = $("genModelSelect"), devicePill = $("devicePill");
+const progressList = $("progressList"), errorBanner = $("errorBanner");
+const chatScroll = $("chatScroll"), queryInput = $("queryInput"), sendBtn = $("sendBtn");
+const chipRow = $("chipRow"), resetChatBtn = $("resetChatBtn");
+const ctxBody = $("ctxBody"), showCtxToggle = $("showCtxToggle");
+const hybridToggle = $("hybridToggle"), greedyToggle = $("greedyToggle");
+const topkRange = $("topkRange"), topkVal = $("topkVal");
+const kbList = $("kbList"), fileInput = $("fileInput");
+const statLatency = $("statLatency"), statTps = $("statTps");
+const traceEl = $("trace");
+
+let worker = null;
+let ready = false;
+let currentBotBubble = null;
+
+// --- device detection (mirrors what the worker will use) ---
+async function detectDevice() {
+  if (navigator.gpu) {
+    try {
+      const adapter = await navigator.gpu.requestAdapter();
+      if (adapter) return "webgpu";
+    } catch (_) { /* fall through to wasm */ }
+  }
+  return "wasm";
+}
+
+function showError(msg) {
+  errorBanner.textContent = msg;
+  errorBanner.classList.add("show");
+}
+
+function setStage(stage, state, ms) {
+  const el = traceEl.querySelector(`[data-stage="${stage}"]`);
+  if (!el) return;
+  el.classList.remove("idle", "active", "done");
+  el.classList.add(state === "active" ? "active" : (state === "skip" ? "idle" : "done"));
+  const timeEl = el.querySelector(".trace-time");
+  if (state === "active") timeEl.textContent = "running…";
+  else if (state === "skip") timeEl.textContent = "skipped";
+  else timeEl.textContent = (ms !== undefined ? `${ms} ms` : "done");
+}
+function resetTrace() {
+  traceEl.querySelectorAll(".trace-stage").forEach(el => {
+    el.classList.remove("active", "done");
+    el.classList.add("idle");
+    el.querySelector(".trace-time").textContent = "—";
+  });
+}
+
+function addMessage(role, text) {
+  const wrap = document.createElement("div");
+  wrap.className = `msg ${role}`;
+  const bubble = document.createElement("div");
+  bubble.className = "msg-bubble";
+  bubble.textContent = text;
+  wrap.appendChild(bubble);
+  chatScroll.appendChild(wrap);
+  chatScroll.scrollTop = chatScroll.scrollHeight;
+  return bubble;
+}
+
+function addSourcesRow(titles) {
+  if (!titles || !titles.length) return;
+  const row = document.createElement("div");
+  row.className = "msg-sources";
+  titles.forEach(t => {
+    const chip = document.createElement("span");
+    chip.className = "src-chip";
+    chip.textContent = t;
+    row.appendChild(chip);
+  });
+  chatScroll.lastElementChild.appendChild(row);
+}
+
+function renderProgress(updates) {
+  // updates: Map<file, {progress, target}>
+  progressList.innerHTML = "";
+  for (const [key, info] of updates) {
+    const item = document.createElement("div");
+    item.className = "progress-item";
+    const pct = Math.round(info.progress || 0);
+    item.innerHTML = `
+      <div class="progress-label"><span>${info.target} · ${key}</span><span>${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill ${pct >= 100 ? "done" : ""}" style="width:${pct}%"></div></div>`;
+    progressList.appendChild(item);
+  }
+}
+
+function renderRetrievedContext(chunks) {
+  ctxBody.innerHTML = "";
+  chunks.forEach((c, i) => {
+    const div = document.createElement("div");
+    div.className = "ctx-item";
+    const pct = Math.round(c.score * 100);
+    div.innerHTML = `
+      <div class="ctx-top">
+        <span class="ctx-src">[${i + 1}] ${c.title}</span>
+        <span class="ctx-score">cos ${c.denseScore.toFixed(2)} · lex ${c.lexScore.toFixed(2)}</span>
+      </div>
+      <div class="ctx-text">${c.text.length > 220 ? c.text.slice(0, 220) + "…" : c.text}</div>
+      <div class="score-bar"><div class="score-fill" style="width:${Math.max(pct,4)}%"></div></div>`;
+    ctxBody.appendChild(div);
+  });
+}
+
+function renderKB(docMeta) {
+  kbList.innerHTML = "";
+  docMeta.forEach(d => {
+    const row = document.createElement("div");
+    row.className = "kb-item";
+    row.innerHTML = `<span>${d.title}</span><span>${d.chunkCount} chunk${d.chunkCount === 1 ? "" : "s"}</span>`;
+    kbList.appendChild(row);
+  });
+}
+
+// --- worker lifecycle ---
+function createWorker() {
+  const src = document.getElementById("worker-source").textContent;
+  const blob = new Blob([src], { type: "text/javascript" });
+  const url = URL.createObjectURL(blob);
+  return new Worker(url, { type: "module" });
+}
+
+const progressMap = new Map();
+
+async function initPipeline() {
+  initBtn.disabled = true;
+  initBtn.textContent = "Loading…";
+  errorBanner.classList.remove("show");
+
+  const device = await detectDevice();
+  devicePill.textContent = device === "webgpu" ? "⚡ WebGPU" : "🧮 WASM (CPU)";
+  devicePill.className = `device-pill ${device}`;
+
+  try {
+    worker = createWorker();
+  } catch (err) {
+    showError("This browser doesn't support module Web Workers, which this demo requires. Please try a recent version of Chrome, Edge, or Firefox.");
+    initBtn.disabled = false;
+    initBtn.textContent = "Retry →";
+    return;
+  }
+
+  worker.onerror = (e) => {
+    showError(`Worker error: ${e.message || "failed to load model — check your connection and browser compatibility (Chrome/Edge recommended)."}`);
+    initBtn.disabled = false;
+    initBtn.textContent = "Retry →";
+  };
+
+  worker.onmessage = (e) => {
+    const msg = e.data;
+
+    if (msg.type === "progress") {
+      const key = msg.file || msg.name || "model";
+      progressMap.set(`${msg.target}:${key}`, { progress: msg.progress || 0, target: msg.target });
+      renderProgress(progressMap);
+    }
+
+    else if (msg.type === "ready") {
+      ready = true;
+      progressList.innerHTML = "";
+      initBtn.textContent = "✓ Pipeline ready";
+      renderKB(msg.docMeta);
+      queryInput.disabled = false;
+      sendBtn.disabled = false;
+      queryInput.placeholder = "Ask about my experience, projects, or this demo…";
+      addMessage("bot", `Indexed ${msg.totalChunks} chunks across ${msg.docMeta.length} documents in ${Math.round(msg.ms)} ms. Ask away.`);
+    }
+
+    else if (msg.type === "documentAdded") {
+      renderKB(msg.docMeta);
+      addMessage("bot", `Added and indexed your document — now ${msg.totalChunks} chunks across ${msg.docMeta.length} documents.`);
+    }
+
+    else if (msg.type === "stage") {
+      setStage(msg.stage, msg.state, msg.ms);
+    }
+
+    else if (msg.type === "retrieved") {
+      if (showCtxToggle.checked) renderRetrievedContext(msg.chunks);
+    }
+
+    else if (msg.type === "token") {
+      if (currentBotBubble) {
+        currentBotBubble.textContent += msg.text;
+        chatScroll.scrollTop = chatScroll.scrollHeight;
+      }
+    }
+
+    else if (msg.type === "answer") {
+      statLatency.textContent = `${msg.ms} ms`;
+      statTps.textContent = `${msg.tokensPerSec}`;
+      addSourcesRow(msg.sources);
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Ask";
+      currentBotBubble = null;
+    }
+
+    else if (msg.type === "error") {
+      showError(msg.message);
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Ask";
+      resetTrace();
+    }
+  };
+
+  worker.postMessage({ type: "init", genModel: genModelSelect.value, device });
+}
+
+function sendQuery(text) {
+  if (!text || !text.trim() || !ready) return;
+  addMessage("user", text.trim());
+  resetTrace();
+  statLatency.textContent = "…";
+  statTps.textContent = "…";
+  currentBotBubble = addMessage("bot", "");
+  sendBtn.disabled = true;
+  sendBtn.textContent = "Thinking…";
+  queryInput.value = "";
+
+  worker.postMessage({
+    type: "query",
+    text: text.trim(),
+    topK: parseInt(topkRange.value, 10),
+    useHybrid: hybridToggle.checked,
+    greedy: greedyToggle.checked,
+  });
+}
+
+// --- event wiring ---
+initBtn.addEventListener("click", initPipeline);
+
+sendBtn.addEventListener("click", () => sendQuery(queryInput.value));
+queryInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendQuery(queryInput.value); }
+});
+queryInput.addEventListener("input", () => {
+  queryInput.style.height = "auto";
+  queryInput.style.height = Math.min(queryInput.scrollHeight, 120) + "px";
+});
+
+chipRow.addEventListener("click", (e) => {
+  const btn = e.target.closest(".chip");
+  if (!btn || !ready) return;
+  sendQuery(btn.dataset.q);
+});
+
+resetChatBtn.addEventListener("click", () => {
+  chatScroll.innerHTML = "";
+  addMessage("bot", "Chat cleared. The index is still intact — ask another question.");
+});
+
+topkRange.addEventListener("input", () => { topkVal.textContent = topkRange.value; });
+
+fileInput.addEventListener("change", async () => {
+  const file = fileInput.files[0];
+  if (!file || !ready) return;
+  const text = await file.text();
+  if (!text.trim()) return;
+  worker.postMessage({ type: "addDocument", title: file.name, text });
+  fileInput.value = "";
+});
+
+// Initial trace render
+resetTrace();
+</script>
+</body>
+</html>
