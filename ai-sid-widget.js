@@ -636,6 +636,7 @@
       <button class="sid-qr" data-q="Snowflake or Databricks?">Snowflake vs Databricks</button>
       <button class="sid-qr" data-q="What's your best project?">Best project?</button>
       <button class="sid-qr" data-q="Book a meeting">Book a meeting 📅</button>
+      <button class="sid-qr" data-q="Open Local RAG Chat">Open Local RAG 🧠</button>
     </div>
     <div id="sid-input-row">
       <textarea id="sid-ta" rows="1" placeholder="Ask me anything…"></textarea>
@@ -714,6 +715,8 @@
       r: ["Hey! Ask me anything — RAG, Snowflake, Spark, hot takes on the data industry. Or say 'book a meeting' if you want the real Sid.",
           "Hi! I'm AI Sid. Fire away — technical questions, career questions, spicy takes. I've got answers.",
           "Hey there! What are you curious about? I'm good at ML systems, data architecture, and unpopular opinions."]},
+    { m: [/\blocal rag\b/,/\brag chat\b/,/\bopen rag\b/,/\bfull rag\b/,/\bbrowser ai\b/,/\bportfolio rag\b/,/\blocal chatbot\b/,/\brun rag\b/,/\bopen local rag chat\b/],
+      r: ["OPEN_LOCAL_RAG"]},
     { m: [/\bbook\b/,/\bmeeting\b/,/\bschedule\b/,/\bcalendly\b/,/\bconsulting enquiry\b/,/\bproject review\b/,/\bquick chat\b/,/\btalk to (the real|sid|you)\b/,/\bget time\b/,/\bappointment\b/,/\bhire me\b/,/\bengage\b/,/\bavailab/],
       r: ["SHOW_BOOKING"]},
     { m: [/\bai.*replace\b/,/\breplace.*human\b/,/\bjobs.*ai\b/,/\bai.*jobs\b/,/\boutdated\b/,/\bobsolete\b/,/\bfuture.*work\b/,/\bai.*take.*job\b/,/\bwill.*ai\b/,/\bengineers.*future\b/],
@@ -820,6 +823,8 @@
 
   function matchIntent(q) {
     const ql = q.toLowerCase().trim();
+    const localRagTriggers = ['local rag','rag chat','open rag','full rag','browser ai','portfolio rag','local chatbot','run rag','open local rag chat'];
+    for (const t of localRagTriggers) if (ql.includes(t)) return 'OPEN_LOCAL_RAG';
     const bookTriggers = ['book','meeting','call','appointment','schedule','calendly','consult','project review','quick chat','talk to sid','get time','hire'];
     for (const t of bookTriggers) if (ql.includes(t)) return 'SHOW_BOOKING';
     for (const intent of INTENTS) {
@@ -910,6 +915,26 @@
     m.appendChild(c); scrollBottom();
   }
 
+
+  function showLocalRagCard() {
+    const m = msgs();
+    const c = document.createElement('div'); c.className = 'sid-book-card';
+    c.innerHTML = `
+      <div class="sid-book-hdr">
+        <strong>🧠 Open the full Local RAG Chat</strong>
+        <p>This launches the real browser-side RAG demo: local embeddings, vector retrieval, and generation running in your browser without a backend or API key.</p>
+      </div>
+      <div class="sid-book-opts">
+        <a class="sid-book-btn" href="local-rag-chat.html" target="_blank" rel="noopener">
+          <div class="sid-book-btn-l"><span class="sid-book-btn-t">Launch Local RAG Chat</span><span class="sid-book-btn-s">Build a local index and ask about Sid's portfolio</span></div>
+          <span class="sid-book-badge">Open →</span>
+        </a>
+      </div>
+      <div class="sid-book-foot">Best on desktop Chrome/Edge. First load downloads model files.</div>
+    `;
+    m.appendChild(c); scrollBottom();
+  }
+
   function lock(v) {
     busy = v;
     document.getElementById('sid-send').disabled = v;
@@ -932,6 +957,10 @@
       if (answer === 'SHOW_BOOKING') {
         stream('Sure! Here\'s how to get time with me:', () => {
           setTimeout(() => { showBooking(); lock(false); }, 220);
+        });
+      } else if (answer === 'OPEN_LOCAL_RAG') {
+        stream('Absolutely — the full local RAG demo is separate from this lightweight widget so the portfolio stays fast:', () => {
+          setTimeout(() => { showLocalRagCard(); lock(false); }, 220);
         });
       } else {
         stream(answer, () => { lock(false); });

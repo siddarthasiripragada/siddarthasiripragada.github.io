@@ -90,6 +90,8 @@ select{
 .btn-sm{padding:7px 12px; font-size:10px}
 
 .progress-list{display:flex; flex-direction:column; gap:10px; margin-top:4px}
+.setup-note{font-size:12.5px;line-height:1.6;color:var(--ink3);background:var(--navy4);border:1px solid rgba(30,58,95,.12);border-radius:10px;padding:11px 13px}
+.setup-note strong{color:var(--navy);font-weight:600}
 .progress-item{display:flex; flex-direction:column; gap:5px}
 .progress-label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:9.5px; color:var(--ink3)}
 .progress-track{height:6px; border-radius:4px; background:var(--navy4); overflow:hidden}
@@ -235,12 +237,13 @@ footer{max-width:1180px; margin:0 auto; padding:30px 28px 60px; border-top:1px s
           <div class="field" style="flex:1">
             <label for="genModelSelect">Generation model</label>
             <select id="genModelSelect">
-              <option value="HuggingFaceTB/SmolLM2-360M-Instruct" selected>SmolLM2-360M-Instruct (better quality, ~360M params)</option>
-              <option value="HuggingFaceTB/SmolLM2-135M-Instruct">SmolLM2-135M-Instruct (fastest, ~135M params)</option>
+              <option value="HuggingFaceTB/SmolLM2-135M-Instruct" selected>SmolLM2-135M-Instruct (fastest, ~135M params)</option>
+              <option value="HuggingFaceTB/SmolLM2-360M-Instruct">SmolLM2-360M-Instruct (better quality, ~360M params)</option>
             </select>
           </div>
         </div>
         <button class="btn" id="initBtn">Download models &amp; build index →</button>
+        <div class="setup-note">Click <strong>Download models &amp; build index</strong> before asking questions. First load can take a few minutes while model files download; desktop Chrome or Edge is recommended. After the first load, your browser may cache the models for faster repeat visits.</div>
         <div class="progress-list" id="progressList"></div>
         <div class="error-banner" id="errorBanner"></div>
       </div>
@@ -359,7 +362,7 @@ footer{max-width:1180px; margin:0 auto; padding:30px 28px 60px; border-top:1px s
      model + the RAG pipeline off the main thread.
      ============================================================ -->
 <script type="text/plain" id="worker-source">
-import { pipeline, TextStreamer, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/+esm";
+import { pipeline, TextStreamer, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm";
 
 // Never try to resolve models from a local server; always pull from the HF hub (CDN-cached).
 env.allowLocalModels = false;
@@ -612,6 +615,7 @@ self.onmessage = async (e) => {
       postMessage({ type: "status", stage: "loading-generator" });
       generator = await pipeline("text-generation", msg.genModel, {
         device,
+        dtype: device === "webgpu" ? "fp16" : "q4",
         progress_callback: (p) => postMessage({ type: "progress", target: "generator", ...p }),
       });
 
