@@ -173,6 +173,14 @@ img{max-width:100%;display:block;}
 
 /*new code */
 
+
+.ds-agentic{background:linear-gradient(135deg,#080615,#061523);position:relative;}
+.agnode{font-size:7.5px;padding:2px 5px;border-radius:3px;border:1px solid rgba(124,58,237,.28);color:#b692ff;background:rgba(124,58,237,.09);white-space:nowrap;animation:rvpulse 3s ease-in-out infinite;}
+.agnode:nth-child(2){border-color:rgba(8,145,178,.3);color:#22d3ee;background:rgba(8,145,178,.09);animation-delay:.35s;}
+.agnode:nth-child(3){border-color:rgba(21,128,61,.3);color:#4ade80;background:rgba(21,128,61,.09);animation-delay:.7s;}
+.agnode:nth-child(4){border-color:rgba(180,83,9,.3);color:#fbbf24;background:rgba(180,83,9,.09);animation-delay:1.05s;}
+.agnode:nth-child(5){border-color:rgba(59,130,246,.3);color:#60a5fa;background:rgba(59,130,246,.09);animation-delay:1.4s;}
+
 /* RAG strip */
 .rn{font-size:9px;padding:3px 7px;border-radius:4px;background:rgba(0,201,167,.1);border:1px solid rgba(0,201,167,.25);color:#00c9a7;white-space:nowrap;animation:rb 2.5s ease-in-out infinite;}
 .rn:nth-child(3){animation-delay:.5s;} .rn:nth-child(5){animation-delay:1s;} .rn:nth-child(7){animation-delay:1.5s;} .rn:nth-child(9){animation-delay:2s;}
@@ -581,6 +589,30 @@ img{max-width:100%;display:block;}
           <div class="demo-footer">
             <div class="demo-stats"><span class="demo-stat"><strong>100%</strong> local</span><span class="demo-stat"><strong>Zero</strong> backend</span><span class="demo-stat"><strong>Live</strong> RAG</span></div>
             <a href="local-rag-chat.html" target="_blank" class="demo-btn">Launch →</a>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Agentic RAG Demo -->
+      <div class="demo-card" style="--dc:#7c3aed;">
+        <div class="demo-strip ds-agentic">
+          <div class="agnode">🧭 Plan</div>
+          <div class="agnode">🛠️ Tools</div>
+          <div class="agnode">🔎 Retrieve</div>
+          <div class="agnode">🧪 Critique</div>
+          <div class="agnode">📝 Cite</div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-top">
+            <div class="demo-ico">🤖</div>
+            <div class="demo-title">Agentic RAG Control Room — Live Corpus Demo</div>
+          </div>
+          <div class="demo-desc">A browser-only claims analyst that ingests pasted, uploaded, or portfolio-page documents at runtime. It chunks the corpus, plans tool calls, calculates delay, critiques evidence gaps, retries search, and writes a cited memo.</div>
+          <div class="demo-tags"><span class="demo-tag">Agentic RAG</span><span class="demo-tag">Live Corpus</span><span class="demo-tag">Tool Calling</span><span class="demo-tag">Critic Loop</span><span class="demo-tag">GitHub Pages</span></div>
+          <div class="demo-footer">
+            <div class="demo-stats"><span class="demo-stat"><strong>6</strong> graph nodes</span><span class="demo-stat"><strong>5</strong> tools</span><span class="demo-stat"><strong>Live</strong> ingestion</span></div>
+            <a href="agentic-rag-demo.html" target="_blank" class="demo-btn">Launch →</a>
           </div>
         </div>
       </div>
