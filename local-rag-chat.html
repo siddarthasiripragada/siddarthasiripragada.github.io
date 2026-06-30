@@ -92,6 +92,7 @@ select{
 .progress-list{display:flex; flex-direction:column; gap:10px; margin-top:4px}
 .setup-note{font-size:12.5px;line-height:1.6;color:var(--ink3);background:var(--navy4);border:1px solid rgba(30,58,95,.12);border-radius:10px;padding:11px 13px}
 .setup-note strong{color:var(--navy);font-weight:600}
+.setup-note.is-mobile{background:rgba(180,83,9,.08);border-color:rgba(180,83,9,.25);color:var(--amber)}
 .progress-item{display:flex; flex-direction:column; gap:5px}
 .progress-label{display:flex; justify-content:space-between; font-family:var(--mono); font-size:9.5px; color:var(--ink3)}
 .progress-track{height:6px; border-radius:4px; background:var(--navy4); overflow:hidden}
@@ -725,6 +726,17 @@ function showError(msg) {
   errorBanner.classList.add("show");
 }
 
+function isConstrainedMobileDevice() {
+  const ua = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const isiPadOS = platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  return /iPhone|iPad|iPod|Android/i.test(ua) || isiPadOS || window.matchMedia("(max-width: 720px) and (pointer: coarse)").matches;
+}
+
+function mobileGuardMessage() {
+  return "This full local RAG demo is intentionally blocked on phones/tablets to avoid Safari/Chrome mobile tab crashes. It loads embedding + generation models into browser memory, and iPhone/iPad browsers usually lack WebGPU and have much lower WASM/IndexedDB memory limits. Please open this page on desktop Chrome or Edge. If you still want to experiment on mobile, add ?forceLocalRag=1 to the URL.";
+}
+
 function setStage(stage, state, ms) {
   const el = traceEl.querySelector(`[data-stage="${stage}"]`);
   if (!el) return;
@@ -820,6 +832,14 @@ function createWorker() {
 const progressMap = new Map();
 
 async function initPipeline() {
+  if (isConstrainedMobileDevice() && !new URLSearchParams(window.location.search).has("forceLocalRag")) {
+    showError(mobileGuardMessage());
+    devicePill.textContent = "📱 Mobile guarded";
+    devicePill.className = "device-pill wasm";
+    initBtn.textContent = "Use desktop Chrome/Edge →";
+    return;
+  }
+
   initBtn.disabled = true;
   initBtn.textContent = "Loading…";
   errorBanner.classList.remove("show");
@@ -959,6 +979,21 @@ fileInput.addEventListener("change", async () => {
 
 // Initial trace render
 resetTrace();
+
+(async function initPageHints() {
+  const device = await detectDevice();
+  devicePill.textContent = device === "webgpu" ? "⚡ WebGPU" : "🧮 WASM (CPU)";
+  devicePill.className = `device-pill ${device}`;
+
+  if (isConstrainedMobileDevice() && !new URLSearchParams(window.location.search).has("forceLocalRag")) {
+    const setupNote = document.querySelector(".setup-note");
+    if (setupNote) {
+      setupNote.classList.add("is-mobile");
+      setupNote.innerHTML = "<strong>Mobile note:</strong> this full local LLM/RAG pipeline can crash iPhone/iPad browsers because model loading uses more memory than mobile Safari usually allows. Please use desktop Chrome/Edge for the full demo. Advanced override: add <strong>?forceLocalRag=1</strong>.";
+    }
+    initBtn.textContent = "Desktop recommended →";
+  }
+})();
 </script>
 </body>
 </html>
